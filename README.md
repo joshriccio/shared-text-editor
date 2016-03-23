@@ -1,2 +1,2 @@
-# Pokemon
-Manager: Jeremy Mowery
+# MUD
+Manager: Cindy Trieu
