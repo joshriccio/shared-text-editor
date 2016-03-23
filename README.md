@@ -1,2 +1,2 @@
-# MUD
-Manager: Cindy Trieu
+# Collaborative Editing
+Manager: Daniel Vaughn
