@@ -1,0 +1,12 @@
+Our "Wow Factor" will be to implement a chat server with our software.
+The chat server will be a great place for users to interact and communicate with each other.
+Not only will the server be a basis for the team's communication, but it will also allow for a user to
+	message a specific user.
+Our goal is to have this look and act sort of like Facebook Messenger if time allows. 
+
+Another "Wow Factor" we are highly considering if time permits, is to allow our software to handle code.
+A way you can think of this, is an online interactive Notepad++. Where our software will implement popular language
+	libraries, and color code the syntax accordingly.  
+	
+We believe that a collaborative code editor, with chat capabilities will not only deliver a jaw drop in 335,
+	but allow us to continue on and make more advancements in our free time.
