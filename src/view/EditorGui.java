@@ -28,8 +28,8 @@ public class EditorGui extends JFrame {
 
 	private JTextArea textArea = new JTextArea(5, 10);
 
-	// set up JtoolBar with buttons
-	private JToolBar toolBar = new JToolBar();
+	// set up JtoolBar with buttons and drop downs
+	private JToolBar javaToolBar = new JToolBar();
 	private JButton boldFontButton;
 	private JButton italicFontButton;
 	private JButton underlineFontButton;
@@ -37,7 +37,7 @@ public class EditorGui extends JFrame {
 			new String[] { "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" });
 	private JComboBox fontDropDown = new JComboBox(new String[] { "Sans Serif", "Times New Roman", "Add more fonts" });
 
-	private Toolbar tBar = new Toolbar();
+	private Toolbar myToolBar = new Toolbar();
 
 	/**
 	 * Constructor
@@ -112,15 +112,15 @@ public class EditorGui extends JFrame {
 		underlineFontButton = new JButton(new ImageIcon(underlineImage));
 
 		// add buttons to the toolbar
-		toolBar.add(boldFontButton);
-		toolBar.add(italicFontButton);
-		toolBar.add(underlineFontButton);
-		toolBar.addSeparator();
-		toolBar.add(sizeFontDropDown);
-		toolBar.addSeparator();
-		toolBar.add(fontDropDown);
+		javaToolBar.add(boldFontButton);
+		javaToolBar.add(italicFontButton);
+		javaToolBar.add(underlineFontButton);
+		javaToolBar.addSeparator();
+		javaToolBar.add(sizeFontDropDown);
+		javaToolBar.addSeparator();
+		javaToolBar.add(fontDropDown);
 
-		this.add(toolBar, BorderLayout.NORTH);
+		this.add(javaToolBar, BorderLayout.NORTH);
 
 	}
 
@@ -136,16 +136,17 @@ public class EditorGui extends JFrame {
 
 		public void actionPerformed(ActionEvent arg0) {
 
-			if (!tBar.isBold()) {
-				tBar.setIsBold(true);
+			if (!myToolBar.isBold()) {
+				myToolBar.setIsBold(true);
 			} else {
-				tBar.setIsBold(false);
+				myToolBar.setIsBold(false);
 			}
 
 			// text is selected
 			if (textArea.getSelectedText() != null) {
-				String text = textArea.getSelectedText();
-				// setBold
+				String selectedText = textArea.getSelectedText();
+				System.out.println(selectedText);
+				// TODO: setBold
 			}
 
 		}
@@ -155,16 +156,18 @@ public class EditorGui extends JFrame {
 
 		public void actionPerformed(ActionEvent arg0) {
 
-			if (!tBar.isItalic()) {
-				tBar.setIsItalic(true);
+			if (!myToolBar.isItalic()) {
+				myToolBar.setIsItalic(true);
 			} else {
-				tBar.setIsItalic(false);
+				myToolBar.setIsItalic(false);
 			}
 
 			// text is selected
 			if (textArea.getSelectedText() != null) {
-				String text = textArea.getSelectedText();
-				// set Italic
+				String selectedText = textArea.getSelectedText();
+				System.out.println(selectedText);
+				
+				// TODO: set selected text to Italic on document
 			}
 
 		}
@@ -174,16 +177,18 @@ public class EditorGui extends JFrame {
 
 		public void actionPerformed(ActionEvent arg0) {
 
-			if (!tBar.isUnderlined()) {
-				tBar.setIsUnderlined(true);
+			if (!myToolBar.isUnderlined()) {
+				myToolBar.setIsUnderlined(true);
 			} else {
-				tBar.setIsUnderlined(false);
+				myToolBar.setIsUnderlined(false);
 			}
 
 			// text is selected
 			if (textArea.getSelectedText() != null) {
-				String text = textArea.getSelectedText();
-				// set to Underlined
+				String selectedText = textArea.getSelectedText();
+				System.out.println(selectedText);
+
+				// TODO: set selected text on document to Underlined
 			}
 		}
 	}
@@ -192,20 +197,52 @@ public class EditorGui extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			int fontSize = (int) sizeFontDropDown.getSelectedItem();
-			tBar.setFontSize(fontSize);
+			String fontStringSize = (String) sizeFontDropDown.getSelectedItem();
+			int fontSize = Integer.parseInt(fontStringSize);
+			myToolBar.setFontSize(fontSize);
+
+			if (textArea.getSelectedText() != null) {
+				String selectedText = textArea.getSelectedText();
+				
+				// TODO: change selected text size on document
+			}
 		}
 
 	}
-	
-	private class fontDropDownListener implements ActionListener{
+
+	private class fontDropDownListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Font font = (Font) fontDropDown.getSelectedItem();
-			tBar.setFont(font);
+			String stringFont = (String) fontDropDown.getSelectedItem();
+			Font f;
+
+			if (myToolBar.isBold() && myToolBar.isItalic()) {
+				f = new Font(stringFont, Font.BOLD + Font.ITALIC, myToolBar.getFontSize());
+				myToolBar.setFont(f);
+			}
+
+			if (myToolBar.isBold()) {
+				f = new Font(stringFont, Font.BOLD, myToolBar.getFontSize());
+				myToolBar.setFont(f);
+			}
+
+			if (myToolBar.isItalic()) {
+				f = new Font(stringFont, Font.ITALIC, myToolBar.getFontSize());
+				myToolBar.setFont(f);
+			}
+
+			else {
+				f = new Font(stringFont, Font.PLAIN, myToolBar.getFontSize());
+			}
+
+			if (textArea.getSelectedText() != null) {
+				String selectedText = textArea.getSelectedText();
+				
+				// TODO: change selected text size on document
+			}
 		}
-		
+
 	}
 
 }
