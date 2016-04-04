@@ -10,9 +10,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -79,6 +79,7 @@ public class EditorGui extends JFrame {
 	    this.add(textArea, BorderLayout.CENTER);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void setJToolBar() {
 		//initialize images, follow with try/catch to load images
 		 Image boldImage = null;
@@ -113,6 +114,16 @@ public class EditorGui extends JFrame {
 		toolBar.add(boldFont);
 		toolBar.add(italicFont);
 		toolBar.add(underlineFont);
+		JComboBox dropDownFontSize = new JComboBox(new String[]{"10","11","12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" });
+		//dropDownFontSize.setPrototypeDisplayValue("XX");
+		dropDownFontSize.setPreferredSize(new Dimension(500,20));
+		 toolBar.addSeparator();
+		 toolBar.add(dropDownFontSize);
+		 
+		 JComboBox dropDownFont = new JComboBox(new String[]{"Sans Serif", "Times New Roman", "Add more fonts"});
+		 toolBar.addSeparator();
+		 toolBar.add(dropDownFont);
+	
 		
 		this.add(toolBar, BorderLayout.NORTH);
 	}
