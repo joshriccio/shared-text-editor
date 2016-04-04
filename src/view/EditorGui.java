@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
@@ -33,6 +34,7 @@ public class EditorGui extends JFrame {
 	private JButton boldFontButton;
 	private JButton italicFontButton;
 	private JButton underlineFontButton;
+	private JButton colorButton;
 	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
 	private JComboBox sizeFontDropDown = new JComboBox(fontSizes);
 	private String fonts[] =  GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
@@ -99,12 +101,13 @@ public class EditorGui extends JFrame {
 		Image boldImage = null;
 		Image italicImage = null;
 		Image underlineImage = null;
-
+		Image colorImage = null;
 		// load images
 		try {
 			boldImage = ImageIO.read(new File("./images/boldImage.png"));
 			italicImage = ImageIO.read(new File("./images/italicImage.png"));
 			underlineImage = ImageIO.read(new File("./images/underlineImage.png"));
+			colorImage = ImageIO.read(new File("./images/colorImage.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Couldn't load an image on the toolbar");
@@ -114,11 +117,13 @@ public class EditorGui extends JFrame {
 		boldFontButton = new JButton(new ImageIcon(boldImage));
 		italicFontButton = new JButton(new ImageIcon(italicImage));
 		underlineFontButton = new JButton(new ImageIcon(underlineImage));
+		colorButton = new JButton(new ImageIcon(colorImage));
 
 		// add buttons to the tool bar
 		javaToolBar.add(boldFontButton);
 		javaToolBar.add(italicFontButton);
 		javaToolBar.add(underlineFontButton);
+		javaToolBar.add(colorButton);
 
 		// add drop down menus to the tool bar
 		javaToolBar.addSeparator();
@@ -141,6 +146,7 @@ public class EditorGui extends JFrame {
 		underlineFontButton.addActionListener(new underlineListener());
 		sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
 		fontDropDown.addActionListener(new fontDropDownListener());
+		colorButton.addActionListener(new colorListener());
 	}
 
 	private class boldListener implements ActionListener {
@@ -252,6 +258,23 @@ public class EditorGui extends JFrame {
 			}
 		}
 
+	}
+	
+	private class colorListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			JColorChooser colorChooser = new JColorChooser();
+			Color newColor = JColorChooser.showDialog( colorChooser, "Choose Text Color", Color.BLACK);
+			myToolBar.setColor(newColor);
+			
+			if(textArea.getSelectedText() != null){
+				String selectedText = textArea.getSelectedText();
+				
+				//TODO: change selected text to color chosen
+			}
+		}
+		
 	}
 
 }
