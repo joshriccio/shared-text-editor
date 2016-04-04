@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -18,36 +20,46 @@ import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 
+import model.Toolbar;
+
 public class EditorGui extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	
-	private JTextArea textArea = new JTextArea(5,10);
-	
-	//set up JtoolBar with buttons
+
+	private JTextArea textArea = new JTextArea(5, 10);
+
+	// set up JtoolBar with buttons
 	private JToolBar toolBar = new JToolBar();
-	private JButton boldFont;
-	private JButton italicFont;
-	private JButton underlineFont;
+	private JButton boldFontButton;
+	private JButton italicFontButton;
+	private JButton underlineFontButton;
+	private JComboBox sizeFontDropDown = new JComboBox(
+			new String[] { "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" });
+	private JComboBox fontDropDown = new JComboBox(new String[] { "Sans Serif", "Times New Roman", "Add more fonts" });
 	
+	private Toolbar tBar = new Toolbar();
+
 	/**
-	 *  Constructor
+	 * Constructor
 	 */
 	public EditorGui() {
-		
-		//Set Frame 	
+
+		// Set Frame
 		this.setTitle("Collaborative Editing");
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
-		
-		//initialize the text area
+
+		// initialize the text area
 		setTextArea();
-		
-		//initialize the JToolbar
+
+		// initialize the JToolbar
 		setJToolBar();
+
+		// add listeners to buttons
+		setButtonListeners();
 	}
-	
+
 	/**
 	 * Initialize JFrame and set visible
 	 * 
@@ -57,35 +69,34 @@ public class EditorGui extends JFrame {
 	public static void main(String[] args) {
 		JFrame editorGUI = new EditorGui();
 		editorGUI.setVisible(true);
-		
-	}	
 
-	
-	/**
-	 * This method sets up the text area. 
-	 */
-	public void setTextArea(){
-		textArea.setPreferredSize(new Dimension(100,100));
-		textArea.setBackground(Color.WHITE);
-	    textArea.setLineWrap(true);
-	    textArea.setWrapStyleWord(false);
-	    
-	    //Outlined text area with a border
-	    Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
-	    textArea.setBorder(BorderFactory.createCompoundBorder(borderOutline, 
-	            BorderFactory.createEmptyBorder(100, 100, 100, 100)));
-	    
-	    //add text are to JFrame
-	    this.add(textArea, BorderLayout.CENTER);
 	}
-	
-	@SuppressWarnings("unchecked")
-	private void setJToolBar() {
-		//initialize images, follow with try/catch to load images
-		 Image boldImage = null;
-		 Image italicImage = null;
-		 Image underlineImage =null;
-		
+
+	/**
+	 * This method sets up the text area.
+	 */
+	public void setTextArea() {
+		textArea.setPreferredSize(new Dimension(100, 100));
+		textArea.setBackground(Color.WHITE);
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(false);
+
+		// Outlined text area with a border
+		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
+		textArea.setBorder(
+				BorderFactory.createCompoundBorder(borderOutline, BorderFactory.createEmptyBorder(100, 100, 100, 100)));
+
+		// add text are to JFrame
+		this.add(textArea, BorderLayout.CENTER);
+	}
+
+	public void setJToolBar() {
+		// initialize images
+		Image boldImage = null;
+		Image italicImage = null;
+		Image underlineImage = null;
+
+		// load images
 		try {
 			boldImage = ImageIO.read(new File("./images/boldImage.png"));
 			italicImage = ImageIO.read(new File("./images/italicImage.png"));
@@ -94,38 +105,92 @@ public class EditorGui extends JFrame {
 			e.printStackTrace();
 			System.out.println("Couldn't load an image on the toolbar");
 		}
-		
-		//resize images
-		boldImage.getScaledInstance(100, 100, Image.SCALE_DEFAULT);
-		italicImage.getScaledInstance(10, 10, Image.SCALE_DEFAULT);
-		underlineImage.getScaledInstance(10, 10, Image.SCALE_DEFAULT);
-		
-		//Initialize icons
-		 ImageIcon boldIcon = new ImageIcon(boldImage);
-		 ImageIcon italicIcon = new ImageIcon(italicImage);
-		 ImageIcon underlineIcon= new ImageIcon(underlineImage);
-		 
-		//set buttons with icons in them
-		 boldFont = new JButton(boldIcon);
-		 italicFont  = new JButton(italicIcon);
-		 underlineFont = new JButton(underlineIcon);
-		 
-		//add buttons to the toolbar
-		toolBar.add(boldFont);
-		toolBar.add(italicFont);
-		toolBar.add(underlineFont);
-		JComboBox dropDownFontSize = new JComboBox(new String[]{"10","11","12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" });
-		//dropDownFontSize.setPrototypeDisplayValue("XX");
-		dropDownFontSize.setPreferredSize(new Dimension(500,20));
-		 toolBar.addSeparator();
-		 toolBar.add(dropDownFontSize);
-		 
-		 JComboBox dropDownFont = new JComboBox(new String[]{"Sans Serif", "Times New Roman", "Add more fonts"});
-		 toolBar.addSeparator();
-		 toolBar.add(dropDownFont);
-	
-		
+
+		// set buttons with icons in them
+		boldFontButton = new JButton(new ImageIcon(boldImage));
+		italicFontButton = new JButton(new ImageIcon(italicImage));
+		underlineFontButton = new JButton(new ImageIcon(underlineImage));
+
+		// add buttons to the toolbar
+		toolBar.add(boldFontButton);
+		toolBar.add(italicFontButton);
+		toolBar.add(underlineFontButton);
+		toolBar.addSeparator();
+		toolBar.add(sizeFontDropDown);
+		toolBar.addSeparator();
+		toolBar.add(fontDropDown);
+
 		this.add(toolBar, BorderLayout.NORTH);
 	}
 
+	public void setButtonListeners() {
+		boldFontButton.addActionListener(new boldListener());
+		italicFontButton.addActionListener(new italicListener());
+		underlineFontButton.addActionListener(new underlineListener());
+		
+	}
+	
+
+private class boldListener implements ActionListener {
+
+	public void actionPerformed(ActionEvent arg0) {
+
+		if(!tBar.isBold()){
+			tBar.setIsBold(true);
+		}
+		else{
+			tBar.setIsBold(false);
+		}
+		
+		//text is selected 
+		if(textArea.getSelectedText() != null){
+			String text = textArea.getSelectedText();
+			//setBold
+		}
+		
+	}
 }
+
+private class italicListener implements ActionListener {
+
+	public void actionPerformed(ActionEvent arg0) {
+
+		if(!tBar.isItalic()){
+			tBar.setIsItalic(true);
+		}
+		else{
+			tBar.setIsItalic(false);
+		}
+		
+		//text is selected 
+		if(textArea.getSelectedText() != null){
+			String text = textArea.getSelectedText();
+			//set Italic
+		}
+		
+	}
+}
+
+private class underlineListener implements ActionListener {
+
+	public void actionPerformed(ActionEvent arg0) {
+
+		if(!tBar.isUnderlined()){
+			tBar.setIsUnderlined(true);
+		}
+		else{
+			tBar.setIsUnderlined(false);
+		}
+		
+		//text is selected 
+		if(textArea.getSelectedText() != null){
+			String text = textArea.getSelectedText();
+			//set to Underlined
+		}	
+	}
+}
+
+
+
+}
+
