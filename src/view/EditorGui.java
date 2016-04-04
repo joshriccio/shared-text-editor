@@ -6,13 +6,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -29,7 +26,7 @@ public class EditorGui extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private JTextArea textArea = new JTextArea(5, 10);
+	private JTextArea textArea = new JTextArea();
 
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
@@ -246,6 +243,7 @@ public class EditorGui extends JFrame {
 			else {
 				f = new Font(stringFont, Font.PLAIN, myToolBar.getFontSize());
 			}
+			
 
 			if (textArea.getSelectedText() != null) {
 				String selectedText = textArea.getSelectedText();
