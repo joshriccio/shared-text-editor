@@ -10,6 +10,9 @@ public class Toolbar {
 	private boolean isBold = false;
 	private boolean isItalic = false;
 	private boolean isUnderlined = false;
+	
+	public Toolbar() {
+	}
 
 	/**
 	 * This method sets the font
