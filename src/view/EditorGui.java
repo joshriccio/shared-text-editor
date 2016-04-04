@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -17,9 +18,14 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import model.Toolbar;
 
@@ -27,7 +33,7 @@ public class EditorGui extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private JTextArea textArea = new JTextArea();
+	private JTextPane textpane = new JTextPane();
 
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
@@ -37,7 +43,7 @@ public class EditorGui extends JFrame {
 	private JButton colorButton;
 	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
 	private JComboBox sizeFontDropDown = new JComboBox(fontSizes);
-	private String fonts[] =  GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 	private JComboBox fontDropDown = new JComboBox(fonts);
 
 	private Toolbar myToolBar = new Toolbar();
@@ -79,18 +85,17 @@ public class EditorGui extends JFrame {
 	 * This method sets up the text area.
 	 */
 	public void setTextArea() {
-		textArea.setPreferredSize(new Dimension(100, 100));
-		textArea.setBackground(Color.WHITE);
-		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(false);
+		textpane.setPreferredSize(new Dimension(100, 100));
+		textpane.setBackground(Color.WHITE);
+		JScrollPane scrollpane = new JScrollPane(textpane);
 
 		// Outlined text area with a border
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
-		textArea.setBorder(
+		textpane.setBorder(
 				BorderFactory.createCompoundBorder(borderOutline, BorderFactory.createEmptyBorder(100, 100, 100, 100)));
 
-		// add text are to JFrame
-		this.add(textArea, BorderLayout.CENTER);
+		// add text/scrollpane are to JFrame
+		this.add(scrollpane, BorderLayout.CENTER);
 	}
 
 	/**
@@ -152,38 +157,47 @@ public class EditorGui extends JFrame {
 	private class boldListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent arg0) {
-
-			if (!myToolBar.isBold()) {
-				myToolBar.setIsBold(true);
-			} else {
-				myToolBar.setIsBold(false);
-			}
-
 			// text is selected
-			if (textArea.getSelectedText() != null) {
-				String selectedText = textArea.getSelectedText();
+			if (textpane.getSelectedText() != null) {
+				int selectStart = textpane.getSelectionStart();
+				int selectEnd = textpane.getSelectionEnd();
 
-				// TODO: set selected text to bold on document
+				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
+				Style style = textpane.addStyle("Bold", null);
+
+				StyleConstants.setBold(style, true);
+
+				if (!myToolBar.isBold()) {
+					StyleConstants.setBold(style, true);
+					myToolBar.setIsBold(true);
+				} else {
+					StyleConstants.setBold(style, false);
+					myToolBar.setIsBold(false);
+				}
+				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
-
 		}
 	}
 
 	private class italicListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent arg0) {
-
-			if (!myToolBar.isItalic()) {
-				myToolBar.setIsItalic(true);
-			} else {
-				myToolBar.setIsItalic(false);
-			}
-
 			// text is selected
-			if (textArea.getSelectedText() != null) {
-				String selectedText = textArea.getSelectedText();
+			if (textpane.getSelectedText() != null) {
+				int selectStart = textpane.getSelectionStart();
+				int selectEnd = textpane.getSelectionEnd();
 
-				// TODO: set selected text to Italic on document
+				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
+				Style style = textpane.addStyle("Italic", null);
+
+				if (!myToolBar.isItalic()) {
+					StyleConstants.setItalic(style, true);
+					myToolBar.setIsItalic(true);
+				} else {
+					StyleConstants.setItalic(style, false);
+					myToolBar.setIsItalic(false);
+				}
+				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
 
 		}
@@ -192,18 +206,26 @@ public class EditorGui extends JFrame {
 	private class underlineListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent arg0) {
-
-			if (!myToolBar.isUnderlined()) {
-				myToolBar.setIsUnderlined(true);
-			} else {
-				myToolBar.setIsUnderlined(false);
-			}
-
 			// text is selected
-			if (textArea.getSelectedText() != null) {
-				String selectedText = textArea.getSelectedText();
+			if (textpane.getSelectedText() != null) {
 
-				// TODO: set selected text on document to Underlined
+				int selectStart = textpane.getSelectionStart();
+				int selectEnd = textpane.getSelectionEnd();
+
+				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
+				Style style = textpane.addStyle("UnderLine", null);
+
+				StyleConstants.setUnderline(style, true);
+
+				if (!myToolBar.isUnderlined()) {
+					StyleConstants.setUnderline(style, true);
+					myToolBar.setIsUnderlined(true);
+				} else {
+					StyleConstants.setUnderline(style, false);
+					myToolBar.setIsUnderlined(false);
+				}
+
+				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
 		}
 	}
@@ -215,10 +237,16 @@ public class EditorGui extends JFrame {
 			Integer fontSize = (int) sizeFontDropDown.getSelectedItem();
 			myToolBar.setFontSize(fontSize);
 
-			if (textArea.getSelectedText() != null) {
-				String selectedText = textArea.getSelectedText();
+			if (textpane.getSelectedText() != null) {
 
-				// TODO: change selected text size on document
+				int selectStart = textpane.getSelectionStart();
+				int selectEnd = textpane.getSelectionEnd();
+
+				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
+				Style style = textpane.addStyle("FontSize", null);
+
+				StyleConstants.setFontSize(style, fontSize);
+				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
 		}
 
@@ -229,52 +257,40 @@ public class EditorGui extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String stringFont = (String) fontDropDown.getSelectedItem();
-			Font f;
+			if (textpane.getSelectedText() != null) {
+				int selectStart = textpane.getSelectionStart();
+				int selectEnd = textpane.getSelectionEnd();
 
-			if (myToolBar.isBold() && myToolBar.isItalic()) {
-				f = new Font(stringFont, Font.BOLD + Font.ITALIC, myToolBar.getFontSize());
-				myToolBar.setFont(f);
-			}
+				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
+				Style style = textpane.addStyle("FontFamily", null);
 
-			if (myToolBar.isBold()) {
-				f = new Font(stringFont, Font.BOLD, myToolBar.getFontSize());
-				myToolBar.setFont(f);
-			}
-
-			if (myToolBar.isItalic()) {
-				f = new Font(stringFont, Font.ITALIC, myToolBar.getFontSize());
-				myToolBar.setFont(f);
-			}
-
-			else {
-				f = new Font(stringFont, Font.PLAIN, myToolBar.getFontSize());
-			}
-			
-
-			if (textArea.getSelectedText() != null) {
-				String selectedText = textArea.getSelectedText();
-
-				// TODO: change selected text font on document
+				StyleConstants.setFontFamily(style, stringFont);
+				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
 		}
 
 	}
-	
-	private class colorListener implements ActionListener{
+
+	private class colorListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			JColorChooser colorChooser = new JColorChooser();
-			Color newColor = JColorChooser.showDialog( colorChooser, "Choose Text Color", Color.BLACK);
+			Color newColor = JColorChooser.showDialog(colorChooser, "Choose Text Color", Color.BLACK);
 			myToolBar.setColor(newColor);
-			
-			if(textArea.getSelectedText() != null){
-				String selectedText = textArea.getSelectedText();
-				
-				//TODO: change selected text to color chosen
+
+			if (textpane.getSelectedText() != null) {
+				int selectStart = textpane.getSelectionStart();
+				int selectEnd = textpane.getSelectionEnd();
+
+				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
+				Style style = textpane.addStyle("FontColor", null);
+
+				StyleConstants.setForeground(style, newColor);
+				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
 		}
-		
+
 	}
 
 }
