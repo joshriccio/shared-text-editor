@@ -4,11 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -33,9 +36,10 @@ public class EditorGui extends JFrame {
 	private JButton boldFontButton;
 	private JButton italicFontButton;
 	private JButton underlineFontButton;
-	private JComboBox sizeFontDropDown = new JComboBox(
-			new String[] { "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" });
-	private JComboBox fontDropDown = new JComboBox(new String[] { "Sans Serif", "Times New Roman", "Add more fonts" });
+	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
+	private JComboBox sizeFontDropDown = new JComboBox(fontSizes);
+	private String fonts[] =  GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+	private JComboBox fontDropDown = new JComboBox(fonts);
 
 	private Toolbar myToolBar = new Toolbar();
 
@@ -56,7 +60,7 @@ public class EditorGui extends JFrame {
 		// initialize the JToolbar
 		setJToolBar();
 
-		// add listeners to buttons
+		// add listeners to buttons and drop boxes
 		setButtonListeners();
 	}
 
@@ -90,6 +94,9 @@ public class EditorGui extends JFrame {
 		this.add(textArea, BorderLayout.CENTER);
 	}
 
+	/**
+	 * This method sets up the tool bar.
+	 */
 	public void setJToolBar() {
 		// initialize images
 		Image boldImage = null;
@@ -111,19 +118,26 @@ public class EditorGui extends JFrame {
 		italicFontButton = new JButton(new ImageIcon(italicImage));
 		underlineFontButton = new JButton(new ImageIcon(underlineImage));
 
-		// add buttons to the toolbar
+		// add buttons to the tool bar
 		javaToolBar.add(boldFontButton);
 		javaToolBar.add(italicFontButton);
 		javaToolBar.add(underlineFontButton);
+
+		// add drop down menus to the tool bar
 		javaToolBar.addSeparator();
 		javaToolBar.add(sizeFontDropDown);
 		javaToolBar.addSeparator();
 		javaToolBar.add(fontDropDown);
 
+		// add the tool bar to the frame
 		this.add(javaToolBar, BorderLayout.NORTH);
 
 	}
 
+	/**
+	 * This method adds listeners to the buttons and drop down boxes on the tool
+	 * bar
+	 */
 	public void setButtonListeners() {
 		boldFontButton.addActionListener(new boldListener());
 		italicFontButton.addActionListener(new italicListener());
@@ -145,8 +159,8 @@ public class EditorGui extends JFrame {
 			// text is selected
 			if (textArea.getSelectedText() != null) {
 				String selectedText = textArea.getSelectedText();
-				System.out.println(selectedText);
-				// TODO: setBold
+
+				// TODO: set selected text to bold on document
 			}
 
 		}
@@ -165,8 +179,7 @@ public class EditorGui extends JFrame {
 			// text is selected
 			if (textArea.getSelectedText() != null) {
 				String selectedText = textArea.getSelectedText();
-				System.out.println(selectedText);
-				
+
 				// TODO: set selected text to Italic on document
 			}
 
@@ -186,7 +199,6 @@ public class EditorGui extends JFrame {
 			// text is selected
 			if (textArea.getSelectedText() != null) {
 				String selectedText = textArea.getSelectedText();
-				System.out.println(selectedText);
 
 				// TODO: set selected text on document to Underlined
 			}
@@ -197,13 +209,12 @@ public class EditorGui extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String fontStringSize = (String) sizeFontDropDown.getSelectedItem();
-			int fontSize = Integer.parseInt(fontStringSize);
+			Integer fontSize = (int) sizeFontDropDown.getSelectedItem();
 			myToolBar.setFontSize(fontSize);
 
 			if (textArea.getSelectedText() != null) {
 				String selectedText = textArea.getSelectedText();
-				
+
 				// TODO: change selected text size on document
 			}
 		}
@@ -238,8 +249,8 @@ public class EditorGui extends JFrame {
 
 			if (textArea.getSelectedText() != null) {
 				String selectedText = textArea.getSelectedText();
-				
-				// TODO: change selected text size on document
+
+				// TODO: change selected text font on document
 			}
 		}
 
