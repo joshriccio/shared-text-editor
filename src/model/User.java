@@ -1,5 +1,7 @@
 package model;
 
+import java.io.Serializable;
+
 /**
  * This class is designed to handle user account interactions.
  * 
@@ -14,7 +16,7 @@ package model;
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
  *
  */
-public class User {
+public class User implements Serializable{
 	
 	private String username;
 	
