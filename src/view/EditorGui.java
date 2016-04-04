@@ -36,7 +36,7 @@ public class EditorGui extends JFrame {
 	private JComboBox sizeFontDropDown = new JComboBox(
 			new String[] { "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" });
 	private JComboBox fontDropDown = new JComboBox(new String[] { "Sans Serif", "Times New Roman", "Add more fonts" });
-	
+
 	private Toolbar tBar = new Toolbar();
 
 	/**
@@ -121,76 +121,91 @@ public class EditorGui extends JFrame {
 		toolBar.add(fontDropDown);
 
 		this.add(toolBar, BorderLayout.NORTH);
+
 	}
 
 	public void setButtonListeners() {
 		boldFontButton.addActionListener(new boldListener());
 		italicFontButton.addActionListener(new italicListener());
 		underlineFontButton.addActionListener(new underlineListener());
-		
+		sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
+		fontDropDown.addActionListener(new fontDropDownListener());
+	}
+
+	private class boldListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent arg0) {
+
+			if (!tBar.isBold()) {
+				tBar.setIsBold(true);
+			} else {
+				tBar.setIsBold(false);
+			}
+
+			// text is selected
+			if (textArea.getSelectedText() != null) {
+				String text = textArea.getSelectedText();
+				// setBold
+			}
+
+		}
+	}
+
+	private class italicListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent arg0) {
+
+			if (!tBar.isItalic()) {
+				tBar.setIsItalic(true);
+			} else {
+				tBar.setIsItalic(false);
+			}
+
+			// text is selected
+			if (textArea.getSelectedText() != null) {
+				String text = textArea.getSelectedText();
+				// set Italic
+			}
+
+		}
+	}
+
+	private class underlineListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent arg0) {
+
+			if (!tBar.isUnderlined()) {
+				tBar.setIsUnderlined(true);
+			} else {
+				tBar.setIsUnderlined(false);
+			}
+
+			// text is selected
+			if (textArea.getSelectedText() != null) {
+				String text = textArea.getSelectedText();
+				// set to Underlined
+			}
+		}
+	}
+
+	private class sizeFontDropDownListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int fontSize = (int) sizeFontDropDown.getSelectedItem();
+			tBar.setFontSize(fontSize);
+		}
+
 	}
 	
+	private class fontDropDownListener implements ActionListener{
 
-private class boldListener implements ActionListener {
-
-	public void actionPerformed(ActionEvent arg0) {
-
-		if(!tBar.isBold()){
-			tBar.setIsBold(true);
-		}
-		else{
-			tBar.setIsBold(false);
-		}
-		
-		//text is selected 
-		if(textArea.getSelectedText() != null){
-			String text = textArea.getSelectedText();
-			//setBold
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Font font = (Font) fontDropDown.getSelectedItem();
+			tBar.setFont(font);
 		}
 		
 	}
-}
-
-private class italicListener implements ActionListener {
-
-	public void actionPerformed(ActionEvent arg0) {
-
-		if(!tBar.isItalic()){
-			tBar.setIsItalic(true);
-		}
-		else{
-			tBar.setIsItalic(false);
-		}
-		
-		//text is selected 
-		if(textArea.getSelectedText() != null){
-			String text = textArea.getSelectedText();
-			//set Italic
-		}
-		
-	}
-}
-
-private class underlineListener implements ActionListener {
-
-	public void actionPerformed(ActionEvent arg0) {
-
-		if(!tBar.isUnderlined()){
-			tBar.setIsUnderlined(true);
-		}
-		else{
-			tBar.setIsUnderlined(false);
-		}
-		
-		//text is selected 
-		if(textArea.getSelectedText() != null){
-			String text = textArea.getSelectedText();
-			//set to Underlined
-		}	
-	}
-}
-
-
 
 }
-
