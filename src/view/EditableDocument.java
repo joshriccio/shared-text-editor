@@ -11,7 +11,7 @@ public class EditableDocument implements Serializable {
 
 	private StyledDocument document;
 	private Timestamp timestamp;
-	private User documentOwner;
+	private User documentOwner = null;
 	
 	// Constructor
 	public EditableDocument( StyledDocument doc, User ownr ) {
@@ -20,6 +20,11 @@ public class EditableDocument implements Serializable {
 		generateNewTimeStamp();
 	}
 	
+	// Constructor for testing
+	public EditableDocument(StyledDocument doc) {
+		document = doc;
+	}
+
 	// Receive changed data from GUI, update.
 	public void setDocumentContent(StyledDocument newDoc) {
 		document = newDoc;
