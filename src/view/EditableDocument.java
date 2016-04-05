@@ -7,7 +7,7 @@ import model.User;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class EditableDocument implements Serializable {
+public class EditableDocument implements Serializable, Comparable<Timestamp> {
 
 	private StyledDocument document;
 	private Timestamp timestamp;
@@ -49,6 +49,12 @@ public class EditableDocument implements Serializable {
 	// Return document's owner
 	public User getDocumentOwner() {
 		return documentOwner;
+	}
+
+	// Return (+) if THIS doc is MORE RECENT than other
+	@Override
+	public int compareTo(Timestamp other) {
+		return timestamp.compareTo(other);
 	}
 
 }
