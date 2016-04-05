@@ -11,6 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -26,6 +30,7 @@ import javax.swing.border.Border;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
 
 import model.Toolbar;
 
@@ -67,6 +72,10 @@ public class EditorGui extends JFrame {
 
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
+		
+		// Add Timer for saving every period: 5s
+		Timer timer = new Timer();
+		timer.schedule(new BackupDocument(), 0, 5000);
 	}
 
 	/**
@@ -78,7 +87,7 @@ public class EditorGui extends JFrame {
 	public static void main(String[] args) {
 		JFrame editorGUI = new EditorGui();
 		editorGUI.setVisible(true);
-
+		
 	}
 
 	/**
@@ -140,6 +149,13 @@ public class EditorGui extends JFrame {
 		this.add(javaToolBar, BorderLayout.NORTH);
 
 	}
+	
+	private class BackupDocument extends TimerTask {
+	    public void run() {
+	        EditableDocument currentDoc = new EditableDocument((StyledDocument) textpane.getStyledDocument());
+	        // TODO: Send doc to server
+	     }
+	  }
 
 	/**
 	 * This method adds listeners to the buttons and drop down boxes on the tool
