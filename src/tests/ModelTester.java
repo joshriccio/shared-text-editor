@@ -1,7 +1,5 @@
 package tests;
 
-import model.User;
-
 public class ModelTester {
 	
 	private static int getFullCoverage = 1;

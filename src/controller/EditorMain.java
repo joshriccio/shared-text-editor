@@ -1,9 +1,13 @@
 package controller;
 
+import javax.swing.JFrame;
+
+import view.EditorGui;
+
 public class EditorMain {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated constructor stub
+		JFrame editorGUI = new EditorGui();
+		editorGUI.setVisible(true);
 	}
-
 }
