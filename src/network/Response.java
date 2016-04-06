@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.swing.text.StyledDocument;
 
+import model.EditableDocument;
+
 /**
  * responseid 1 = authenticated
  * responseid 2 = auth failed
@@ -16,13 +18,13 @@ import javax.swing.text.StyledDocument;
 public class Response implements Serializable{
 	
 	private int responseID;
-	private StyledDocument doc;
+	private EditableDocument doc;
 
 	public Response(int responseID) {
 		this.responseID = responseID;
 	}
 	
-	public Response(int responseID, StyledDocument doc) {
+	public Response(int responseID, EditableDocument doc) {
 		this.responseID = responseID;
 		this.doc = doc;
 	}
@@ -31,7 +33,7 @@ public class Response implements Serializable{
 		return responseID;
 	}
 	
-	public StyledDocument getDoc(){
+	public EditableDocument getDoc(){
 		return doc;
 	}
 	

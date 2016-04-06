@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.swing.text.StyledDocument;
 
+import model.EditableDocument;
 import model.User;
 /**
  * id 1 = login request
@@ -16,7 +17,7 @@ public class Request implements Serializable{
 	
 	int id;
 	User user;
-	StyledDocument doc;
+	EditableDocument doc;
 
 	public Request(int id) {
 		this.id = id;
@@ -34,7 +35,7 @@ public class Request implements Serializable{
 		this.user = user;
 	}
 	
-	public void setDocumnt(StyledDocument doc){
+	public void setDocument(EditableDocument doc){
 		this.doc = doc;
 	}
 

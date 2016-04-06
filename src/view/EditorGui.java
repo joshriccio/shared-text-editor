@@ -12,16 +12,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-<<<<<<< HEAD
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Vector;
-=======
 import java.sql.Time;
 import java.util.Timer;
 import java.util.TimerTask;
->>>>>>> b3c79b7ce4e4bbcec9815a1fd10a7f5d0e1286ef
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -42,11 +39,8 @@ import javax.swing.border.Border;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-<<<<<<< HEAD
-=======
 
-
->>>>>>> b3c79b7ce4e4bbcec9815a1fd10a7f5d0e1286ef
+import model.EditableDocument;
 import model.Toolbar;
 import model.User;
 import network.Client;
@@ -75,7 +69,7 @@ public class EditorGui extends JFrame {
 	private JPanel loginPanel;
 	private JButton loginButton = new JButton("Login");
 	private JButton createAccountButton = new JButton("Create Account");
-	private JButton forgottenAccountButton = new JButton("Forgot Login");
+	private JButton updateToServer = new JButton("Update Server");
 	private JTextField loginTextField = new JTextField(15);
 	private JPasswordField passwordField = new JPasswordField(15);
 	private JLabel username;
@@ -108,25 +102,10 @@ public class EditorGui extends JFrame {
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		
-<<<<<<< HEAD
 		setLoginPanel();
-=======
 		// Add Timer for saving every period: 5s
 		Timer timer = new Timer();
 		timer.schedule(new BackupDocument(), 0, 5000);
-	}
-
-	/**
-	 * Initialize JFrame and set visible
-	 * 
-	 * @param args
-	 *            input
-	 */
-	public static void main(String[] args) {
-		JFrame editorGUI = new EditorGui();
-		editorGUI.setVisible(true);
-		
->>>>>>> b3c79b7ce4e4bbcec9815a1fd10a7f5d0e1286ef
 	}
 
 	/**
@@ -222,7 +201,7 @@ public class EditorGui extends JFrame {
 		loginPanel.add(createAccountButton,c);
 		c.gridx = 2;
 		c.gridy = 2;
-		loginPanel.add(forgottenAccountButton,c);
+		loginPanel.add(updateToServer,c);
 		this.add(loginPanel, BorderLayout.SOUTH);
 		
 		loginButton.addActionListener(new ActionListener() {
@@ -254,14 +233,15 @@ public class EditorGui extends JFrame {
 			}
 		});
 		
-		forgottenAccountButton.addActionListener(new ActionListener(){
+		updateToServer.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				try {
 					Request r = new Request(3);
-					r.setDocumnt(textpane.getStyledDocument());
+					EditableDocument ed = new EditableDocument(textpane.getStyledDocument());
+					r.setDocument(ed);
 					oos.writeObject(r);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -469,7 +449,7 @@ public class EditorGui extends JFrame {
 				try {
 					Response r = (Response)ois.readObject();
 					if(r.getResponseID() == 5)
-						EditorGui.this.textpane.setStyledDocument(r.getDoc());
+						EditorGui.this.textpane.setStyledDocument(r.getDoc().getDocument());
 
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();

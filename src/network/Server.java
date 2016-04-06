@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.swing.text.StyledDocument;
 
+import model.EditableDocument;
 import model.User;
 
 
@@ -151,7 +152,7 @@ class ClientHandler extends Thread {
 	 * Sends new shape to all connected clients
 	 * @param shape the shape to write to clients
 	 */
-	private void writeDocumentToClients(StyledDocument doc) {
+	private void writeDocumentToClients(EditableDocument doc) {
 		synchronized (networkAccounts) {
 			Set<ObjectOutputStream> closedClientsList = new HashSet<ObjectOutputStream>();
 		    Iterator it = networkAccounts.entrySet().iterator();
