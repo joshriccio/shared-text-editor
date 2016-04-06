@@ -72,6 +72,9 @@ public class Client extends JFrame {
 		loginPanel.add(forgottenAccountButton,c);
 		add(loginPanel);
 		
+		/*
+		 * Login button will have a different effect in the GUI.
+		 */
 		loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
