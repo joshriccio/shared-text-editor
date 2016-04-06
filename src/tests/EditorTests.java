@@ -1,17 +1,13 @@
 package tests;
 
 import static org.junit.Assert.*;
-
 import java.awt.Color;
-
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
-
 import org.junit.Test;
-
-import com.sun.javafx.css.Style;
-
-import model.*;
+import model.EditableDocument;
+import model.Toolbar;
+import model.User;
 
 public class EditorTests {
 
