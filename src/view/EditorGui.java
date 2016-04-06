@@ -12,10 +12,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+<<<<<<< HEAD
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Vector;
+=======
+import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
+>>>>>>> b3c79b7ce4e4bbcec9815a1fd10a7f5d0e1286ef
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -36,6 +42,11 @@ import javax.swing.border.Border;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> b3c79b7ce4e4bbcec9815a1fd10a7f5d0e1286ef
 import model.Toolbar;
 import model.User;
 import network.Client;
@@ -97,7 +108,25 @@ public class EditorGui extends JFrame {
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		
+<<<<<<< HEAD
 		setLoginPanel();
+=======
+		// Add Timer for saving every period: 5s
+		Timer timer = new Timer();
+		timer.schedule(new BackupDocument(), 0, 5000);
+	}
+
+	/**
+	 * Initialize JFrame and set visible
+	 * 
+	 * @param args
+	 *            input
+	 */
+	public static void main(String[] args) {
+		JFrame editorGUI = new EditorGui();
+		editorGUI.setVisible(true);
+		
+>>>>>>> b3c79b7ce4e4bbcec9815a1fd10a7f5d0e1286ef
 	}
 
 	/**
@@ -159,6 +188,13 @@ public class EditorGui extends JFrame {
 		this.add(javaToolBar, BorderLayout.NORTH);
 
 	}
+	
+	private class BackupDocument extends TimerTask {
+	    public void run() {
+	        EditableDocument currentDoc = new EditableDocument((StyledDocument) textpane.getStyledDocument());
+	        // TODO: Send doc to server
+	     }
+	  }
 
 	private void setLoginPanel(){
 		username = new JLabel("Username");
