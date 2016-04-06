@@ -16,6 +16,7 @@ import java.io.Serializable;
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
  *
  */
+@SuppressWarnings("serial")
 public class User implements Serializable{
 	
 	private String username;

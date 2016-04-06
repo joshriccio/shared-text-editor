@@ -1,8 +1,6 @@
-package view;
+package model;
 
 import javax.swing.text.StyledDocument;
-
-import model.User;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
