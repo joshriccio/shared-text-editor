@@ -118,8 +118,7 @@ public class EditorGui extends JFrame {
 
 		// Outlined text area with a border
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
-		textpane.setBorder(
-				BorderFactory.createCompoundBorder(borderOutline, BorderFactory.createEmptyBorder(100, 100, 100, 100)));
+		textpane.setBorder(borderOutline);
 
 		// add text/scrollpane are to JFrame
 		this.add(scrollpane, BorderLayout.CENTER);
