@@ -7,10 +7,18 @@ import java.awt.Font;
 import org.junit.Test;
 import model.Toolbar;
 
+/**
+ * 
+ * @author Josh
+ *
+ */
 public class ToolbarTests {
 	
 	private Toolbar testBar = new Toolbar();
 	
+	/**
+	 * 
+	 */
 	public ToolbarTests() {
 		testToolbarGettersAndSetters();
 	}

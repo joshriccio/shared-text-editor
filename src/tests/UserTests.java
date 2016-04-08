@@ -6,11 +6,19 @@ import org.junit.Test;
 
 import model.User;
 
+/**
+ * 
+ * @author Josh
+ *
+ */
 public class UserTests {
 	
 	private User stvn = new User("Stephen", "just4now");
 	private User brtny = new User("Britanny", "pswd4brit");
 	
+	/**
+	 * 
+	 */
 	public UserTests() {
 		testUserGetterAndSetters();
 	}

@@ -19,7 +19,14 @@ import model.User;
 import network.Request;
 import network.RequestCode;
 import network.Response;
+import network.ResponseCode;
 import network.Server;
+
+/**
+ * 
+ * @author Josh
+ *
+ */
 public class LoginScreen extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel loginPanel;
@@ -38,6 +45,10 @@ public class LoginScreen extends JFrame {
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
+	
+	/**
+	 * Constructor
+	 */
 	public LoginScreen() {
 		setTitle("Login");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,8 +91,6 @@ public class LoginScreen extends JFrame {
 				loginButtonState = true;
 				user = new User(loginTextField.getText(),String.valueOf(passwordField.getPassword()));
 				openConnection(RequestCode.LOGIN);
-				// ServerListener serverListener = new ServerListener();
-		        // serverListener.start();
 			}
 		});
 		createAccountButton.addActionListener(new ActionListener() {
@@ -118,8 +127,8 @@ public class LoginScreen extends JFrame {
 			clientRequest.setUser(user);
 			oos.writeObject(clientRequest);
 			Response serverResponse = (Response) ois.readObject();
-			if (serverResponse.getResponseID() == 1) {
-				EditorGui editor = new EditorGui();
+			if (serverResponse.getResponseID() == ResponseCode.LOGIN_SUCCESSFUL) {
+				EditorGui editor = new EditorGui(oos, ois, user);
 				editor.setVisible(true);
 				dispose();
 				JOptionPane.showConfirmDialog(null,"Welcome " + clientRequest.getUser().getUsername() + "!","Login Successful",JOptionPane.YES_OPTION);
