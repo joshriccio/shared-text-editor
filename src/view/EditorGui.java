@@ -31,7 +31,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import model.EditableDocument;
-import model.Toolbar;
 import model.User;
 import network.Request;
 import network.RequestCode;
@@ -56,7 +55,6 @@ public class EditorGui extends JFrame {
 	private JComboBox sizeFontDropDown = new JComboBox(fontSizes);
 	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 	private JComboBox fontDropDown = new JComboBox(fonts);
-	private Toolbar myToolBar = new Toolbar();
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
@@ -169,12 +167,11 @@ public class EditorGui extends JFrame {
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("Bold", null);
 				StyleConstants.setBold(style, true);
-				if (!myToolBar.isBold()) {
+				
+				if (!StyleConstants.isBold(style)) {
 					StyleConstants.setBold(style, true);
-					myToolBar.setIsBold(true);
 				} else {
 					StyleConstants.setBold(style, false);
-					myToolBar.setIsBold(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -189,12 +186,10 @@ public class EditorGui extends JFrame {
 				int selectEnd = textpane.getSelectionEnd();
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("Italic", null);
-				if (!myToolBar.isItalic()) {
+				if (!StyleConstants.isItalic(style)) {
 					StyleConstants.setItalic(style, true);
-					myToolBar.setIsItalic(true);
 				} else {
 					StyleConstants.setItalic(style, false);
-					myToolBar.setIsItalic(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -210,12 +205,10 @@ public class EditorGui extends JFrame {
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("UnderLine", null);
 				StyleConstants.setUnderline(style, true);
-				if (!myToolBar.isUnderlined()) {
+				if (!StyleConstants.isUnderline(style)) {
 					StyleConstants.setUnderline(style, true);
-					myToolBar.setIsUnderlined(true);
 				} else {
 					StyleConstants.setUnderline(style, false);
-					myToolBar.setIsUnderlined(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -226,7 +219,7 @@ public class EditorGui extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Integer fontSize = (int) sizeFontDropDown.getSelectedItem();
-			myToolBar.setFontSize(fontSize);
+			
 			if (textpane.getSelectedText() != null) {
 				int selectStart = textpane.getSelectionStart();
 				int selectEnd = textpane.getSelectionEnd();
@@ -258,7 +251,6 @@ public class EditorGui extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			JColorChooser colorChooser = new JColorChooser();
 			Color newColor = JColorChooser.showDialog(colorChooser, "Choose Text Color", Color.BLACK);
-			myToolBar.setColor(newColor);
 			if (textpane.getSelectedText() != null) {
 				int selectStart = textpane.getSelectionStart();
 				int selectEnd = textpane.getSelectionEnd();
