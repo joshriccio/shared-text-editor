@@ -1,12 +1,10 @@
 package tests;
 
 import static org.junit.Assert.*;
-import java.awt.Color;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import org.junit.Test;
 import model.EditableDocument;
-import model.Toolbar;
 import model.User;
 
 /**
@@ -28,13 +26,6 @@ public class EditorTests {
 	public void usertestname() {
 		User user1 = new User("Josh", "123");
 		assertEquals(user1.getUsername(), "Josh");
-	}
-
-	@Test
-	public void toolbartestColor() {
-		Toolbar tb = new Toolbar();
-		tb.setColor(Color.RED);
-		assertEquals(tb.getColor(), Color.RED);
 	}
 
 	@Test

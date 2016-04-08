@@ -15,7 +15,6 @@ public class ModelTester {
 	 */
 	public static void main(String[] args) {
 		getFullCoverage = 2;
-		new ToolbarTests();
 		new UserTests();
 	}
 
