@@ -8,8 +8,8 @@ import java.io.Serializable;
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
  *
  */
-public enum RequestCodes implements Serializable {
-	LOGIN(1), CREATE_ACCOUNT(2), RESET_PASSWORD(3), SIGN_OUT(4);
+public enum RequestCode implements Serializable {
+	LOGIN(1), CREATE_ACCOUNT(2), RESET_PASSWORD(3), SIGN_OUT(4),DOCUMENT_SENT(5);
 	
 	private int requestCode;
 	/**
@@ -17,7 +17,7 @@ public enum RequestCodes implements Serializable {
 	 * @param requestCode
 	 * 			The integer passed in to determine the request code
 	 */
-	RequestCodes(int requestCode) {
+	RequestCode(int requestCode) {
 		this.requestCode = requestCode;
 	}
 	/**

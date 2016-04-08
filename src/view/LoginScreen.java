@@ -1,4 +1,4 @@
-package network;
+package view;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,17 +16,17 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import model.User;
-/**
- * This is just a test class so I can understand and experiment with the user
- * authentication to the server.
- * 
- * @author cdeeran11 (cdeeran11@email.arizona.edu)
- */
-public class Client extends JFrame {
+import network.Request;
+import network.RequestCode;
+import network.Response;
+import network.Server;
+public class LoginScreen extends JFrame {
+	private static final long serialVersionUID = 1L;
 	private JPanel loginPanel;
 	private JButton loginButton = new JButton("Login");
 	private JButton createAccountButton = new JButton("Create Account");
 	private JButton forgottenAccountButton = new JButton("Forgot Login");
+//	private JButton updateToServer = new JButton("Update Server");
 	private JTextField loginTextField = new JTextField(15);
 	private JPasswordField passwordField = new JPasswordField(15);
 	private JLabel username;
@@ -38,7 +38,7 @@ public class Client extends JFrame {
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
-	public Client() {
+	public LoginScreen() {
 		setTitle("Login");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(400,150);
@@ -71,7 +71,6 @@ public class Client extends JFrame {
 		c.gridy = 2;
 		loginPanel.add(forgottenAccountButton,c);
 		add(loginPanel);
-		
 		/*
 		 * Login button will have a different effect in the GUI.
 		 */
@@ -80,25 +79,26 @@ public class Client extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				loginButtonState = true;
 				user = new User(loginTextField.getText(),String.valueOf(passwordField.getPassword()));
-				openConnection();
+				openConnection(RequestCode.LOGIN);
+				// ServerListener serverListener = new ServerListener();
+		        // serverListener.start();
 			}
 		});
-		
-		createAccountButton.addActionListener(new ActionListener(){
+		createAccountButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0){
-					JLabel createUsername = new JLabel("Username:");
-					JTextField createUsernameField = new JTextField();
-					JLabel createPassword = new JLabel("Password:");
-					JPasswordField createPasswordField = new JPasswordField();
-					Object[] array = { createUsername, createUsernameField, createPassword, createPasswordField };
-					int res = JOptionPane.showConfirmDialog(null, array, "Create Account", JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
-					if(res == JOptionPane.YES_OPTION){
-						createAccountButtonState = true;
-						user = new User(createUsernameField.getText(), String.valueOf(createPasswordField.getPassword()));
-						openConnection();
-					}
-					createAccountButtonState = false;
+			public void actionPerformed(ActionEvent arg0) {
+				JLabel createUsername = new JLabel("Username:");
+				JTextField createUsernameField = new JTextField();
+				JLabel createPassword = new JLabel("Password:");
+				JPasswordField createPasswordField = new JPasswordField();
+				Object[] array = { createUsername, createUsernameField, createPassword, createPasswordField };
+				int res = JOptionPane.showConfirmDialog(null,array,"Create Account",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+				if (res == JOptionPane.YES_OPTION) {
+					createAccountButtonState = true;
+					user = new User(createUsernameField.getText(),String.valueOf(createPasswordField.getPassword()));
+					openConnection(RequestCode.CREATE_ACCOUNT);
+				}
+				createAccountButtonState = false;
 			}
 		});
 	}
@@ -108,21 +108,24 @@ public class Client extends JFrame {
 	 * 
 	 * @author cdeeran11 (cdeeran11@email.arizona.edu)
 	 */
-	private void openConnection() {
+	private void openConnection(RequestCode requestCode) {
 		try {
 			// Connect to the Server
 			socket = new Socket(ADDRESS,Server.PORT_NUMBER);
 			this.oos = new ObjectOutputStream(socket.getOutputStream());
 			this.ois = new ObjectInputStream(socket.getInputStream());
-			oos.writeObject(user);
-			System.out.println((String) ois.readObject());
+			Request clientRequest = new Request(requestCode);
+			clientRequest.setUser(user);
+			oos.writeObject(clientRequest);
+			Response serverResponse = (Response) ois.readObject();
+			if (serverResponse.getResponseID() == 1) {
+				EditorGui editor = new EditorGui();
+				editor.setVisible(true);
+				JOptionPane.showConfirmDialog(null,"Welcome " + clientRequest.getUser().getUsername() + "!","Login Successful",JOptionPane.YES_OPTION);
+			}
 		}
 		catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-	}
-	public static void main(String[] args) {
-		Client c = new Client();
-		c.setVisible(true);
 	}
 }

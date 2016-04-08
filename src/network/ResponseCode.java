@@ -7,7 +7,7 @@ import java.io.Serializable;
  * 
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
  */
-public enum ResponseCodes implements Serializable{
+public enum ResponseCode implements Serializable{
 	
 	LOGIN_SUCCESSFUL(1), LOGIN_FAILED(2), ACCOUNT_CREATED_SUCCESSFULLY(3), ACCOUNT_CREATION_FAILED(4), DOCUMENT_SENT(5);
 	
@@ -18,7 +18,7 @@ public enum ResponseCodes implements Serializable{
 	 * @param responseCode
 	 * 			The integer passed in to determine the response code
 	 */
-	ResponseCodes(int responseCode) {
+	ResponseCode(int responseCode) {
 		this.responseCode = responseCode;
 	}
 	/**
@@ -49,6 +49,6 @@ public enum ResponseCodes implements Serializable{
 		} // end else if
 		else {
 			return "Document sent!";
-		} // end else if
+		} // end else
 	}
 }
