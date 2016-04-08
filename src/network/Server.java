@@ -11,9 +11,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.text.StyledDocument;
-
 import model.EditableDocument;
 import model.User;
 
@@ -26,12 +23,16 @@ import model.User;
 public class Server {
 	public static int PORT_NUMBER = 4000;
 	private static ServerSocket serverSocket;
-	private static Map<ObjectOutputStream, String> networkAccounts = Collections
-			.synchronizedMap(new HashMap<ObjectOutputStream, String>());
+	private static Map<ObjectOutputStream, String> networkAccounts = Collections.synchronizedMap(new HashMap<ObjectOutputStream, String>());
 	private static Map<String, String> users = Collections.synchronizedMap(new HashMap<String, String>());
 	private static Socket socket;
 	private static ObjectInputStream ois;
 	private static ObjectOutputStream oos;
+	private static RequestCode clientRequestCode;
+	private static Request clientRequest;
+	private static ResponseCode serverResponseCode;
+	private static Response serverResponse;
+	private static User user;
 
 	/**
 	 * Read data from client server which will contain canvas drawings. And
@@ -49,34 +50,34 @@ public class Server {
 		oos = null;
 		try {
 			serverSocket = new ServerSocket(PORT_NUMBER);
-			// serverAddressInUse = true;
 			while (true) {
 				socket = serverSocket.accept();
 				ois = new ObjectInputStream(socket.getInputStream());
 				oos = new ObjectOutputStream(socket.getOutputStream());
-				Request r = (Request) ois.readObject();
-				if(r.getRequestType() == 1){
-					User user = r.getUser();
+				clientRequest = (Request) ois.readObject();
+				if(clientRequest.getRequestType() == 1){
+					user = clientRequest.getUser();
 					if (authenticate(user)) {
-						Response rsp = new Response(1);
+						serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
 						networkAccounts.put(oos, user.getUsername());
-						oos.writeObject(rsp);
+						System.out.println(serverResponse.getResponseID());
+						oos.writeObject(serverResponse);
 						ClientHandler c = new ClientHandler(ois, networkAccounts);
 						c.start();
 					} else {
-						Response rsp = new Response(2);
+						serverResponse = new Response(ResponseCode.LOGIN_FAILED);
 						System.out.println(networkAccounts.get(oos));
-						oos.writeObject(rsp);
+						oos.writeObject(serverResponse);
 					}
-				}else if(r.getRequestType() == 2){
-					User user = r.getUser();
+				}else if(clientRequestCode.getRequestCode() == 2){
+					user = clientRequest.getUser();
 					if (authenticateNewUser(user)) {
 						users.put(user.getUsername(), user.getPassword());
-						Response rsp = new Response(3);
-						oos.writeObject(rsp);
+						serverResponse = new Response(ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY);
+						oos.writeObject(serverResponse);
 					} else {
-						Response rsp = new Response(4);
-						oos.writeObject(rsp);
+						serverResponse = new Response(ResponseCode.ACCOUNT_CREATION_FAILED);
+						oos.writeObject(serverResponse);
 					}
 				}
 
@@ -118,6 +119,9 @@ class ClientHandler extends Thread {
 	private ObjectInputStream input;
 	private Map<ObjectOutputStream, String> networkAccounts;
 	private volatile boolean isRunning = true;
+	private RequestCode clientRequestCode;
+	private Request clientRequest;
+	private Response serverResponse;
 
 	public ClientHandler(ObjectInputStream input, Map<ObjectOutputStream, String> networkAccounts) {
 		this.input = input;
@@ -128,9 +132,10 @@ class ClientHandler extends Thread {
 	public void run() {
 		while (isRunning) {
 			try {
-				Request r = (Request)input.readObject();
-				if(r.getRequestType() == 3){
-					this.writeDocumentToClients(r.doc);
+				clientRequestCode = (RequestCode)input.readObject();
+				clientRequest = new Request(clientRequestCode);
+				if(clientRequestCode.getRequestCode() == 3){
+					this.writeDocumentToClients(clientRequest.doc);
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -160,9 +165,9 @@ class ClientHandler extends Thread {
 		        Map.Entry pair = (Map.Entry)it.next();
 		        System.out.println(pair.getKey() + " = " + pair.getValue());
 		        ObjectOutputStream oos = (ObjectOutputStream)pair.getKey();
-		        Response r = new Response(5, doc);
+		        serverResponse= new Response(ResponseCode.DOCUMENT_SENT, doc);
 		        try {
-					oos.writeObject(r);
+					oos.writeObject(serverResponse);
 				} catch (IOException e) {
 					networkAccounts.remove((ObjectOutputStream)pair.getKey());
 					e.printStackTrace();

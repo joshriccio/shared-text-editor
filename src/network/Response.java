@@ -17,20 +17,20 @@ import model.EditableDocument;
  */
 public class Response implements Serializable{
 	
-	private int responseID;
+	private ResponseCode responseCode;
 	private EditableDocument doc;
 
-	public Response(int responseID) {
-		this.responseID = responseID;
+	public Response(ResponseCode responseCode) {
+		this.responseCode = responseCode;
 	}
 	
-	public Response(int responseID, EditableDocument doc) {
-		this.responseID = responseID;
+	public Response(ResponseCode responseCode, EditableDocument doc) {
+		this.responseCode = responseCode;
 		this.doc = doc;
 	}
 	
 	public int getResponseID(){
-		return responseID;
+		return responseCode.getResponseCode();
 	}
 	
 	public EditableDocument getDoc(){

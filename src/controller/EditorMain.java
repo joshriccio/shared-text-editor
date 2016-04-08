@@ -1,13 +1,10 @@
 package controller;
 
-import javax.swing.JFrame;
-
-import view.EditorGui;
+import view.LoginScreen;
 
 public class EditorMain {
-
 	public static void main(String[] args) {
-		JFrame editorGUI = new EditorGui();
-		editorGUI.setVisible(true);
+		LoginScreen loginPrompt = new LoginScreen();
+		loginPrompt.setVisible(true);
 	}
 }

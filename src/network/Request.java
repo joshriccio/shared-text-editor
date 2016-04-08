@@ -15,16 +15,16 @@ import model.User;
  */
 public class Request implements Serializable{
 	
-	int id;
+	RequestCode requestCode;
 	User user;
 	EditableDocument doc;
 
-	public Request(int id) {
-		this.id = id;
+	public Request(RequestCode requestCode) {
+		this.requestCode = requestCode;
 	}
 	
 	public int getRequestType(){
-		return id;
+		return requestCode.getRequestCode();
 	}
 	
 	public User getUser(){
