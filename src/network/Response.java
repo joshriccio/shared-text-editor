@@ -7,35 +7,59 @@ import javax.swing.text.StyledDocument;
 import model.EditableDocument;
 
 /**
- * responseid 1 = authenticated
- * responseid 2 = auth failed
- * responseid 3 = account creation success
- * responseid 4 = account creation failed
- * responseid 5 = sent document
- * @author Josh
+ * The Response class uses the command design pattern to wrap multiple commands
+ * in one object. The commands are listed under the ResponseCode Enum
+ * 
+ * @author Joshua Riccio
  *
  */
-public class Response implements Serializable{
-	
+public class Response implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private ResponseCode responseCode;
 	private EditableDocument doc;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param responseCode
+	 *            the code specifying specific response
+	 */
 	public Response(ResponseCode responseCode) {
 		this.responseCode = responseCode;
 	}
-	
+
+	/**
+	 * Constructor with ability to store document
+	 * 
+	 * @param responseCode
+	 *            the code specifying specific response
+	 * @param doc
+	 *            the document to send
+	 */
 	public Response(ResponseCode responseCode, EditableDocument doc) {
 		this.responseCode = responseCode;
 		this.doc = doc;
 	}
-	
-	public int getResponseID(){
-		return responseCode.getResponseCode();
+
+	/**
+	 * @return returns the response ID
+	 */
+	public ResponseCode getResponseID() {
+		return responseCode;
 	}
-	
-	public EditableDocument getDoc(){
+
+	/**
+	 * @return returns the document
+	 */
+	public EditableDocument getEditableDocument() {
 		return doc;
 	}
-	
 
+	/**
+	 * @return returns the styled document
+	 */
+	public StyledDocument getStyledDocument() {
+		return doc.getDocument();
+	}
 }

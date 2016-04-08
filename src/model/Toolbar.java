@@ -3,6 +3,13 @@ package model;
 import java.awt.Color;
 import java.awt.Font;
 
+/**
+ * The toolbar class represents the actual buttons displayed out in the tool bar
+ * gui.
+ * 
+ * @author Brittany Paielli
+ *
+ */
 public class Toolbar {
 	private Font f;
 	private int fontSize;
@@ -10,7 +17,10 @@ public class Toolbar {
 	private boolean isBold = false;
 	private boolean isItalic = false;
 	private boolean isUnderlined = false;
-	
+
+	/**
+	 * Constructor for Toolbar
+	 */
 	public Toolbar() {
 	}
 

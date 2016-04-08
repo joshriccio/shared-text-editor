@@ -14,23 +14,23 @@ import java.util.Set;
 import model.EditableDocument;
 import model.User;
 
-
 /**
- * This class is designed to manage user interactions across a network.
+ * The Server class acts as the communication portal between clients. The Server
+ * receives requests and generates responses.
  * 
  * @author Cody Deeran(cdeeran11@email.arizona.edu)
+ * @author Joshua Riccio
  */
 public class Server {
 	public static int PORT_NUMBER = 4000;
 	private static ServerSocket serverSocket;
-	private static Map<ObjectOutputStream, String> networkAccounts = Collections.synchronizedMap(new HashMap<ObjectOutputStream, String>());
+	private static Map<ObjectOutputStream, String> networkAccounts = Collections
+			.synchronizedMap(new HashMap<ObjectOutputStream, String>());
 	private static Map<String, String> users = Collections.synchronizedMap(new HashMap<String, String>());
 	private static Socket socket;
 	private static ObjectInputStream ois;
 	private static ObjectOutputStream oos;
-	private static RequestCode clientRequestCode;
 	private static Request clientRequest;
-	private static ResponseCode serverResponseCode;
 	private static Response serverResponse;
 	private static User user;
 
@@ -44,6 +44,8 @@ public class Server {
 	public static void main(String[] args) {
 		users.put("Josh", "123");
 		users.put("Cody", "456");
+		users.put("Brittany", "789");
+		users.put("Steven", "boss");
 		socket = null;
 		serverSocket = null;
 		ois = null;
@@ -55,7 +57,7 @@ public class Server {
 				ois = new ObjectInputStream(socket.getInputStream());
 				oos = new ObjectOutputStream(socket.getOutputStream());
 				clientRequest = (Request) ois.readObject();
-				if(clientRequest.getRequestType() == 1){
+				if (clientRequest.getRequestType() == RequestCode.LOGIN) {
 					user = clientRequest.getUser();
 					if (authenticate(user)) {
 						serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
@@ -69,7 +71,7 @@ public class Server {
 						System.out.println(networkAccounts.get(oos));
 						oos.writeObject(serverResponse);
 					}
-				}else if(clientRequestCode.getRequestCode() == 2){
+				} else if (clientRequest.getRequestType() == RequestCode.CREATE_ACCOUNT) {
 					user = clientRequest.getUser();
 					if (authenticateNewUser(user)) {
 						users.put(user.getUsername(), user.getPassword());
@@ -102,6 +104,9 @@ public class Server {
 		return false;
 	}
 
+	/**
+	 * @return returns the map
+	 */
 	public static Map<ObjectOutputStream, User> getAccounts() {
 		// TODO Auto-generated method stub
 		return null;
@@ -109,7 +114,7 @@ public class Server {
 }
 
 /**
- * The new thread to manage client activity
+ * ClientHandler gerates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu)
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
@@ -119,10 +124,14 @@ class ClientHandler extends Thread {
 	private ObjectInputStream input;
 	private Map<ObjectOutputStream, String> networkAccounts;
 	private volatile boolean isRunning = true;
-	private RequestCode clientRequestCode;
 	private Request clientRequest;
 	private Response serverResponse;
 
+	/**
+	 * Constructor
+	 * @param input the object input stream
+	 * @param networkAccounts the list of uses connected
+	 */
 	public ClientHandler(ObjectInputStream input, Map<ObjectOutputStream, String> networkAccounts) {
 		this.input = input;
 		this.networkAccounts = networkAccounts;
@@ -132,10 +141,9 @@ class ClientHandler extends Thread {
 	public void run() {
 		while (isRunning) {
 			try {
-				clientRequestCode = (RequestCode)input.readObject();
-				clientRequest = new Request(clientRequestCode);
-				if(clientRequestCode.getRequestCode() == 3){
-					this.writeDocumentToClients(clientRequest.doc);
+				clientRequest = (Request) input.readObject();
+				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
+					this.writeDocumentToClients(clientRequest.getDocument());
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -152,28 +160,30 @@ class ClientHandler extends Thread {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
 	}
-	
+
 	/**
 	 * Sends new shape to all connected clients
-	 * @param shape the shape to write to clients
+	 * 
+	 * @param shape
+	 *            the shape to write to clients
 	 */
 	private void writeDocumentToClients(EditableDocument doc) {
 		synchronized (networkAccounts) {
 			Set<ObjectOutputStream> closedClientsList = new HashSet<ObjectOutputStream>();
-		    Iterator it = networkAccounts.entrySet().iterator();
-		    while (it.hasNext()) {
-		        Map.Entry pair = (Map.Entry)it.next();
-		        System.out.println(pair.getKey() + " = " + pair.getValue());
-		        ObjectOutputStream oos = (ObjectOutputStream)pair.getKey();
-		        serverResponse= new Response(ResponseCode.DOCUMENT_SENT, doc);
-		        try {
+			Iterator it = networkAccounts.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pair = (Map.Entry) it.next();
+				System.out.println(pair.getKey() + " = " + pair.getValue());
+				ObjectOutputStream oos = (ObjectOutputStream) pair.getKey();
+				serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
+				try {
 					oos.writeObject(serverResponse);
 				} catch (IOException e) {
-					networkAccounts.remove((ObjectOutputStream)pair.getKey());
+					networkAccounts.remove((ObjectOutputStream) pair.getKey());
 					e.printStackTrace();
 				}
-		        //NOT THREAD SAFE
-		    }
+				// NOT THREAD SAFE
+			}
 		}
 	}
 }
