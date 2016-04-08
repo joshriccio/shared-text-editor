@@ -18,6 +18,8 @@ public class User implements Serializable {
 	private String password;
 
 	/**
+	 * Costructor for the user class, assigns both the username and password
+	 * to the Strings passed in.
 	 * @param username
 	 *            the username
 	 * @param password
@@ -29,6 +31,7 @@ public class User implements Serializable {
 	}
 
 	/**
+	 * This retures the username for the repective user
 	 * @return returns the username
 	 */
 	public String getUsername() {
@@ -36,6 +39,7 @@ public class User implements Serializable {
 	}
 
 	/**
+	 * This returns the password for the respective user
 	 * @return returns the password
 	 */
 	public String getPassword() {
