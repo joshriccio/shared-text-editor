@@ -121,6 +121,7 @@ public class LoginScreen extends JFrame {
 			if (serverResponse.getResponseID() == 1) {
 				EditorGui editor = new EditorGui();
 				editor.setVisible(true);
+				dispose();
 				JOptionPane.showConfirmDialog(null,"Welcome " + clientRequest.getUser().getUsername() + "!","Login Successful",JOptionPane.YES_OPTION);
 			}
 		}
