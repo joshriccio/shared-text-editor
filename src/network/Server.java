@@ -30,10 +30,11 @@ public class Server {
 	private static User user;
 
 	/**
-	 * Receives requests from the client and processes responses. networkAccounts in a list of users
-	 * mapped to their objectOutputStreams with their current online status. usersToIndex maps the user
-	 * name to the index location in networkAccounts. This gives an O(1) search time to find users inside
-	 * networkAccounts.
+	 * Receives requests from the client and processes responses.
+	 * networkAccounts in a list of users mapped to their objectOutputStreams
+	 * with their current online status. usersToIndex maps the user name to the
+	 * index location in networkAccounts. This gives an O(1) search time to find
+	 * users inside networkAccounts.
 	 * 
 	 * @param args
 	 *            Never used

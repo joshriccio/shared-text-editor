@@ -95,7 +95,7 @@ public class EditorGui extends JFrame {
 		// Outlined text area with a border
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
-		textpane.addKeyListener(new TextChangeListener());
+		//textpane.addKeyListener(new TextChangeListener()); //Disabled for now, maybe we add an option to turn this on if the userwants
 		// add text/scrollpane are to JFrame
 		this.add(scrollpane, BorderLayout.CENTER);
 	}
