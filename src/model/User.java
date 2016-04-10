@@ -31,7 +31,7 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * This retures the username for the repective user
+	 * This retures the username for the respective user
 	 * @return returns the username
 	 */
 	public String getUsername() {

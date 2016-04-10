@@ -1,5 +1,4 @@
 package network;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import model.EditableDocument;
 import model.User;
-
 /**
  * The Server class acts as the communication portal between clients. The Server
  * receives requests and generates responses.
@@ -24,16 +22,14 @@ import model.User;
 public class Server {
 	public static int PORT_NUMBER = 4000;
 	private static ServerSocket serverSocket;
-	private static Map<ObjectOutputStream, String> networkAccounts = Collections
-			.synchronizedMap(new HashMap<ObjectOutputStream, String>());
-	private static Map<String, String> users = Collections.synchronizedMap(new HashMap<String, String>());
+	private static Map<ObjectOutputStream,String> networkAccounts = Collections.synchronizedMap(new HashMap<ObjectOutputStream,String>());
+	private static Map<String,String> users = Collections.synchronizedMap(new HashMap<String,String>());
 	private static Socket socket;
 	private static ObjectInputStream ois;
 	private static ObjectOutputStream oos;
 	private static Request clientRequest;
 	private static Response serverResponse;
 	private static User user;
-
 	/**
 	 * Read data from client server which will contain canvas drawings. And
 	 * displays the drawings for each user to see.
@@ -42,10 +38,10 @@ public class Server {
 	 *            Never used
 	 */
 	public static void main(String[] args) {
-		users.put("Josh", "123");
-		users.put("Cody", "456");
-		users.put("Brittany", "789");
-		users.put("Steven", "boss");
+		users.put("Josh","123");
+		users.put("Cody","456");
+		users.put("Brittany","789");
+		users.put("Steven","boss");
 		socket = null;
 		serverSocket = null;
 		ois = null;
@@ -61,82 +57,94 @@ public class Server {
 					user = clientRequest.getUser();
 					if (authenticate(user)) {
 						serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
-						networkAccounts.put(oos, user.getUsername());
+						networkAccounts.put(oos,user.getUsername());
 						System.out.println(serverResponse.getResponseID());
 						oos.writeObject(serverResponse);
-						ClientHandler c = new ClientHandler(ois, networkAccounts);
+						ClientHandler c = new ClientHandler(ois,networkAccounts);
 						c.start();
-					} else {
+					}
+					else {
 						serverResponse = new Response(ResponseCode.LOGIN_FAILED);
 						System.out.println(networkAccounts.get(oos));
 						oos.writeObject(serverResponse);
 					}
-				} else if (clientRequest.getRequestType() == RequestCode.CREATE_ACCOUNT) {
+				}
+				else if (clientRequest.getRequestType() == RequestCode.CREATE_ACCOUNT) {
 					user = clientRequest.getUser();
 					if (authenticateNewUser(user)) {
-						users.put(user.getUsername(), user.getPassword());
+						users.put(user.getUsername(),user.getPassword());
 						serverResponse = new Response(ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY);
 						oos.writeObject(serverResponse);
-					} else {
+					}
+					else {
 						serverResponse = new Response(ResponseCode.ACCOUNT_CREATION_FAILED);
 						oos.writeObject(serverResponse);
 					}
 				}
-
+				else if(clientRequest.getRequestType() == RequestCode.RESET_PASSWORD){
+					user = clientRequest.getUser();
+					if(!authenticateNewUser(user)){
+						users.put(user.getUsername(),user.getPassword());
+						serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
+						oos.writeObject(serverResponse);
+					}
+					else {
+						serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED);
+						oos.writeObject(serverResponse);
+					}
+				}
 			}
-		} catch (IOException | ClassNotFoundException e) {
+		}
+		catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
-
 	private static boolean authenticateNewUser(User user) {
 		if (users.containsKey(user.getUsername())) {
 			return false;
-		} else {
+		}
+		else {
 			return true;
 		}
 	}
-
 	private static boolean authenticate(User user) {
 		if (users.containsKey(user.getUsername()) && users.get(user.getUsername()).equals(user.getPassword())) {
 			return true;
 		}
 		return false;
 	}
-
 	/**
 	 * @return returns the map
 	 */
-	public static Map<ObjectOutputStream, User> getAccounts() {
+	public static Map<ObjectOutputStream,User> getAccounts() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 }
-
 /**
  * ClientHandler gerates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu)
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
- * 
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
-	private Map<ObjectOutputStream, String> networkAccounts;
+	private Map<ObjectOutputStream,String> networkAccounts;
 	private volatile boolean isRunning = true;
 	private Request clientRequest;
 	private Response serverResponse;
-
 	/**
 	 * Constructor
-	 * @param input the object input stream
-	 * @param networkAccounts the list of uses connected
+	 * 
+	 * @param input
+	 *            the object input stream
+	 * @param networkAccounts
+	 *            the list of uses connected
 	 */
-	public ClientHandler(ObjectInputStream input, Map<ObjectOutputStream, String> networkAccounts) {
+	public ClientHandler(ObjectInputStream input, Map<ObjectOutputStream,String> networkAccounts) {
 		this.input = input;
 		this.networkAccounts = networkAccounts;
 	}
-
 	@Override
 	public void run() {
 		while (isRunning) {
@@ -145,14 +153,15 @@ class ClientHandler extends Thread {
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 					this.writeDocumentToClients(clientRequest.getDocument());
 				}
-			} catch (ClassNotFoundException e) {
+			}
+			catch (ClassNotFoundException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				this.cleanUp();
 			}
 		}
 	}
-
 	/**
 	 * Safely ends the client thread
 	 */
@@ -160,7 +169,6 @@ class ClientHandler extends Thread {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
 	}
-
 	/**
 	 * Sends new shape to all connected clients
 	 * 
@@ -175,10 +183,11 @@ class ClientHandler extends Thread {
 				Map.Entry pair = (Map.Entry) it.next();
 				System.out.println(pair.getKey() + " = " + pair.getValue());
 				ObjectOutputStream oos = (ObjectOutputStream) pair.getKey();
-				serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
+				serverResponse = new Response(ResponseCode.DOCUMENT_SENT,doc);
 				try {
 					oos.writeObject(serverResponse);
-				} catch (IOException e) {
+				}
+				catch (IOException e) {
 					networkAccounts.remove((ObjectOutputStream) pair.getKey());
 					e.printStackTrace();
 				}
