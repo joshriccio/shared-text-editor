@@ -39,7 +39,7 @@ import network.ResponseCode;
 
 /**
  * 
- * @author Brittany, Josh, Steven
+ * @author Brittany, Josh, Steven, Cody
  *
  */
 public class EditorGui extends JFrame {
