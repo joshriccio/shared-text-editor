@@ -179,9 +179,6 @@ class ClientHandler extends Thread {
 		}
 	}
 
-	/**
-	 * Safely ends the client thread
-	 */
 	private void cleanUp() {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
