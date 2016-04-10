@@ -20,11 +20,11 @@ public class UserStreamModel {
 		return user;
 	}
 	
-	public ObjectOutputStream getOuput(){
+	public ObjectOutputStream getOuputStream(){
 		return oos;
 	}
 	
-	public void setoos(ObjectOutputStream oos){
+	public void setOutputStream(ObjectOutputStream oos){
 		this.oos = oos;
 	}
 	
@@ -32,7 +32,7 @@ public class UserStreamModel {
 		this.online = !this.online;
 	}
 	
-	public boolean getOnlineStatus(){
+	public boolean isOnline(){
 		return this.online;
 	}
 

@@ -51,7 +51,7 @@ public class Server {
 					user = clientRequest.getUser();
 					if (authenticate(user)) {
 						serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
-						networkAccounts.get(usersToIndex.get(user.getUsername())).setoos(oos);
+						networkAccounts.get(usersToIndex.get(user.getUsername())).setOutputStream(oos);
 						System.out.println(serverResponse.getResponseID());
 						oos.writeObject(serverResponse);
 						ClientHandler c = new ClientHandler(ois, networkAccounts);
@@ -192,8 +192,8 @@ class ClientHandler extends Thread {
 			serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
 			for(UserStreamModel usm : networkAccounts){
 				try {
-					if(usm.getOnlineStatus())
-						usm.getOuput().writeObject(serverResponse);
+					if(usm.isOnline())
+						usm.getOuputStream().writeObject(serverResponse);
 				} catch (IOException e) {
 					usm.toggleOnline();
 					e.printStackTrace();
