@@ -31,6 +31,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import model.EditableDocument;
+import model.ToolBar;
 import model.User;
 import network.Request;
 import network.RequestCode;
@@ -58,6 +59,7 @@ public class EditorGui extends JFrame {
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
+	private ToolBar myToolBar = new ToolBar();
 
 	/**
 	 * Constructor
@@ -140,7 +142,7 @@ public class EditorGui extends JFrame {
 
 	private class BackupDocument extends TimerTask {
 		public void run() {
-			EditableDocument currentDoc = new EditableDocument((StyledDocument) textpane.getStyledDocument());
+			EditableDocument currentDoc = new EditableDocument(textpane.getStyledDocument());
 			// TODO: Send doc to server
 		}
 	}
@@ -168,10 +170,12 @@ public class EditorGui extends JFrame {
 				Style style = textpane.addStyle("Bold", null);
 				StyleConstants.setBold(style, true);
 				
-				if (!StyleConstants.isBold(style)) {
+				if (!myToolBar.isBold()) {
 					StyleConstants.setBold(style, true);
+					myToolBar.setIsBold(true);
 				} else {
 					StyleConstants.setBold(style, false);
+					myToolBar.setIsBold(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -186,10 +190,12 @@ public class EditorGui extends JFrame {
 				int selectEnd = textpane.getSelectionEnd();
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("Italic", null);
-				if (!StyleConstants.isItalic(style)) {
+				if (!myToolBar.isItalic()) {
 					StyleConstants.setItalic(style, true);
+					myToolBar.setIsItalic(true);
 				} else {
 					StyleConstants.setItalic(style, false);
+					myToolBar.setIsItalic(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -205,10 +211,13 @@ public class EditorGui extends JFrame {
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("UnderLine", null);
 				StyleConstants.setUnderline(style, true);
-				if (!StyleConstants.isUnderline(style)) {
+				
+				if (!myToolBar.isUnderlined()) {
 					StyleConstants.setUnderline(style, true);
+					myToolBar.setIsUnderlined(true);
 				} else {
 					StyleConstants.setUnderline(style, false);
+					myToolBar.setIsUnderlined(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
