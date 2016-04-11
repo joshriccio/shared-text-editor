@@ -149,8 +149,8 @@ class ClientHandler extends Thread {
 				clientRequest = (Request) input.readObject();
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 					EditableDocument document = clientRequest.getDocument();
-					this.saveDocument(document);
-					//this.writeDocumentToClients(document);
+					//this.saveDocument(document);		// FIXME: must be able to save from server
+					this.writeDocumentToClients(document);
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
