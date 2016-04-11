@@ -1,5 +1,7 @@
 package network;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,7 +20,7 @@ import model.User;
  * @author Joshua Riccio
  */
 public class Server {
-	public static int PORT_NUMBER = 4000;
+	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
 	private static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
 	private static HashMap<String, Integer> usersToIndex = new HashMap<String, Integer>();
@@ -170,7 +172,9 @@ class ClientHandler extends Thread {
 			try {
 				clientRequest = (Request) input.readObject();
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
-					this.writeDocumentToClients(clientRequest.getDocument());
+					EditableDocument document = clientRequest.getDocument();
+					//this.saveDocument(document);		// FIXME: must be able to save from server
+					this.writeDocumentToClients(document);
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -183,6 +187,10 @@ class ClientHandler extends Thread {
 	private void cleanUp() {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
+	}
+
+	private void saveDocument(EditableDocument doc) {
+		// TODO: Let the server do the actual saving
 	}
 
 	/**
