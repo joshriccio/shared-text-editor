@@ -56,10 +56,6 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	public String getName() {
 		return name;
 	}
-	
-	public String getName() {
-		return name;
-	}
 
 	/**
 	 * Receive changed data from GUI, update.
