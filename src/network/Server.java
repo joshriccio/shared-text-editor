@@ -7,12 +7,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.Vector;
 import model.EditableDocument;
 import model.User;
 
@@ -26,9 +22,8 @@ import model.User;
 public class Server {
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
-	private static Map<ObjectOutputStream, String> networkAccounts = Collections
-			.synchronizedMap(new HashMap<ObjectOutputStream, String>());
-	private static Map<String, String> users = Collections.synchronizedMap(new HashMap<String, String>());
+	private static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
+	private static HashMap<String, Integer> usersToIndex = new HashMap<String, Integer>();
 	private static Socket socket;
 	private static ObjectInputStream ois;
 	private static ObjectOutputStream oos;
@@ -37,17 +32,17 @@ public class Server {
 	private static User user;
 
 	/**
-	 * Read data from client server which will contain canvas drawings. And
-	 * displays the drawings for each user to see.
+	 * Receives requests from the client and processes responses.
+	 * networkAccounts in a list of users mapped to their objectOutputStreams
+	 * with their current online status. usersToIndex maps the user name to the
+	 * index location in networkAccounts. This gives an O(1) search time to find
+	 * users inside networkAccounts.
 	 * 
 	 * @param args
 	 *            Never used
 	 */
 	public static void main(String[] args) {
-		users.put("Josh", "123");
-		users.put("Cody", "456");
-		users.put("Brittany", "789");
-		users.put("Stephen", "boss");
+		setDefaultAccounts();
 		socket = null;
 		serverSocket = null;
 		ois = null;
@@ -63,36 +58,67 @@ public class Server {
 					user = clientRequest.getUser();
 					if (authenticate(user)) {
 						serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
-						networkAccounts.put(oos, user.getUsername());
+						networkAccounts.get(usersToIndex.get(user.getUsername())).setOutputStream(oos);
 						System.out.println(serverResponse.getResponseID());
 						oos.writeObject(serverResponse);
 						ClientHandler c = new ClientHandler(ois, networkAccounts);
 						c.start();
 					} else {
 						serverResponse = new Response(ResponseCode.LOGIN_FAILED);
-						System.out.println(networkAccounts.get(oos));
+						System.out.println(serverResponse.getResponseID());
 						oos.writeObject(serverResponse);
 					}
 				} else if (clientRequest.getRequestType() == RequestCode.CREATE_ACCOUNT) {
 					user = clientRequest.getUser();
 					if (authenticateNewUser(user)) {
-						users.put(user.getUsername(), user.getPassword());
+						UserStreamModel usm = new UserStreamModel(user, null);
+						usersToIndex.put(user.getUsername(), networkAccounts.size());
+						networkAccounts.add(usm);
 						serverResponse = new Response(ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY);
 						oos.writeObject(serverResponse);
 					} else {
 						serverResponse = new Response(ResponseCode.ACCOUNT_CREATION_FAILED);
 						oos.writeObject(serverResponse);
 					}
+				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
+					user = clientRequest.getUser();
+					if (!authenticateNewUser(user)) {
+						networkAccounts.get(usersToIndex.get(user.getUsername())).getUser()
+								.setPassword(user.getPassword());
+						serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
+						oos.writeObject(serverResponse);
+					} else {
+						serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED);
+						oos.writeObject(serverResponse);
+					}
 				}
-
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
+	private static void setDefaultAccounts() {
+		User usr = new User("Josh", "123");
+		UserStreamModel usm = new UserStreamModel(usr, null);
+		usersToIndex.put(usr.getUsername(), networkAccounts.size());
+		networkAccounts.add(usm);
+		usr = new User("Cody", "456");
+		usm = new UserStreamModel(usr, null);
+		usersToIndex.put(usr.getUsername(), networkAccounts.size());
+		networkAccounts.add(usm);
+		usr = new User("Brittany", "789");
+		usm = new UserStreamModel(usr, null);
+		usersToIndex.put(usr.getUsername(), networkAccounts.size());
+		networkAccounts.add(usm);
+		usr = new User("Stephen", "boss");
+		usm = new UserStreamModel(usr, null);
+		usersToIndex.put(usr.getUsername(), networkAccounts.size());
+		networkAccounts.add(usm);
+	}
+
 	private static boolean authenticateNewUser(User user) {
-		if (users.containsKey(user.getUsername())) {
+		if (usersToIndex.containsKey(user.getUsername())) {
 			return false;
 		} else {
 			return true;
@@ -100,19 +126,18 @@ public class Server {
 	}
 
 	private static boolean authenticate(User user) {
-		if (users.containsKey(user.getUsername()) && users.get(user.getUsername()).equals(user.getPassword())) {
-			return true;
+		int index;
+		if (usersToIndex.containsKey(user.getUsername())) {
+			index = usersToIndex.get(user.getUsername());
+			if (networkAccounts.get(index).getUser().getPassword().equals(user.getPassword())) {
+				networkAccounts.get(index).toggleOnline();
+				return true;
+			} else
+				return false;
 		}
 		return false;
 	}
 
-	/**
-	 * @return returns the map
-	 */
-	public static Map<ObjectOutputStream, User> getAccounts() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
 
 /**
@@ -120,11 +145,10 @@ public class Server {
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu)
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
- * 
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
-	private Map<ObjectOutputStream, String> networkAccounts;
+	private Vector<UserStreamModel> networkAccounts;
 	private volatile boolean isRunning = true;
 	private Request clientRequest;
 	private Response serverResponse;
@@ -137,7 +161,7 @@ class ClientHandler extends Thread {
 	 * @param networkAccounts
 	 *            the list of uses connected
 	 */
-	public ClientHandler(ObjectInputStream input, Map<ObjectOutputStream, String> networkAccounts) {
+	public ClientHandler(ObjectInputStream input, Vector<UserStreamModel> networkAccounts) {
 		this.input = input;
 		this.networkAccounts = networkAccounts;
 	}
@@ -160,9 +184,6 @@ class ClientHandler extends Thread {
 		}
 	}
 
-	/**
-	 * Safely ends the client thread
-	 */
 	private void cleanUp() {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
@@ -180,20 +201,17 @@ class ClientHandler extends Thread {
 	 */
 	private void writeDocumentToClients(EditableDocument doc) {
 		synchronized (networkAccounts) {
-			Set<ObjectOutputStream> closedClientsList = new HashSet<ObjectOutputStream>();
-			Iterator it = networkAccounts.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry pair = (Map.Entry) it.next();
-				System.out.println(pair.getKey() + " = " + pair.getValue());
-				ObjectOutputStream oos = (ObjectOutputStream) pair.getKey();
-				serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
+			serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
+			for (UserStreamModel user : networkAccounts) {
 				try {
-					oos.writeObject(serverResponse);
+					if (user.isOnline())
+						user.getOuputStream().writeObject(serverResponse);
 				} catch (IOException e) {
-					networkAccounts.remove((ObjectOutputStream) pair.getKey());
+					// If user is no longer online, exception occurs, changes
+					// their status to offline
+					user.toggleOnline();
 					e.printStackTrace();
 				}
-				// NOT THREAD SAFE
 			}
 		}
 	}

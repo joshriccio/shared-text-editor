@@ -24,7 +24,7 @@ import network.Server;
 
 /**
  * 
- * @author Josh
+ * @author Cody, Josh
  *
  */
 public class LoginScreen extends JFrame {
@@ -100,14 +100,29 @@ public class LoginScreen extends JFrame {
 				JTextField createUsernameField = new JTextField();
 				JLabel createPassword = new JLabel("Password:");
 				JPasswordField createPasswordField = new JPasswordField();
-				Object[] array = { createUsername, createUsernameField, createPassword, createPasswordField };
-				int res = JOptionPane.showConfirmDialog(null,array,"Create Account",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
-				if (res == JOptionPane.YES_OPTION) {
+				Object[] createAccountFields = { createUsername, createUsernameField, createPassword, createPasswordField };
+				int response = JOptionPane.showConfirmDialog(null,createAccountFields,"Create Account",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+				if (response == JOptionPane.YES_OPTION) {
 					createAccountButtonState = true;
 					user = new User(createUsernameField.getText(),String.valueOf(createPasswordField.getPassword()));
 					openConnection(RequestCode.CREATE_ACCOUNT);
 				}
 				createAccountButtonState = false;
+			}
+		});
+		forgottenAccountButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JLabel username = new JLabel("Username:");
+				JTextField usernameField = new JTextField();
+				JLabel newPassword = new JLabel("New Password:");
+				JPasswordField newPasswordField = new JPasswordField();
+				Object[] forgotPasswordFields = { username, usernameField, newPassword, newPasswordField };
+				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields,"Forgot Password",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+				if(response == JOptionPane.YES_OPTION){
+					user = new User(usernameField.getText(), String.valueOf(newPasswordField.getPassword()));
+					openConnection(RequestCode.RESET_PASSWORD);
+				}
 			}
 		});
 	}
@@ -132,7 +147,24 @@ public class LoginScreen extends JFrame {
 //				editor.setVisible(true);
 				SubGUI greetingGUI = new SubGUI(oos, ois, user);
 				greetingGUI.setVisible(true);
+
 				dispose();
+			}
+			else if(serverResponse.getResponseID() == ResponseCode.LOGIN_FAILED){
+				JOptionPane.showConfirmDialog(null,"Username or Password is incorrect! Please try again.","Login Failed",JOptionPane.OK_OPTION);
+				
+			}
+			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY){
+				JOptionPane.showConfirmDialog(null,"Account created successfully! Please login to continue","Account Created Successfully",JOptionPane.OK_OPTION);
+			}
+			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_CREATION_FAILED){
+				JOptionPane.showConfirmDialog(null,"The username you have selected already exists. Please try again.","Failed to Create Account",JOptionPane.OK_OPTION);
+			}
+			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL){
+				JOptionPane.showConfirmDialog(null,"Your password has been successfully resest. Please login to continue.","Password Successfully Reset",JOptionPane.OK_OPTION);
+			}
+			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED){
+				JOptionPane.showConfirmDialog(null,"Sorry your username you entered is incorrect!","Password Failed to Reset",JOptionPane.OK_OPTION);
 			}
 		}
 		catch (IOException | ClassNotFoundException e) {

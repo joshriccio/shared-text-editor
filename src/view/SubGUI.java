@@ -38,10 +38,8 @@ public class SubGUI extends JFrame {
 	private JPanel bottomPanel = new JPanel();
 	private JButton newDocumentButton = new JButton("Create New Document");
 
-	private JButton loadDocumentButton = new JButton("Load Document"); // FIXME:
-																		// For
-	// testing,
-	// Phase 2
+	private JButton loadDocumentButton = new JButton("Load Document"); // FIXME: For testing, Phase 2
+	
 	private Socket socket = null;
 
 	private JTabbedPane openDocumentSelectorPane = new JTabbedPane();
@@ -109,6 +107,7 @@ public class SubGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+
 			try {
 				FileInputStream inFile = new FileInputStream("UpdatedSaveFile");
 				ObjectInputStream inputStream = new ObjectInputStream(inFile);
