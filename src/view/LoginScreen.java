@@ -128,10 +128,11 @@ public class LoginScreen extends JFrame {
 			oos.writeObject(clientRequest);
 			Response serverResponse = (Response) ois.readObject();
 			if (serverResponse.getResponseID() == ResponseCode.LOGIN_SUCCESSFUL) {
-				EditorGui editor = new EditorGui(oos, ois, user);
-				editor.setVisible(true);
+//				EditorGui editor = new EditorGui(oos, ois, user);
+//				editor.setVisible(true);
+				SubGUI greetingGUI = new SubGUI(oos, ois, user);
+				greetingGUI.setVisible(true);
 				dispose();
-				JOptionPane.showConfirmDialog(null,"Welcome " + clientRequest.getUser().getUsername() + "!","Login Successful",JOptionPane.YES_OPTION);
 			}
 		}
 		catch (IOException | ClassNotFoundException e) {

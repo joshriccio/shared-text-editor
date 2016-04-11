@@ -1,5 +1,7 @@
 package network;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -22,7 +24,7 @@ import model.User;
  * @author Joshua Riccio
  */
 public class Server {
-	public static int PORT_NUMBER = 4000;
+	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
 	private static Map<ObjectOutputStream, String> networkAccounts = Collections
 			.synchronizedMap(new HashMap<ObjectOutputStream, String>());
@@ -45,7 +47,7 @@ public class Server {
 		users.put("Josh", "123");
 		users.put("Cody", "456");
 		users.put("Brittany", "789");
-		users.put("Steven", "boss");
+		users.put("Stephen", "boss");
 		socket = null;
 		serverSocket = null;
 		ois = null;
@@ -129,8 +131,11 @@ class ClientHandler extends Thread {
 
 	/**
 	 * Constructor
-	 * @param input the object input stream
-	 * @param networkAccounts the list of uses connected
+	 * 
+	 * @param input
+	 *            the object input stream
+	 * @param networkAccounts
+	 *            the list of uses connected
 	 */
 	public ClientHandler(ObjectInputStream input, Map<ObjectOutputStream, String> networkAccounts) {
 		this.input = input;
@@ -143,7 +148,9 @@ class ClientHandler extends Thread {
 			try {
 				clientRequest = (Request) input.readObject();
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
-					this.writeDocumentToClients(clientRequest.getDocument());
+					EditableDocument document = clientRequest.getDocument();
+					this.saveDocument(document);
+					//this.writeDocumentToClients(document);
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -159,6 +166,10 @@ class ClientHandler extends Thread {
 	private void cleanUp() {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
+	}
+
+	private void saveDocument(EditableDocument doc) {
+		// TODO: Let the server do the actual saving
 	}
 
 	/**
