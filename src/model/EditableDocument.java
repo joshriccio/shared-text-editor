@@ -19,6 +19,7 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	private StyledDocument document;
 	private Timestamp timestamp;
 	private User documentOwner = null;
+	private String name;
 
 	/**
 	 * Constructor
@@ -28,9 +29,10 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	 * @param ownr
 	 *            owner of the document
 	 */
-	public EditableDocument(StyledDocument doc, User ownr) {
+	public EditableDocument(StyledDocument doc, User ownr, String name) {
 		document = doc;
 		documentOwner = ownr;
+		this.name = name;
 		generateNewTimeStamp();
 	}
 
@@ -40,8 +42,19 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	 * @param doc
 	 *            document to be changed in the wrapper
 	 */
-	public EditableDocument(StyledDocument doc) {
+	public EditableDocument(StyledDocument doc, String name) {
 		document = doc;
+		this.name = name;
+	}
+	
+	
+	/**
+	 * This method is used to get the String value of the name of the EditableDocument
+	 * @return
+	 * 		String EditableDocument.name
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
