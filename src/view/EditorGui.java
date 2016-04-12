@@ -11,9 +11,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.imageio.ImageIO;
@@ -27,15 +29,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import model.EditableDocument;
+import model.ToolBar;
 import model.User;
 import network.Request;
 import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
+import java.text.SimpleDateFormat;
 
 /**
  * 
@@ -54,26 +59,29 @@ public class EditorGui extends JFrame {
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
+	private ToolBar myToolBar = new ToolBar();
+	private String docName;
 
 	/**
-	 * Constructor
+	 * Constructor for when New Document is begun
 	 */
-	public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user) {
+	public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, String documentName) {
 		this.oos = oos;
 		this.ois = ois;
 		this.user = user;
+		docName = documentName;
 		ServerListener serverListener = new ServerListener();
-        serverListener.start();
-        
+		serverListener.start();
+
 		// Set Frame
-		this.setTitle("Collaborative Editing");
+		this.setTitle("Collaborative Editing: " + docName);
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
 		// initialize the text area
-		setTextArea();
+		setTextArea("");
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -84,16 +92,50 @@ public class EditorGui extends JFrame {
 	}
 
 	/**
+	 * Constructor for when previous document is loaded
+	 */
+	
+	public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
+			this.oos = oos;
+			this.ois = ois;
+			this.user = user;
+			ServerListener serverListener = new ServerListener();
+			serverListener.start();
+			docName = doc.getName();
+
+			// Set Frame
+			this.setTitle("Collaborative Editing");
+			this.setSize(1350, 700);
+			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			this.setFont(new Font("Courier New", Font.ITALIC, 12));
+			// initialize the text area
+			try {
+				setTextArea(doc.getDocument().getText(0, doc.getDocument().getLength()));
+			} catch (BadLocationException e) {
+				setTextArea("");
+				e.printStackTrace();
+			}
+			// initialize the JToolbar
+			setJToolBar();
+			// add listeners to buttons and drop boxes
+			setButtonListeners();
+			// Add Timer for saving every period: 5s
+			Timer timer = new Timer();
+			timer.schedule(new BackupDocument(), 0, 5000);	}
+
+	/**
 	 * This method sets up the text area.
 	 */
-	public void setTextArea() {
+	public void setTextArea(String startingText) {
 		textpane.setPreferredSize(new Dimension(100, 100));
 		textpane.setBackground(Color.WHITE);
+		textpane.setText(startingText);
 		JScrollPane scrollpane = new JScrollPane(textpane);
 		// Outlined text area with a border
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
-		//textpane.addKeyListener(new TextChangeListener()); //Disabled for now, maybe we add an option to turn this on if the userwants
+		// textpane.addKeyListener(new TextChangeListener()); //Disabled for
+		// now, maybe we add an option to turn this on if the userwants
 		// add text/scrollpane are to JFrame
 		this.add(scrollpane, BorderLayout.CENTER);
 	}
@@ -138,8 +180,24 @@ public class EditorGui extends JFrame {
 
 	private class BackupDocument extends TimerTask {
 		public void run() {
-			EditableDocument currentDoc = new EditableDocument((StyledDocument) textpane.getStyledDocument());
-			// TODO: Send doc to server
+			
+			//String newDocName = docName + new SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new Date());;
+			String newDocName = "UpdatedSaveFile";// FIXME: title will always be UpdatedSaveFile
+			EditableDocument currentDoc = new EditableDocument(textpane.getStyledDocument(), docName);
+			try{
+				FileOutputStream outFile = new FileOutputStream(newDocName);
+				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
+				outputStream.writeObject(currentDoc);
+				System.out.println("I just saved!");
+				// Do NOT forget to close the output stream!
+				outputStream.close();
+				outFile.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println("Couldn't create a new save file!");
+				//e.printStackTrace();
+			}
+
 		}
 	}
 
@@ -164,12 +222,13 @@ public class EditorGui extends JFrame {
 				int selectEnd = textpane.getSelectionEnd();
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("Bold", null);
-				StyleConstants.setBold(style, true);
-				
-				if (!StyleConstants.isBold(style)) {
+				StyleConstants.setBold(style, true);	
+				if (!myToolBar.isBold()) {
 					StyleConstants.setBold(style, true);
+					myToolBar.setIsBold(true);
 				} else {
 					StyleConstants.setBold(style, false);
+					myToolBar.setIsBold(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -184,10 +243,12 @@ public class EditorGui extends JFrame {
 				int selectEnd = textpane.getSelectionEnd();
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("Italic", null);
-				if (!StyleConstants.isItalic(style)) {
+				if (!myToolBar.isItalic()) {
 					StyleConstants.setItalic(style, true);
+					myToolBar.setIsItalic(true);
 				} else {
 					StyleConstants.setItalic(style, false);
+					myToolBar.setIsItalic(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -203,10 +264,13 @@ public class EditorGui extends JFrame {
 				StyledDocument doc = (StyledDocument) textpane.getStyledDocument();
 				Style style = textpane.addStyle("UnderLine", null);
 				StyleConstants.setUnderline(style, true);
-				if (!StyleConstants.isUnderline(style)) {
+				
+				if (!myToolBar.isUnderlined()) {
 					StyleConstants.setUnderline(style, true);
+					myToolBar.setIsUnderlined(true);
 				} else {
 					StyleConstants.setUnderline(style, false);
+					myToolBar.setIsUnderlined(false);
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -217,7 +281,7 @@ public class EditorGui extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Integer fontSize = (int) sizeFontDropDown.getSelectedItem();
-			
+
 			if (textpane.getSelectedText() != null) {
 				int selectStart = textpane.getSelectionStart();
 				int selectEnd = textpane.getSelectionEnd();
@@ -259,30 +323,7 @@ public class EditorGui extends JFrame {
 			}
 		}
 	}
-	
-	private class TextChangeListener implements KeyListener{
 
-		@Override
-		public void keyPressed(KeyEvent e) {		
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			Request rq = new Request(RequestCode.DOCUMENT_SENT);
-			EditableDocument doc = new EditableDocument(textpane.getStyledDocument());
-			rq.setDocument(doc);
-			try {
-				oos.writeObject(rq);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-		}
-		
-	}
 
 	private class ServerListener extends Thread {
 		@Override
@@ -290,7 +331,7 @@ public class EditorGui extends JFrame {
 			while (true) {
 				try {
 					Response response = (Response) ois.readObject();
-					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT){
+					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
 						EditorGui.this.textpane.setStyledDocument(response.getStyledDocument());
 						EditorGui.this.textpane.setCaretPosition(textpane.getText().length());
 					}

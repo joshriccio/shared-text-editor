@@ -32,8 +32,8 @@ public class EditorTests {
 	public void EditableDocTest1() {
 		User usr = new User("Josh", "123");
 		JTextPane jtp = new JTextPane();
-		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr);
-		EditableDocument doc2 = new EditableDocument(jtp.getStyledDocument());
+		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr, "doc1");
+		EditableDocument doc2 = new EditableDocument(jtp.getStyledDocument(), "doc2");
 
 		try {
 			doc2.getDocument().insertString(0, "Test", null);
@@ -52,7 +52,7 @@ public class EditorTests {
 	public void EditableDocTestOwner() {
 		User usr = new User("Josh", "123");
 		JTextPane jtp = new JTextPane();
-		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr);
+		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr, "doc1");
 		assertEquals(doc.getDocumentOwner(), usr);
 	}
 
@@ -60,8 +60,8 @@ public class EditorTests {
 	public void EditableDocTestTimestamp() {
 		User usr = new User("Josh", "123");
 		JTextPane jtp = new JTextPane();
-		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr);
-		EditableDocument doc2 = new EditableDocument(jtp.getStyledDocument(), usr);
+		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr, "doc1");
+		EditableDocument doc2 = new EditableDocument(jtp.getStyledDocument(), usr, "doc2");
 
 		assertTrue(doc.getTimestamp().compareTo(doc2.getTimestamp()) == 0);
 		assertTrue(doc.compareTo(doc2.getTimestamp()) == 0);
