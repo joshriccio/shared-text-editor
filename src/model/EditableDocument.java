@@ -2,7 +2,6 @@ package model;
 
 import javax.swing.text.StyledDocument;
 
-import java.awt.List;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Vector;
