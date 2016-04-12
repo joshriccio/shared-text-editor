@@ -7,9 +7,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.Vector;
 import model.EditableDocument;
+import model.Password;
 import model.User;
 
 /**
@@ -125,11 +128,21 @@ public class Server {
 		}
 	}
 
-	private static boolean authenticate(User user) {
+	private static boolean authenticate(User user) {		
 		int index;
 		if (usersToIndex.containsKey(user.getUsername())) {
 			index = usersToIndex.get(user.getUsername());
-			if (networkAccounts.get(index).getUser().getPassword().equals(user.getPassword())) {
+			
+			//generate the secure password for the user
+			String securePassword = null;
+			try {
+				securePassword = Password.generateSecurePassword(user.getPassword(), user.getSalt());
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			} catch (NoSuchProviderException e) {
+				e.printStackTrace();
+			}
+			if (networkAccounts.get(index).getUser().getPassword().equals(securePassword)) {
 				networkAccounts.get(index).toggleOnline();
 				return true;
 			} else

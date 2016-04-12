@@ -16,6 +16,7 @@ public class User implements Serializable {
 
 	private String username;
 	private String password;
+	private static String salt;
 
 	/**
 	 * Costructor for the user class, assigns both the username and password
@@ -48,5 +49,13 @@ public class User implements Serializable {
 	
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public static void setSalt(String inSalt){
+		salt = inSalt;
+	}
+	
+	public String getSalt(){
+		return this.salt;
 	}
 }

@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,6 +24,7 @@ import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
 import network.Server;
+import model.Password;
 
 /**
  * 
@@ -89,7 +93,22 @@ public class LoginScreen extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				loginButtonState = true;
-				user = new User(loginTextField.getText(),String.valueOf(passwordField.getPassword()));
+
+				//This sets grabs the users password, makes the user, generates a secure
+				//password with the users associated salt value, and gives the user their
+				//secure password
+				String password = String.valueOf(passwordField.getPassword());
+				user = new User(loginTextField.getText(), password);
+
+				try {
+					String securePassword = Password.generateSecurePassword(password, user.getSalt());
+					user.setPassword(securePassword);
+				} catch (NoSuchAlgorithmException e2) {
+					e2.printStackTrace();
+				} catch (NoSuchProviderException e2) {
+					e2.printStackTrace();
+				}
+
 				openConnection(RequestCode.LOGIN);
 			}
 		});
@@ -100,11 +119,29 @@ public class LoginScreen extends JFrame {
 				JTextField createUsernameField = new JTextField();
 				JLabel createPassword = new JLabel("Password:");
 				JPasswordField createPasswordField = new JPasswordField();
-				Object[] createAccountFields = { createUsername, createUsernameField, createPassword, createPasswordField };
-				int response = JOptionPane.showConfirmDialog(null,createAccountFields,"Create Account",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+				Object[] createAccountFields = { createUsername, createUsernameField, createPassword,
+						createPasswordField };
+				int response = JOptionPane.showConfirmDialog(null, createAccountFields, "Create Account",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 				if (response == JOptionPane.YES_OPTION) {
 					createAccountButtonState = true;
-					user = new User(createUsernameField.getText(),String.valueOf(createPasswordField.getPassword()));
+					
+					//Hashing password for when the user creates an account
+					//this also generates a salt value for the user and sets the 
+					//salt to the user
+					String password = String.valueOf(passwordField.getPassword());
+					user = new User(createUsernameField.getText(), password);
+
+					try {
+						String securePassword = Password.generateSecurePassword(password, null);
+						System.out.println("This is the salt value once account is created " + user.getSalt());
+						user.setPassword(securePassword);
+					} catch (NoSuchAlgorithmException e) {
+						e.printStackTrace();
+					} catch (NoSuchProviderException e) {
+						e.printStackTrace();
+					}
+
 					openConnection(RequestCode.CREATE_ACCOUNT);
 				}
 				createAccountButtonState = false;
@@ -118,9 +155,23 @@ public class LoginScreen extends JFrame {
 				JLabel newPassword = new JLabel("New Password:");
 				JPasswordField newPasswordField = new JPasswordField();
 				Object[] forgotPasswordFields = { username, usernameField, newPassword, newPasswordField };
-				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields,"Forgot Password",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
-				if(response == JOptionPane.YES_OPTION){
-					user = new User(usernameField.getText(), String.valueOf(newPasswordField.getPassword()));
+				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Forgot Password",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (response == JOptionPane.YES_OPTION) {
+					
+					//Resets the users password and gives them a new salt value
+					//This is similar to creating a new account
+					String password = String.valueOf(passwordField.getPassword());
+					user = new User(usernameField.getText(), password);
+
+					try {
+						String securePassword = Password.generateSecurePassword(password, null);
+						user.setPassword(securePassword);
+					} catch (NoSuchAlgorithmException e2) {
+						e2.printStackTrace();
+					} catch (NoSuchProviderException e2) {
+						e2.printStackTrace();
+					}
 					openConnection(RequestCode.RESET_PASSWORD);
 				}
 			}
