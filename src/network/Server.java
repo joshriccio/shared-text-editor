@@ -33,6 +33,7 @@ public class Server {
 	private static Request clientRequest;
 	private static Response serverResponse;
 	private static User user;
+	private static String securePassword;
 
 	/**
 	 * Receives requests from the client and processes responses.
@@ -126,7 +127,7 @@ public class Server {
 		} else {
 			
 			try {
-				String securePassword = Password.generateSecurePassword(user, null);
+				 securePassword = Password.generateSecurePassword(user, null);
 			} catch (NoSuchAlgorithmException e) {
 				e.printStackTrace();
 			} catch (NoSuchProviderException e) {
@@ -144,8 +145,6 @@ public class Server {
 		if (usersToIndex.containsKey(user.getUsername())) {
 			index = usersToIndex.get(user.getUsername());
 			
-			//generate the secure password for the user
-			String securePassword = null;
 			try {
 				securePassword = Password.generateSecurePassword(user, user.getSalt());
 			} catch (NoSuchAlgorithmException e) {
