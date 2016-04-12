@@ -1,6 +1,13 @@
 package model;
 
+import java.awt.Component;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+import javax.swing.ListModel;
+import javax.swing.table.TableModel;
 
 /**
  * This class is designed to handle user account interactions. A unique
@@ -16,6 +23,9 @@ public class User implements Serializable {
 
 	private String username;
 	private String password;
+	
+	private List<EditableDocument> editableDocs;
+	private List<EditableDocument> ownedDocs;
 
 	/**
 	 * Costructor for the user class, assigns both the username and password
@@ -48,5 +58,29 @@ public class User implements Serializable {
 	
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public List<EditableDocument> getOwnedDocuments(){
+		return this.ownedDocs;
+	}
+	
+	public void addAsOwner(EditableDocument document){
+		this.ownedDocs.add(document);
+	}
+	
+	public void removeAsOwner(EditableDocument document){
+		this.ownedDocs.remove(document);
+	}
+	
+	public List<EditableDocument> getEditableDocuments(){
+		return this.editableDocs;
+	}
+	
+	public void addAsEditor(EditableDocument document){
+		this.editableDocs.add(document);
+	}
+	
+	public void removeAsEditor(EditableDocument document){
+		this.editableDocs.remove(document);
 	}
 }
