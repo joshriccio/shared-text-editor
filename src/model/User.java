@@ -51,8 +51,8 @@ public class User implements Serializable {
 		this.password = password;
 	}
 	
-	public static void setSalt(String inSalt){
-		salt = inSalt;
+	public void setSalt(String inSalt){
+		this.salt = inSalt;
 	}
 	
 	public String getSalt(){

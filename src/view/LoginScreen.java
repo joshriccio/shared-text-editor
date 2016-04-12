@@ -101,7 +101,7 @@ public class LoginScreen extends JFrame {
 				user = new User(loginTextField.getText(), password);
 
 				try {
-					String securePassword = Password.generateSecurePassword(password, user.getSalt());
+					String securePassword = Password.generateSecurePassword(user, user.getSalt());
 					user.setPassword(securePassword);
 				} catch (NoSuchAlgorithmException e2) {
 					e2.printStackTrace();
@@ -133,7 +133,7 @@ public class LoginScreen extends JFrame {
 					user = new User(createUsernameField.getText(), password);
 
 					try {
-						String securePassword = Password.generateSecurePassword(password, null);
+						String securePassword = Password.generateSecurePassword(user, null);
 						System.out.println("This is the salt value once account is created " + user.getSalt());
 						user.setPassword(securePassword);
 					} catch (NoSuchAlgorithmException e) {
@@ -165,7 +165,7 @@ public class LoginScreen extends JFrame {
 					user = new User(usernameField.getText(), password);
 
 					try {
-						String securePassword = Password.generateSecurePassword(password, null);
+						String securePassword = Password.generateSecurePassword(user, null);
 						user.setPassword(securePassword);
 					} catch (NoSuchAlgorithmException e2) {
 						e2.printStackTrace();

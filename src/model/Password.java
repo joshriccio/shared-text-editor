@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import model.User;
 
 public class Password {
 
@@ -18,20 +19,20 @@ public class Password {
 	 * @throws NoSuchAlgorithmException
 	 * @throws NoSuchProviderException
 	 */
-	public static String generateSecurePassword(String password, String salt)
+	public static String generateSecurePassword(User user, String salt)
 			throws NoSuchAlgorithmException, NoSuchProviderException {
 
 		// salt is null when an account is being created and the user doesn't
 		// have a salt value yet.
 		if (salt == null) {
 			salt = generateSaltValue();
-			User.setSalt(salt);
+			user.setSalt(salt);
 		}
 
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(salt.getBytes());
 		// Get the hash's bytes
-		byte[] bytes = md.digest(password.getBytes());
+		byte[] bytes = md.digest(user.getPassword().getBytes());
 		// This bytes[] has bytes in decimal format;
 		// Convert it to hexadecimal format
 		StringBuilder sb = new StringBuilder();

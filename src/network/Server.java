@@ -136,7 +136,7 @@ public class Server {
 			//generate the secure password for the user
 			String securePassword = null;
 			try {
-				securePassword = Password.generateSecurePassword(user.getPassword(), user.getSalt());
+				securePassword = Password.generateSecurePassword(user, user.getSalt());
 			} catch (NoSuchAlgorithmException e) {
 				e.printStackTrace();
 			} catch (NoSuchProviderException e) {
