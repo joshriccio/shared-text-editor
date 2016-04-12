@@ -124,7 +124,18 @@ public class Server {
 		if (usersToIndex.containsKey(user.getUsername())) {
 			return false;
 		} else {
+			
+			try {
+				String securePassword = Password.generateSecurePassword(user, null);
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			} catch (NoSuchProviderException e) {
+				e.printStackTrace();
+			}
+			
+			
 			return true;
+			
 		}
 	}
 
@@ -142,6 +153,7 @@ public class Server {
 			} catch (NoSuchProviderException e) {
 				e.printStackTrace();
 			}
+			
 			if (networkAccounts.get(index).getUser().getPassword().equals(securePassword)) {
 				networkAccounts.get(index).toggleOnline();
 				return true;

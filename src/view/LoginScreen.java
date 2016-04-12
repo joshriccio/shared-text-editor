@@ -93,21 +93,8 @@ public class LoginScreen extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				loginButtonState = true;
-
-				//This sets grabs the users password, makes the user, generates a secure
-				//password with the users associated salt value, and gives the user their
-				//secure password
-				String password = String.valueOf(passwordField.getPassword());
-				user = new User(loginTextField.getText(), password);
-
-				try {
-					String securePassword = Password.generateSecurePassword(user, user.getSalt());
-					user.setPassword(securePassword);
-				} catch (NoSuchAlgorithmException e2) {
-					e2.printStackTrace();
-				} catch (NoSuchProviderException e2) {
-					e2.printStackTrace();
-				}
+				
+				user = new User(loginTextField.getText(), String.valueOf(passwordField.getPassword()));
 
 				openConnection(RequestCode.LOGIN);
 			}
@@ -126,21 +113,7 @@ public class LoginScreen extends JFrame {
 				if (response == JOptionPane.YES_OPTION) {
 					createAccountButtonState = true;
 					
-					//Hashing password for when the user creates an account
-					//this also generates a salt value for the user and sets the 
-					//salt to the user
-					String password = String.valueOf(passwordField.getPassword());
-					user = new User(createUsernameField.getText(), password);
-
-					try {
-						String securePassword = Password.generateSecurePassword(user, null);
-						System.out.println("This is the salt value once account is created " + user.getSalt());
-						user.setPassword(securePassword);
-					} catch (NoSuchAlgorithmException e) {
-						e.printStackTrace();
-					} catch (NoSuchProviderException e) {
-						e.printStackTrace();
-					}
+					user = new User(createUsernameField.getText(), String.valueOf(passwordField.getPassword()));
 
 					openConnection(RequestCode.CREATE_ACCOUNT);
 				}
@@ -159,19 +132,8 @@ public class LoginScreen extends JFrame {
 						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 				if (response == JOptionPane.YES_OPTION) {
 					
-					//Resets the users password and gives them a new salt value
-					//This is similar to creating a new account
-					String password = String.valueOf(passwordField.getPassword());
-					user = new User(usernameField.getText(), password);
+					user = new User(usernameField.getText(), String.valueOf(passwordField.getPassword()));
 
-					try {
-						String securePassword = Password.generateSecurePassword(user, null);
-						user.setPassword(securePassword);
-					} catch (NoSuchAlgorithmException e2) {
-						e2.printStackTrace();
-					} catch (NoSuchProviderException e2) {
-						e2.printStackTrace();
-					}
 					openConnection(RequestCode.RESET_PASSWORD);
 				}
 			}
