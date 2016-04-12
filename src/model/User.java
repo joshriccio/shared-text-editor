@@ -16,7 +16,7 @@ public class User implements Serializable {
 
 	private String username;
 	private String password;
-	private static String salt;
+	private  String salt;
 
 	/**
 	 * Costructor for the user class, assigns both the username and password
