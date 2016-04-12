@@ -21,31 +21,21 @@ import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
 import network.Server;
-
 /**
- * 
  * @author Cody, Josh
- *
  */
 public class LoginScreen extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel loginPanel;
-	private JButton loginButton = new JButton("Login");
-	private JButton createAccountButton = new JButton("Create Account");
-	private JButton forgottenAccountButton = new JButton("Forgot Login");
-//	private JButton updateToServer = new JButton("Update Server");
-	private JTextField loginTextField = new JTextField(15);
-	private JPasswordField passwordField = new JPasswordField(15);
-	private JLabel username;
-	private JLabel password;
-	public static boolean loginButtonState = false; // Means button has not been pressed
-	public static boolean createAccountButtonState = false; // Means button has not been pressed
+	private JButton loginButton, createAccountButton, forgotLoginButton;
+	private JTextField loginTextField;
+	private JPasswordField passwordField;
+	private JLabel username, password;
 	private static final String ADDRESS = "localhost";
 	private Socket socket = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
-	
 	/**
 	 * Constructor
 	 */
@@ -56,7 +46,12 @@ public class LoginScreen extends JFrame {
 		setLocation(300,20);
 		setLayout(new FlowLayout());
 		username = new JLabel("Username");
+		loginTextField = new JTextField(15);
 		password = new JLabel("Password");
+		passwordField = new JPasswordField(15);
+		loginButton = new JButton("Login");
+		createAccountButton = new JButton("Create Account");
+		forgotLoginButton = new JButton("Forgot Login");
 		loginPanel = new JPanel();
 		loginPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -80,7 +75,7 @@ public class LoginScreen extends JFrame {
 		loginPanel.add(createAccountButton,c);
 		c.gridx = 2;
 		c.gridy = 2;
-		loginPanel.add(forgottenAccountButton,c);
+		loginPanel.add(forgotLoginButton,c);
 		add(loginPanel);
 		/*
 		 * Login button will have a different effect in the GUI.
@@ -88,7 +83,6 @@ public class LoginScreen extends JFrame {
 		loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				loginButtonState = true;
 				user = new User(loginTextField.getText(),String.valueOf(passwordField.getPassword()));
 				openConnection(RequestCode.LOGIN);
 			}
@@ -103,14 +97,12 @@ public class LoginScreen extends JFrame {
 				Object[] createAccountFields = { createUsername, createUsernameField, createPassword, createPasswordField };
 				int response = JOptionPane.showConfirmDialog(null,createAccountFields,"Create Account",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 				if (response == JOptionPane.YES_OPTION) {
-					createAccountButtonState = true;
 					user = new User(createUsernameField.getText(),String.valueOf(createPasswordField.getPassword()));
 					openConnection(RequestCode.CREATE_ACCOUNT);
 				}
-				createAccountButtonState = false;
 			}
 		});
-		forgottenAccountButton.addActionListener(new ActionListener() {
+		forgotLoginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JLabel username = new JLabel("Username:");
@@ -118,15 +110,14 @@ public class LoginScreen extends JFrame {
 				JLabel newPassword = new JLabel("New Password:");
 				JPasswordField newPasswordField = new JPasswordField();
 				Object[] forgotPasswordFields = { username, usernameField, newPassword, newPasswordField };
-				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields,"Forgot Password",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
-				if(response == JOptionPane.YES_OPTION){
-					user = new User(usernameField.getText(), String.valueOf(newPasswordField.getPassword()));
+				int response = JOptionPane.showConfirmDialog(null,forgotPasswordFields,"Forgot Password",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+				if (response == JOptionPane.YES_OPTION) {
+					user = new User(usernameField.getText(),String.valueOf(newPasswordField.getPassword()));
 					openConnection(RequestCode.RESET_PASSWORD);
 				}
 			}
 		});
 	}
-	
 	/**
 	 * Opens a new connection between server and client
 	 * 
@@ -143,24 +134,23 @@ public class LoginScreen extends JFrame {
 			oos.writeObject(clientRequest);
 			Response serverResponse = (Response) ois.readObject();
 			if (serverResponse.getResponseID() == ResponseCode.LOGIN_SUCCESSFUL) {
-				EditorGui editor = new EditorGui(oos, ois, user);
+				EditorGui editor = new EditorGui(oos,ois,user);
 				editor.setVisible(true);
 				dispose();
 			}
-			else if(serverResponse.getResponseID() == ResponseCode.LOGIN_FAILED){
+			else if (serverResponse.getResponseID() == ResponseCode.LOGIN_FAILED) {
 				JOptionPane.showConfirmDialog(null,"Username or Password is incorrect! Please try again.","Login Failed",JOptionPane.OK_OPTION);
-				
 			}
-			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY){
+			else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY) {
 				JOptionPane.showConfirmDialog(null,"Account created successfully! Please login to continue","Account Created Successfully",JOptionPane.OK_OPTION);
 			}
-			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_CREATION_FAILED){
+			else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_CREATION_FAILED) {
 				JOptionPane.showConfirmDialog(null,"The username you have selected already exists. Please try again.","Failed to Create Account",JOptionPane.OK_OPTION);
 			}
-			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL){
+			else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
 				JOptionPane.showConfirmDialog(null,"Your password has been successfully resest. Please login to continue.","Password Successfully Reset",JOptionPane.OK_OPTION);
 			}
-			else if(serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED){
+			else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
 				JOptionPane.showConfirmDialog(null,"Sorry your username you entered is incorrect!","Password Failed to Reset",JOptionPane.OK_OPTION);
 			}
 		}

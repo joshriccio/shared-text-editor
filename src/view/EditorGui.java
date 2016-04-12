@@ -47,14 +47,10 @@ public class EditorGui extends JFrame {
 	private JTextPane textpane = new JTextPane();
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
-	private JButton boldFontButton;
-	private JButton italicFontButton;
-	private JButton underlineFontButton;
-	private JButton colorButton;
+	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton;
 	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
-	private JComboBox sizeFontDropDown = new JComboBox(fontSizes);
-	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-	private JComboBox fontDropDown = new JComboBox(fonts);
+	private JComboBox sizeFontDropDown, fontDropDown;
+	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames(); // Is this how it's supposed to be?
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
@@ -74,6 +70,8 @@ public class EditorGui extends JFrame {
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
+		sizeFontDropDown = new JComboBox(fontSizes);
+		fontDropDown = new JComboBox(fonts);
 		// initialize the text area
 		setTextArea();
 		// initialize the JToolbar
