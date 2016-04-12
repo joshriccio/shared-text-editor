@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 
 import javax.swing.*;
+import javax.swing.table.TableModel;
 
 import model.EditableDocument;
 import model.User;
@@ -43,9 +45,7 @@ public class SubGUI extends JFrame {
 	private Socket socket = null;
 
 	private JTabbedPane openDocumentSelectorPane = new JTabbedPane();
-	private JComponent editableDocs = makeTextPanel("Editable By You, poopface");
-	private JComponent ownedDocs = makeTextPanel("Owned By You");
-
+	
 	public SubGUI(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
 		oos = objectOutputStream;
 		ois = objectInputStream;
@@ -68,10 +68,14 @@ public class SubGUI extends JFrame {
 
 		this.setTitle("SubGUI (Welcome? Preferences?)");
 		this.setSize(400, 450);
-
+		
+		//String arrays of the names of Documents to be added to a JScrollPane
+		//String ownedDocNames[] = getNames(user.getOwnedDocuments());
+		//String editableDocNames[] = getNames(user.getEditableDocuments());
+		
 		// Add tabbedPane
-		openDocumentSelectorPane.addTab("Editable By You", null, editableDocs);
-		openDocumentSelectorPane.addTab("Owned By You", null, ownedDocs);
+		openDocumentSelectorPane.addTab("Owned By You", new JScrollPane());
+		openDocumentSelectorPane.addTab("Editable By You", new JScrollPane());
 		this.add(openDocumentSelectorPane);
 
 		bottomPanel.add(loadDocumentButton); // FIXME: Save from SubGUI - For
@@ -85,6 +89,20 @@ public class SubGUI extends JFrame {
 		this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
 
 	}
+
+//Method that grabs names of documents and adds it to an 
+//array of strings to be added to the JScrollPane()
+
+//	private String[] getNames(List<EditableDocument> list) {
+//		
+//		int size = list.size();
+//		String names[] = new String[size];
+//		for(int i = 0; i<size; i++){
+//			names[i] = list.get(i).getName();
+//		}
+//		
+//		return names;
+//	}
 
 	protected JComponent makeTextPanel(String text) {
 		JPanel panel = new JPanel(false);
