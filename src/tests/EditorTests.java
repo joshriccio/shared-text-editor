@@ -20,18 +20,6 @@ import model.User;
 public class EditorTests {
 
 	@Test
-	public void usertestpass() throws NoSuchAlgorithmException, NoSuchProviderException {
-		User user1 = new User("Josh", "123");
-		assertEquals(user1.getPassword(), Password.generateSecurePassword("123", user1.getSalt()));
-	}
-
-	@Test
-	public void usertestname() throws NoSuchAlgorithmException, NoSuchProviderException {
-		User user1 = new User("Josh", "123");
-		assertEquals(user1.getUsername(), "Josh");
-	}
-
-	@Test
 	public void EditableDocTest1() throws NoSuchAlgorithmException, NoSuchProviderException {
 		User usr = new User("Josh", "123");
 		JTextPane jtp = new JTextPane();
@@ -68,5 +56,23 @@ public class EditorTests {
 
 		assertTrue(doc.getTimestamp().compareTo(doc2.getTimestamp()) == 0);
 		assertTrue(doc.compareTo(doc2.getTimestamp()) == 0);
+	}
+	
+	@Test
+	public void editableDocOwner() throws NoSuchAlgorithmException, NoSuchProviderException {
+		User usr = new User("Josh", "123");
+		JTextPane jtp = new JTextPane();
+		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr, "doc1");
+		assertEquals(doc.getName(), "doc1");
+		
+		doc.addOwner(usr);
+		assertTrue(doc.getOwners().get(0).equals(usr));
+		doc.removeOwner(usr);
+		assertFalse(doc.getOwners().size() == 1);
+		
+		doc.addEditor(usr);
+		assertTrue(doc.getEditors().get(0).equals(usr));
+		doc.removeEditor(usr);
+		assertFalse(doc.getEditors().size() == 1);
 	}
 }
