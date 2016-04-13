@@ -6,6 +6,11 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import model.User;
 
+/**
+ * 
+ * @author Brittany 
+ *
+ */
 public class Password {
 
 	/**
@@ -21,13 +26,6 @@ public class Password {
 	 */
 	public static String generateSecurePassword(String pass, String salt)
 			throws NoSuchAlgorithmException, NoSuchProviderException {
-
-		// salt is null when an account is being created and the user doesn't
-		// have a salt value yet.
-//		if (salt == null) {
-//			salt = generateSaltValue();
-//			user.setSalt(salt);
-//		}
 
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(salt.getBytes());

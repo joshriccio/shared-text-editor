@@ -43,6 +43,8 @@ public class User implements Serializable {
 		this.username = username;
 		this.salt = Password.generateSaltValue();
 		this.password = Password.generateSecurePassword(password, this.salt);
+		this.editableDocs = new ArrayList<EditableDocument>();
+		this.ownedDocs = new ArrayList<EditableDocument>();
 	}
 
 	/**
