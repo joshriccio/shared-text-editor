@@ -1,11 +1,11 @@
-//package tests;
-//
+package tests;
+
 ///**
 // * 
 // * @author Josh
 // *
 // */
-//public class ModelTester {
+public class ModelTester {
 //	
 //	private static int getFullCoverage = 1;
 //	
@@ -18,4 +18,4 @@
 //		new UserTests();
 //	}
 //
-//}
+}
