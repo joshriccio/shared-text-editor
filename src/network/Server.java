@@ -124,18 +124,8 @@ public class Server {
 	private static boolean verifyNewUser(String username) {
 		if (!usersToIndex.containsKey(username)){
 			return true;
-		} else {
-
-//			try {
-//				securePassword = Password.generateSecurePassword(user, null);
-//			} catch (NoSuchAlgorithmException e) {
-//				e.printStackTrace();
-//			} catch (NoSuchProviderException e) {
-//				e.printStackTrace();
-//			}
-
+		} else {			
 			return true;
-
 		}
 	}
 
@@ -143,7 +133,6 @@ public class Server {
 		int index;
 		if (usersToIndex.containsKey(username)) {
 			index = usersToIndex.get(username);
-
 			try {
 				securePassword = Password.generateSecurePassword(password, networkAccounts.get(index).getUser().getSalt());
 			} catch (NoSuchAlgorithmException e) {
@@ -151,7 +140,6 @@ public class Server {
 			} catch (NoSuchProviderException e) {
 				e.printStackTrace();
 			}
-
 			if (networkAccounts.get(index).getUser().getPassword().equals(securePassword)) {
 				networkAccounts.get(index).toggleOnline();
 				return true;
