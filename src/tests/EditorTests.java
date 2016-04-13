@@ -7,6 +7,7 @@ import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import org.junit.Test;
 import model.EditableDocument;
+import model.Password;
 import model.User;
 
 /**
@@ -21,7 +22,7 @@ public class EditorTests {
 	@Test
 	public void usertestpass() throws NoSuchAlgorithmException, NoSuchProviderException {
 		User user1 = new User("Josh", "123");
-		assertEquals(user1.getPassword(), "123");
+		assertEquals(user1.getPassword(), Password.generateSecurePassword("123", user1.getSalt()));
 	}
 
 	@Test
