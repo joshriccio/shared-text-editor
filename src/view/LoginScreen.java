@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,6 +24,7 @@ import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
 import network.Server;
+import model.Password;
 
 /**
  * 
@@ -45,6 +49,8 @@ public class LoginScreen extends JFrame {
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private User user;
+	private String clientUsername;
+	private String clientPassword;
 	
 	/**
 	 * Constructor
@@ -89,7 +95,8 @@ public class LoginScreen extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				loginButtonState = true;
-				user = new User(loginTextField.getText(),String.valueOf(passwordField.getPassword()));
+				clientUsername = loginTextField.getText();
+				clientPassword = String.valueOf(passwordField.getPassword());
 				openConnection(RequestCode.LOGIN);
 			}
 		});
@@ -100,11 +107,14 @@ public class LoginScreen extends JFrame {
 				JTextField createUsernameField = new JTextField();
 				JLabel createPassword = new JLabel("Password:");
 				JPasswordField createPasswordField = new JPasswordField();
-				Object[] createAccountFields = { createUsername, createUsernameField, createPassword, createPasswordField };
-				int response = JOptionPane.showConfirmDialog(null,createAccountFields,"Create Account",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+				Object[] createAccountFields = { createUsername, createUsernameField, createPassword,
+						createPasswordField };
+				int response = JOptionPane.showConfirmDialog(null, createAccountFields, "Create Account",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 				if (response == JOptionPane.YES_OPTION) {
 					createAccountButtonState = true;
-					user = new User(createUsernameField.getText(),String.valueOf(createPasswordField.getPassword()));
+					clientUsername = createUsernameField.getText();
+					clientPassword = String.valueOf(createPasswordField.getPassword());
 					openConnection(RequestCode.CREATE_ACCOUNT);
 				}
 				createAccountButtonState = false;
@@ -118,9 +128,11 @@ public class LoginScreen extends JFrame {
 				JLabel newPassword = new JLabel("New Password:");
 				JPasswordField newPasswordField = new JPasswordField();
 				Object[] forgotPasswordFields = { username, usernameField, newPassword, newPasswordField };
-				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields,"Forgot Password",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
-				if(response == JOptionPane.YES_OPTION){
-					user = new User(usernameField.getText(), String.valueOf(newPasswordField.getPassword()));
+				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Forgot Password",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (response == JOptionPane.YES_OPTION) {
+					clientUsername = usernameField.getText();
+					clientPassword = String.valueOf(newPasswordField.getPassword());
 					openConnection(RequestCode.RESET_PASSWORD);
 				}
 			}
@@ -139,7 +151,9 @@ public class LoginScreen extends JFrame {
 			this.oos = new ObjectOutputStream(socket.getOutputStream());
 			this.ois = new ObjectInputStream(socket.getInputStream());
 			Request clientRequest = new Request(requestCode);
-			clientRequest.setUser(user);
+			clientRequest.setUsername(clientUsername);
+			clientRequest.setPassword(clientPassword);
+//			clientRequest.setUser(user);
 			oos.writeObject(clientRequest);
 			Response serverResponse = (Response) ois.readObject();
 			if (serverResponse.getResponseID() == ResponseCode.LOGIN_SUCCESSFUL) {

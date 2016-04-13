@@ -2,6 +2,8 @@ package model;
 
 import java.awt.Component;
 import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -23,7 +25,7 @@ public class User implements Serializable {
 
 	private String username;
 	private String password;
-	
+	private  String salt;
 	private List<EditableDocument> editableDocs;
 	private List<EditableDocument> ownedDocs;
 
@@ -34,10 +36,13 @@ public class User implements Serializable {
 	 *            the username
 	 * @param password
 	 *            the password
+	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException 
 	 */
-	public User(String username, String password) {
+	public User(String username, String password) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this.username = username;
-		this.password = password;
+		this.salt = Password.generateSaltValue();
+		this.password = Password.generateSecurePassword(password, this.salt);
 	}
 
 	/**
@@ -59,7 +64,15 @@ public class User implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public void setSalt(String inSalt){
+		this.salt = inSalt;
+	}
 	
+	public String getSalt(){
+		return this.salt;
+	}
+		
 	public List<EditableDocument> getOwnedDocuments(){
 		return this.ownedDocs;
 	}

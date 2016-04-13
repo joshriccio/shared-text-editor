@@ -2,6 +2,8 @@ package network;
 
 import java.io.Serializable;
 
+import javax.swing.JLabel;
+
 import model.EditableDocument;
 import model.User;
 
@@ -17,6 +19,8 @@ public class Request implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private RequestCode requestCode;
 	private User user;
+	private String username;
+	private String password;
 	private EditableDocument doc;
 
 	/**
@@ -66,5 +70,23 @@ public class Request implements Serializable {
 	public EditableDocument getDocument() {
 		return doc;
 	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+		
+	}
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+		
+	}
+	
 
 }

@@ -1,15 +1,16 @@
 package network;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.Vector;
 import model.EditableDocument;
+import model.Password;
 import model.User;
 
 /**
@@ -30,6 +31,7 @@ public class Server {
 	private static Request clientRequest;
 	private static Response serverResponse;
 	private static User user;
+	private static String securePassword;
 
 	/**
 	 * Receives requests from the client and processes responses.
@@ -40,8 +42,11 @@ public class Server {
 	 * 
 	 * @param args
 	 *            Never used
+	 * @throws Exception 
+	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
 		socket = null;
 		serverSocket = null;
@@ -55,10 +60,9 @@ public class Server {
 				oos = new ObjectOutputStream(socket.getOutputStream());
 				clientRequest = (Request) ois.readObject();
 				if (clientRequest.getRequestType() == RequestCode.LOGIN) {
-					user = clientRequest.getUser();
-					if (authenticate(user)) {
+					if (authenticate(clientRequest.getUsername(), clientRequest.getPassword())) {
 						serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
-						networkAccounts.get(usersToIndex.get(user.getUsername())).setOutputStream(oos);
+						networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).setOutputStream(oos);
 						System.out.println(serverResponse.getResponseID());
 						oos.writeObject(serverResponse);
 						ClientHandler c = new ClientHandler(ois, networkAccounts);
@@ -69,8 +73,8 @@ public class Server {
 						oos.writeObject(serverResponse);
 					}
 				} else if (clientRequest.getRequestType() == RequestCode.CREATE_ACCOUNT) {
-					user = clientRequest.getUser();
-					if (authenticateNewUser(user)) {
+					if (verifyNewUser(clientRequest.getUsername())) {
+						user = new User(clientRequest.getUsername(), clientRequest.getPassword());
 						UserStreamModel usm = new UserStreamModel(user, null);
 						usersToIndex.put(user.getUsername(), networkAccounts.size());
 						networkAccounts.add(usm);
@@ -81,8 +85,7 @@ public class Server {
 						oos.writeObject(serverResponse);
 					}
 				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
-					user = clientRequest.getUser();
-					if (!authenticateNewUser(user)) {
+					if (!verifyNewUser(clientRequest.getUsername())) {
 						networkAccounts.get(usersToIndex.get(user.getUsername())).getUser()
 								.setPassword(user.getPassword());
 						serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
@@ -98,9 +101,10 @@ public class Server {
 		}
 	}
 
-	private static void setDefaultAccounts() {
+	private static void setDefaultAccounts() throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		User usr = new User("Josh", "123");
-		UserStreamModel usm = new UserStreamModel(usr, null);
+		UserStreamModel usm;
+		usm = new UserStreamModel(usr, null);
 		usersToIndex.put(usr.getUsername(), networkAccounts.size());
 		networkAccounts.add(usm);
 		usr = new User("Cody", "456");
@@ -117,19 +121,26 @@ public class Server {
 		networkAccounts.add(usm);
 	}
 
-	private static boolean authenticateNewUser(User user) {
-		if (usersToIndex.containsKey(user.getUsername())) {
-			return false;
-		} else {
+	private static boolean verifyNewUser(String username) {
+		if (!usersToIndex.containsKey(username)){
+			return true;
+		} else {			
 			return true;
 		}
 	}
 
-	private static boolean authenticate(User user) {
+	private static boolean authenticate(String username, String password) {
 		int index;
-		if (usersToIndex.containsKey(user.getUsername())) {
-			index = usersToIndex.get(user.getUsername());
-			if (networkAccounts.get(index).getUser().getPassword().equals(user.getPassword())) {
+		if (usersToIndex.containsKey(username)) {
+			index = usersToIndex.get(username);
+			try {
+				securePassword = Password.generateSecurePassword(password, networkAccounts.get(index).getUser().getSalt());
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			} catch (NoSuchProviderException e) {
+				e.printStackTrace();
+			}
+			if (networkAccounts.get(index).getUser().getPassword().equals(securePassword)) {
 				networkAccounts.get(index).toggleOnline();
 				return true;
 			} else
@@ -173,7 +184,8 @@ class ClientHandler extends Thread {
 				clientRequest = (Request) input.readObject();
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 					EditableDocument document = clientRequest.getDocument();
-					//this.saveDocument(document);		// FIXME: must be able to save from server
+					// this.saveDocument(document); // FIXME: must be able to
+					// save from server
 					this.writeDocumentToClients(document);
 				}
 			} catch (ClassNotFoundException e) {

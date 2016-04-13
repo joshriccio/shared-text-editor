@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.List;
 
 import javax.swing.*;
@@ -24,7 +26,7 @@ import network.Server;
 
 public class SubGUI extends JFrame {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException {
 		User user = new User("Stephen", "boss");
 		new SubGUI(user);
 	}

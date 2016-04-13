@@ -1,6 +1,8 @@
 package tests;
 
 import static org.junit.Assert.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import org.junit.Test;
@@ -17,19 +19,19 @@ import model.User;
 public class EditorTests {
 
 	@Test
-	public void usertestpass() {
+	public void usertestpass() throws NoSuchAlgorithmException, NoSuchProviderException {
 		User user1 = new User("Josh", "123");
 		assertEquals(user1.getPassword(), "123");
 	}
 
 	@Test
-	public void usertestname() {
+	public void usertestname() throws NoSuchAlgorithmException, NoSuchProviderException {
 		User user1 = new User("Josh", "123");
 		assertEquals(user1.getUsername(), "Josh");
 	}
 
 	@Test
-	public void EditableDocTest1() {
+	public void EditableDocTest1() throws NoSuchAlgorithmException, NoSuchProviderException {
 		User usr = new User("Josh", "123");
 		JTextPane jtp = new JTextPane();
 		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr, "doc1");
@@ -49,7 +51,7 @@ public class EditorTests {
 	}
 
 	@Test
-	public void EditableDocTestOwner() {
+	public void EditableDocTestOwner() throws NoSuchAlgorithmException, NoSuchProviderException {
 		User usr = new User("Josh", "123");
 		JTextPane jtp = new JTextPane();
 		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr, "doc1");
@@ -57,7 +59,7 @@ public class EditorTests {
 	}
 
 	@Test
-	public void EditableDocTestTimestamp() {
+	public void EditableDocTestTimestamp() throws NoSuchAlgorithmException, NoSuchProviderException {
 		User usr = new User("Josh", "123");
 		JTextPane jtp = new JTextPane();
 		EditableDocument doc = new EditableDocument(jtp.getStyledDocument(), usr, "doc1");
