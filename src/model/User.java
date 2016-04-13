@@ -65,9 +65,9 @@ public class User implements Serializable {
 		this.password = password;
 	}
 
-	public void setSalt(String inSalt){
-		this.salt = inSalt;
-	}
+//	public void setSalt(String inSalt){
+//		this.salt = inSalt;
+//	}
 	
 	public String getSalt(){
 		return this.salt;
