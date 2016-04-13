@@ -1,6 +1,8 @@
 package model;
 
 import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
 /**
  * This class is designed to handle user account interactions. A unique
@@ -25,10 +27,13 @@ public class User implements Serializable {
 	 *            the username
 	 * @param password
 	 *            the password
+	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException 
 	 */
-	public User(String username, String password) {
+	public User(String username, String password) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this.username = username;
-		this.password = password;
+		this.salt = Password.generateSaltValue();
+		this.password = Password.generateSecurePassword(password, this.salt);
 	}
 
 	/**
