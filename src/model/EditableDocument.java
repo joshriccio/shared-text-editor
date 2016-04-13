@@ -4,6 +4,7 @@ import javax.swing.text.StyledDocument;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Vector;
 
 /**
  * 
@@ -20,6 +21,8 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	private Timestamp timestamp;
 	private User documentOwner = null;
 	private String name;
+	private Vector<User> owners = new Vector<User>();
+	private Vector<User> editors = new Vector<User>();
 
 	/**
 	 * Constructor
@@ -106,6 +109,64 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	@Override
 	public int compareTo(Timestamp other) {
 		return timestamp.compareTo(other);
+	}
+	
+	/**
+	 * This method returns a vector of owners of the document
+	 * 
+	 * @return vector of owners
+	 */
+	public Vector<User> getOwners(){
+		return this.owners;
+	}
+	
+	/**
+	 * This method adds a user to the owners vector
+	 * 
+	 * @param user
+	 * 		user who is an owner
+	 */
+	public void addOwner(User user){
+		owners.add(user);
+	}
+	
+	/**
+	 * This method removes a user from the owners vector
+	 * 
+	 * @param user
+	 * 			user to be removed
+	 */
+	public void removeOwner(User user){
+		owners.remove(user);
+	}
+	
+	/**
+	 * This method returns the vector of editors
+	 * 
+	 * @return vector of editors
+	 */
+	public Vector<User> getEditors(){
+		return this.editors;
+	}
+	
+	/**
+	 * This method adds a user to the editor vector
+	 * 
+	 * @param user
+	 * 			user to be added as an editor
+	 */
+	public void addEditor(User user){
+		editors.add(user);
+	}
+	
+	/**
+	 * This method removes a user from the editor vector
+	 * 
+	 * @param user
+	 * 			user to be removed as an editor
+	 */
+	public void removeEditor(User user){
+		editors.remove(user);
 	}
 
 }
