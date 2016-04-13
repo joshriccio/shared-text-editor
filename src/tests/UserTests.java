@@ -1,4 +1,4 @@
-//package tests;
+package tests;
 //
 //import static org.junit.Assert.*;
 //
@@ -11,7 +11,7 @@
 // * @author Josh
 // *
 // */
-//public class UserTests {
+public class UserTests {
 //	
 //	private User stvn = new User("Stephen", "just4now");
 //	private User brtny = new User("Britanny", "pswd4brit");
@@ -34,4 +34,4 @@
 //		
 //	}
 //
-//}
+}
