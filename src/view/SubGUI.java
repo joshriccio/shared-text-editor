@@ -49,8 +49,8 @@ public class SubGUI extends JFrame {
 	private JTabbedPane openDocumentSelectorPane = new JTabbedPane();
 	
 	public SubGUI(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
-		oos = objectOutputStream;
-		ois = objectInputStream;
+		this.oos = objectOutputStream;
+		this.ois = objectInputStream;
 		this.user = user;
 
 		organizeLayout();
