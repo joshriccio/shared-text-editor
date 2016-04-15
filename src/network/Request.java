@@ -2,8 +2,6 @@ package network;
 
 import java.io.Serializable;
 
-import javax.swing.JLabel;
-
 import model.EditableDocument;
 import model.User;
 
@@ -80,11 +78,11 @@ public class Request implements Serializable {
 		
 	}
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 		
 	}
 	

@@ -19,7 +19,7 @@ import java.util.List;
 public class User implements Serializable {
 	private String username;
 	private String password;
-	private  String salt;
+	private String salt;
 	private List<EditableDocument> editableDocs;
 	private List<EditableDocument> ownedDocs;
 

@@ -8,14 +8,11 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.imageio.ImageIO;
@@ -36,11 +33,8 @@ import javax.swing.text.StyledDocument;
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
-import network.Request;
-import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
-import java.text.SimpleDateFormat;
 
 /**
  * 
@@ -61,6 +55,7 @@ public class EditorGui extends JFrame {
 	private User user;
 	private ToolBar myToolBar = new ToolBar();
 	private String docName;
+	private UsersOnline userslist;
 
 	/**
 	 * Constructor for when New Document is begun
@@ -89,6 +84,7 @@ public class EditorGui extends JFrame {
 		// Add Timer for saving every period: 5s
 		Timer timer = new Timer();
 		timer.schedule(new BackupDocument(), 0, 5000);
+		setUsersWindow();
 	}
 
 	/**
@@ -176,6 +172,13 @@ public class EditorGui extends JFrame {
 		javaToolBar.add(fontDropDown);
 		// add the tool bar to the frame
 		this.add(javaToolBar, BorderLayout.NORTH);
+	}
+	
+	public void setUsersWindow(){
+		userslist = new UsersOnline(oos);
+		userslist.init();
+		this.add(userslist, BorderLayout.EAST);
+		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
 	}
 
 	private class BackupDocument extends TimerTask {
@@ -334,6 +337,9 @@ public class EditorGui extends JFrame {
 					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
 						EditorGui.this.textpane.setStyledDocument(response.getStyledDocument());
 						EditorGui.this.textpane.setCaretPosition(textpane.getText().length());
+					}
+					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
+						EditorGui.this.userslist.updateUsers(response.getUserList());
 					}
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();

@@ -13,11 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.List;
-
 import javax.swing.*;
-import javax.swing.table.TableModel;
-
 import model.EditableDocument;
 import model.User;
 import network.Request;
@@ -49,8 +45,8 @@ public class SubGUI extends JFrame {
 	private JTabbedPane openDocumentSelectorPane = new JTabbedPane();
 	
 	public SubGUI(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
-		oos = objectOutputStream;
-		ois = objectInputStream;
+		this.oos = objectOutputStream;
+		this.ois = objectInputStream;
 		this.user = user;
 
 		organizeLayout();

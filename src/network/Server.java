@@ -17,8 +17,7 @@ import model.User;
  * The Server class acts as the communication portal between clients. The Server
  * receives requests and generates responses.
  * 
- * @author Cody Deeran(cdeeran11@email.arizona.edu)
- * @author Joshua Riccio
+ * @author Cody Deeran(cdeeran11@email.arizona.edu) @author Joshua Riccio
  */
 public class Server {
 	public static int PORT_NUMBER = 4001;
@@ -40,11 +39,8 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args
-	 *            Never used
-	 * @throws Exception
-	 * @throws NoSuchProviderException
-	 * @throws NoSuchAlgorithmException
+	 * @param args Never used @throws Exception @throws
+	 * NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -75,10 +71,11 @@ public class Server {
 	private static void processLogin() throws IOException {
 		if (authenticate(clientRequest.getUsername(), clientRequest.getPassword())) {
 			serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
+			serverResponse.setUser(networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser());
 			networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).setOutputStream(oos);
 			System.out.println(serverResponse.getResponseID());
 			oos.writeObject(serverResponse);
-			ClientHandler c = new ClientHandler(ois, networkAccounts);
+			ClientHandler c = new ClientHandler(ois);
 			c.start();
 		} else {
 			serverResponse = new Response(ResponseCode.LOGIN_FAILED);
@@ -87,7 +84,7 @@ public class Server {
 	}
 
 	private static void processAccountCreation() throws NoSuchAlgorithmException, NoSuchProviderException, IOException {
-		if (verifyNewUser(clientRequest.getUsername())) {
+		if (!userExists(clientRequest.getUsername()) && clientRequest.getUsername().charAt(0) != '-') {
 			user = new User(clientRequest.getUsername(), clientRequest.getPassword());
 			UserStreamModel usm = new UserStreamModel(user, null);
 			usersToIndex.put(user.getUsername(), networkAccounts.size());
@@ -101,10 +98,16 @@ public class Server {
 	}
 
 	private static void processPasswordReset() throws IOException {
-		if (!verifyNewUser(clientRequest.getUsername())) {
-		networkAccounts.get(usersToIndex.get(user.getUsername())).getUser().setPassword(user.getPassword());
-		serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
-		oos.writeObject(serverResponse);
+		if (userExists(clientRequest.getUsername())) {
+			User updatepassword = networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser();
+			try {
+				updatepassword.setPassword(
+						Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
+			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+				e.printStackTrace();
+			}
+			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
+			oos.writeObject(serverResponse);
 		} else {
 			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED);
 			oos.writeObject(serverResponse);
@@ -131,11 +134,11 @@ public class Server {
 		networkAccounts.add(usm);
 	}
 
-	private static boolean verifyNewUser(String username) {
-		if (!usersToIndex.containsKey(username)) {
+	private static boolean userExists(String username) {
+		if (usersToIndex.containsKey(username)) {
 			return true;
 		} else {
-			return true;
+			return false;
 		}
 	}
 
@@ -159,17 +162,26 @@ public class Server {
 		}
 		return false;
 	}
+
+	public static Vector<UserStreamModel> getNetworkAccounts() {
+		return networkAccounts;
+
+	}
+
+	public static HashMap<String, Integer> getUsersToIndex() {
+		return usersToIndex;
+
+	}
 }
 
 /**
  * ClientHandler gerates a new thread to manage client activity
  * 
- * @author Josh Riccio (jriccio@email.arizona.edu)
- * @author Cody Deeran (cdeeran11@email.arizona.edu)
+ * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
+ * (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
-	private Vector<UserStreamModel> networkAccounts;
 	private volatile boolean isRunning = true;
 	private Request clientRequest;
 	private Response serverResponse;
@@ -177,14 +189,11 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input
-	 *            the object input stream
-	 * @param networkAccounts
-	 *            the list of uses connected
+	 * @param input the object input stream @param networkAccounts the list of
+	 * uses connected
 	 */
-	public ClientHandler(ObjectInputStream input, Vector<UserStreamModel> networkAccounts) {
+	public ClientHandler(ObjectInputStream input) {
 		this.input = input;
-		this.networkAccounts = networkAccounts;
 	}
 
 	@Override
@@ -197,6 +206,12 @@ class ClientHandler extends Thread {
 					// this.saveDocument(document); // FIXME: must be able to
 					// save from server
 					this.writeDocumentToClients(document);
+				} else if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
+					writeUsersToClients();
+				} else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
+					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
+							.toggleOnline();
+					writeUsersToClients();
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -218,13 +233,12 @@ class ClientHandler extends Thread {
 	/**
 	 * Sends new shape to all connected clients
 	 * 
-	 * @param shape
-	 *            the shape to write to clients
+	 * @param shape the shape to write to clients
 	 */
 	private void writeDocumentToClients(EditableDocument doc) {
-		synchronized (networkAccounts) {
+		synchronized (Server.getNetworkAccounts()) {
 			serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
-			for (UserStreamModel user : networkAccounts) {
+			for (UserStreamModel user : Server.getNetworkAccounts()) {
 				try {
 					if (user.isOnline())
 						user.getOuputStream().writeObject(serverResponse);
@@ -232,9 +246,48 @@ class ClientHandler extends Thread {
 					// If user is no longer online, exception occurs, changes
 					// their status to offline
 					user.toggleOnline();
-					e.printStackTrace();
 				}
 			}
 		}
+	}
+
+	/**
+	 * Sends new shape to all connected clients
+	 * 
+	 * @param shape the shape to write to clients
+	 */
+	private void writeUsersToClients() {
+		synchronized (Server.getNetworkAccounts()) {
+			serverResponse = new Response(ResponseCode.USER_LIST_SENT);
+			serverResponse.setUserList(usersToArray());
+			for (UserStreamModel user : Server.getNetworkAccounts()) {
+				try {
+					if (user.isOnline())
+						user.getOuputStream().writeObject(serverResponse);
+				} catch (IOException e) {
+					// If user is no longer online, exception occurs, changes
+					// their status to offline
+					user.toggleOnline();
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method converts networkAccounts to a string array of usernames. If the user is offline 
+	 * the username is prefaced by a - symbol. When the client recieves the list they now are able
+	 * to differentiate between users online and users offline. 
+	 * @return
+	 * 		an array of type string, all users in networkAccounts
+	 */
+	private String[] usersToArray() {
+		String[] userlist = new String[Server.getNetworkAccounts().size()];
+		for (int i = 0; i < userlist.length; i++) {
+			if (Server.getNetworkAccounts().get(i).isOnline())
+				userlist[i] = Server.getNetworkAccounts().get(i).getUser().getUsername();
+			else
+				userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
+		}
+		return userlist;
 	}
 }
