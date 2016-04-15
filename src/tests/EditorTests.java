@@ -7,7 +7,6 @@ import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import org.junit.Test;
 import model.EditableDocument;
-import model.Password;
 import model.User;
 
 /**

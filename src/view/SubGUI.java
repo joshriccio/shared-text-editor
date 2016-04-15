@@ -13,11 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.List;
-
 import javax.swing.*;
-import javax.swing.table.TableModel;
-
 import model.EditableDocument;
 import model.User;
 import network.Request;

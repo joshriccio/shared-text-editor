@@ -3,11 +3,7 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Vector;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -15,10 +11,10 @@ import javax.swing.JScrollPane;
 
 import network.Request;
 import network.RequestCode;
-import network.UserStreamModel;
 
 public class UsersOnline extends JPanel{
 	
+	private static final long serialVersionUID = 1L;
 	private DefaultListModel<String> listmodel;
 	private JList<String> list;
 	private JScrollPane scrollpane;

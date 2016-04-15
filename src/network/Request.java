@@ -2,8 +2,6 @@ package network;
 
 import java.io.Serializable;
 
-import javax.swing.JLabel;
-
 import model.EditableDocument;
 import model.User;
 
