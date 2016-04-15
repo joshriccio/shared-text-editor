@@ -17,8 +17,7 @@ import model.User;
  * The Server class acts as the communication portal between clients. The Server
  * receives requests and generates responses.
  * 
- * @author Cody Deeran(cdeeran11@email.arizona.edu) 
- * @author Joshua Riccio
+ * @author Cody Deeran(cdeeran11@email.arizona.edu) @author Joshua Riccio
  */
 public class Server {
 	public static int PORT_NUMBER = 4001;
@@ -85,7 +84,7 @@ public class Server {
 	}
 
 	private static void processAccountCreation() throws NoSuchAlgorithmException, NoSuchProviderException, IOException {
-		if (!userExists(clientRequest.getUsername())) {
+		if (!userExists(clientRequest.getUsername()) && clientRequest.getUsername().charAt(0) != '-') {
 			user = new User(clientRequest.getUsername(), clientRequest.getPassword());
 			UserStreamModel usm = new UserStreamModel(user, null);
 			usersToIndex.put(user.getUsername(), networkAccounts.size());
@@ -102,7 +101,8 @@ public class Server {
 		if (userExists(clientRequest.getUsername())) {
 			User updatepassword = networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser();
 			try {
-				updatepassword.setPassword(Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
+				updatepassword.setPassword(
+						Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
 			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 				e.printStackTrace();
 			}
@@ -273,6 +273,13 @@ class ClientHandler extends Thread {
 		}
 	}
 
+	/**
+	 * This method converts networkAccounts to a string array of usernames. If the user is offline 
+	 * the username is prefaced by a - symbol. When the client recieves the list they now are able
+	 * to differentiate between users online and users offline. 
+	 * @return
+	 * 		an array of type string, all users in networkAccounts
+	 */
 	private String[] usersToArray() {
 		String[] userlist = new String[Server.getNetworkAccounts().size()];
 		for (int i = 0; i < userlist.length; i++) {
