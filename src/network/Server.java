@@ -75,10 +75,11 @@ public class Server {
 	private static void processLogin() throws IOException {
 		if (authenticate(clientRequest.getUsername(), clientRequest.getPassword())) {
 			serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
+			serverResponse.setUser(networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser());
 			networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).setOutputStream(oos);
 			System.out.println(serverResponse.getResponseID());
 			oos.writeObject(serverResponse);
-			ClientHandler c = new ClientHandler(ois, networkAccounts);
+			ClientHandler c = new ClientHandler(ois);
 			c.start();
 		} else {
 			serverResponse = new Response(ResponseCode.LOGIN_FAILED);
@@ -159,6 +160,16 @@ public class Server {
 		}
 		return false;
 	}
+	
+	public static Vector<UserStreamModel> getNetworkAccounts(){
+		return networkAccounts;
+		
+	}
+	
+	public static HashMap<String, Integer> getUsersToIndex(){
+		return usersToIndex;
+		
+	}
 }
 
 /**
@@ -169,7 +180,6 @@ public class Server {
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
-	private Vector<UserStreamModel> networkAccounts;
 	private volatile boolean isRunning = true;
 	private Request clientRequest;
 	private Response serverResponse;
@@ -182,9 +192,8 @@ class ClientHandler extends Thread {
 	 * @param networkAccounts
 	 *            the list of uses connected
 	 */
-	public ClientHandler(ObjectInputStream input, Vector<UserStreamModel> networkAccounts) {
+	public ClientHandler(ObjectInputStream input) {
 		this.input = input;
-		this.networkAccounts = networkAccounts;
 	}
 
 	@Override
@@ -197,6 +206,11 @@ class ClientHandler extends Thread {
 					// this.saveDocument(document); // FIXME: must be able to
 					// save from server
 					this.writeDocumentToClients(document);
+				}else if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
+					writeUsersToClients();					
+				}else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
+					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).toggleOnline();	
+					writeUsersToClients();	
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -222,9 +236,9 @@ class ClientHandler extends Thread {
 	 *            the shape to write to clients
 	 */
 	private void writeDocumentToClients(EditableDocument doc) {
-		synchronized (networkAccounts) {
+		synchronized (Server.getNetworkAccounts()) {
 			serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
-			for (UserStreamModel user : networkAccounts) {
+			for (UserStreamModel user : Server.getNetworkAccounts()) {
 				try {
 					if (user.isOnline())
 						user.getOuputStream().writeObject(serverResponse);
@@ -232,9 +246,42 @@ class ClientHandler extends Thread {
 					// If user is no longer online, exception occurs, changes
 					// their status to offline
 					user.toggleOnline();
-					e.printStackTrace();
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Sends new shape to all connected clients
+	 * 
+	 * @param shape
+	 *            the shape to write to clients
+	 */
+	private void writeUsersToClients() {
+		synchronized (Server.getNetworkAccounts()) {
+			serverResponse = new Response(ResponseCode.USER_LIST_SENT);
+			serverResponse.setUserList(usersToArray());
+			for (UserStreamModel user : Server.getNetworkAccounts()) {
+				try {
+					if (user.isOnline())
+						user.getOuputStream().writeObject(serverResponse);
+				} catch (IOException e) {
+					// If user is no longer online, exception occurs, changes
+					// their status to offline
+					user.toggleOnline();
+				}
+			}
+		}
+	}
+	
+	private String[] usersToArray(){
+		String[] userlist = new String[Server.getNetworkAccounts().size()];
+		for(int i=0; i<userlist.length; i++){
+			if(Server.getNetworkAccounts().get(i).isOnline())
+				userlist[i] = Server.getNetworkAccounts().get(i).getUser().getUsername();
+			else
+				userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
+		}
+		return userlist;
 	}
 }

@@ -159,7 +159,8 @@ public class LoginScreen extends JFrame {
 			if (serverResponse.getResponseID() == ResponseCode.LOGIN_SUCCESSFUL) {
 //				EditorGui editor = new EditorGui(oos, ois, user);
 //				editor.setVisible(true);
-				SubGUI greetingGUI = new SubGUI(oos, ois, user);
+				this.user = serverResponse.getUser();
+				SubGUI greetingGUI = new SubGUI(this.oos, this.ois, this.user);
 				greetingGUI.setVisible(true);
 
 				dispose();
