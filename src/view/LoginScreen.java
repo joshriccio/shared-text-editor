@@ -62,7 +62,7 @@ public class LoginScreen extends JFrame {
 		setTitle("Login");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(400, 150);
-		setLocation(300, 20);
+		setLocationRelativeTo(null);
 		setLayout(new FlowLayout());
 		username = new JLabel("Username");
 		password = new JLabel("Password");

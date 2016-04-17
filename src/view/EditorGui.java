@@ -15,6 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -22,7 +23,12 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
@@ -30,6 +36,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
@@ -75,6 +82,8 @@ public class EditorGui extends JFrame {
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
+		// initialize the settings menu
+		setupSettingsMenu();
 		// initialize the text area
 		setTextArea("");
 		// initialize the JToolbar
@@ -139,7 +148,7 @@ public class EditorGui extends JFrame {
 	/**
 	 * This method sets up the tool bar.
 	 */
-	public void setJToolBar() {
+	private void setJToolBar() {
 		// initialize images
 		Image boldImage = null;
 		Image italicImage = null;
@@ -174,11 +183,43 @@ public class EditorGui extends JFrame {
 		this.add(javaToolBar, BorderLayout.NORTH);
 	}
 	
-	public void setUsersWindow(){
+	private void setUsersWindow(){
 		userslist = new UsersOnline(oos);
 		userslist.init();
 		this.add(userslist, BorderLayout.EAST);
 		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
+	}
+	
+	private void setupSettingsMenu() {
+	    JMenu settings = new JMenu("Settings");
+	    JMenuItem preferences = new JMenuItem("Preferences");
+	    settings.add(preferences);
+	    JMenuItem createNewDocument = new JMenuItem("New Document");
+	    settings.add(createNewDocument);
+	    JMenuItem loadDocument = new JMenuItem("Load Document");
+	    settings.add(loadDocument);
+	    
+	    // Create the menu bar and add the Items
+	    JMenuBar settingsBar = new JMenuBar();
+	    setJMenuBar(settingsBar);
+	    settingsBar.add(settings);
+	    
+	 // Add the same listener to all menu items requiring action
+	    MenuItemListener menuListener = new MenuItemListener();
+	    createNewDocument.addActionListener(menuListener);
+	}
+	
+	private class MenuItemListener implements ActionListener{
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+		String text = ((JMenuItem) e.getSource()).getText();
+		if(text.equals("New Document")){
+		    String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
+			EditorGui editor = new EditorGui(oos, ois, user, newDocumentName);
+			editor.setVisible(true);
+		}
+	    }
+	    
 	}
 
 	private class BackupDocument extends TimerTask {
