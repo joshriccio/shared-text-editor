@@ -16,7 +16,10 @@ import model.User;
  */
 public class Response implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6676768090079836369L;
 	private ResponseCode responseCode;
 	private EditableDocument doc;
 	private String[] userlist;
