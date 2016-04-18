@@ -15,7 +15,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -27,7 +26,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
@@ -37,7 +35,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
@@ -57,6 +54,7 @@ public class EditorGui extends JFrame {
     private JToolBar javaToolBar = new JToolBar();
     private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton;
     private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
+    @SuppressWarnings("rawtypes")
     private JComboBox sizeFontDropDown, fontDropDown;
     private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
     private ObjectOutputStream oos = null;
@@ -69,6 +67,7 @@ public class EditorGui extends JFrame {
     /**
      * Constructor for when New Document is begun
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, String documentName) {
 	this.oos = oos;
 	this.ois = ois;
@@ -84,8 +83,8 @@ public class EditorGui extends JFrame {
 	this.setFont(new Font("Courier New", Font.ITALIC, 12));
 	sizeFontDropDown = new JComboBox(fontSizes);
 	fontDropDown = new JComboBox(fonts);
-	// initialize the settings menu
-	setupSettingsMenu();
+	// initialize the file menu
+	setupFileMenu();
 	// initialize the text area
 	setTextArea("");
 	// initialize the JToolbar
@@ -198,25 +197,33 @@ public class EditorGui extends JFrame {
 	this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
     }
 
-    private void setupSettingsMenu() {
-	JMenu settings = new JMenu("Settings");
-	JMenuItem preferences = new JMenuItem("Preferences");
-	settings.add(preferences);
+    private void setupFileMenu() {
+	JMenu file = new JMenu("File");
 	JMenuItem createNewDocument = new JMenuItem("New Document");
-	settings.add(createNewDocument);
+	file.add(createNewDocument);
 	JMenuItem loadDocument = new JMenuItem("Load Document");
-	settings.add(loadDocument);
+	file.add(loadDocument);
+	JMenuItem refreshDocument = new JMenuItem("Refresh Document");
+	file.add(refreshDocument);
+        JMenuItem preferences = new JMenuItem("Preferences");
+        file.add(preferences);
+        JMenuItem logout = new JMenuItem("Sign Out");
+        file.add(logout);
 
 	// Create the menu bar and add the Items
-	JMenuBar settingsBar = new JMenuBar();
-	setJMenuBar(settingsBar);
-	settingsBar.add(settings);
+	JMenuBar fileBar = new JMenuBar();
+	setJMenuBar(fileBar);
+	fileBar.add(file);
 
 	// Add the same listener to all menu items requiring action
 	MenuItemListener menuListener = new MenuItemListener();
 	createNewDocument.addActionListener(menuListener);
+	loadDocument.addActionListener(menuListener);
+	refreshDocument.addActionListener(menuListener);
+	preferences.addActionListener(menuListener);
+        logout.addActionListener(menuListener);
     }
-
+    
     private class MenuItemListener implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -225,6 +232,14 @@ public class EditorGui extends JFrame {
 		String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
 		docName = newDocumentName;
 		setTextArea("");
+	    }
+	    else if(text.equals("Sign Out")){
+	        int userResponse = JOptionPane.showConfirmDialog(null, "Are you sure you want to sign out?", "Sign Out", JOptionPane.YES_NO_OPTION);
+	        if(userResponse == JOptionPane.YES_OPTION){
+	             LoginScreen ls = new LoginScreen();
+	             ls.setVisible(true);
+	             dispose();
+	        }
 	    }
 	}
 

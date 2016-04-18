@@ -55,7 +55,7 @@ public class SubGUI extends JFrame {
 
 	public SubGUI(User user) {
 		this.user = user;
-		openConnection(RequestCode.LOGIN);
+//		openConnection(RequestCode.LOGIN);
 
 		organizeLayout();
 		assignListeners();
@@ -131,6 +131,7 @@ public class SubGUI extends JFrame {
 				inputStream.close();
 				EditorGui editor = new EditorGui(oos, ois, user, document);
 				editor.setVisible(true);
+				dispose();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -145,23 +146,23 @@ public class SubGUI extends JFrame {
 			String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
 			EditorGui editor = new EditorGui(oos, ois, user, newDocumentName);
 			editor.setVisible(true);
+			dispose();
 		}
 	}
-
-	private void openConnection(RequestCode requestCode) {
-		try {
-			// Connect to the Server
-			socket = new Socket("localhost", Server.PORT_NUMBER);
-			this.oos = new ObjectOutputStream(socket.getOutputStream());
-			this.ois = new ObjectInputStream(socket.getInputStream());
-			Request clientRequest = new Request(requestCode);
-			clientRequest.setUser(user);
-			oos.writeObject(clientRequest);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	
+//
+//	private void openConnection(RequestCode requestCode) {
+//		try {
+//			// Connect to the Server
+//			socket = new Socket("localhost", Server.PORT_NUMBER);
+//			this.oos = new ObjectOutputStream(socket.getOutputStream());
+//			this.ois = new ObjectInputStream(socket.getInputStream());
+//			Request clientRequest = new Request(requestCode);
+//			clientRequest.setUser(user);
+//			oos.writeObject(clientRequest);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	
+//	
 }
