@@ -13,10 +13,15 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-
 import network.Request;
 import network.RequestCode;
 
+/**
+ * 
+ * A JPanel that lists all the users currently connected to the server.
+ * @author Joshua Riccio
+ *
+ */
 public class UsersOnline extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -26,6 +31,11 @@ public class UsersOnline extends JPanel {
 	private ObjectOutputStream oos;
 	private JPopupMenu menu;
 
+	/**
+	 * The constructor takes the current objectoutputstream so that it can get the most up to
+	 * date info on who is connected
+	 * @param oos
+	 */
 	public UsersOnline(ObjectOutputStream oos) {
 		this.menu = new JPopupMenu();
 		this.setupMenu();
@@ -49,26 +59,18 @@ public class UsersOnline extends JPanel {
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 		});
@@ -84,6 +86,9 @@ public class UsersOnline extends JPanel {
 		this.menu.add(item);
 	}
 
+	/**
+	 * Initializes the jpanel
+	 */
 	public void init() {
 		Request getUsers = new Request(RequestCode.GET_USER_LIST);
 		try {
@@ -93,6 +98,10 @@ public class UsersOnline extends JPanel {
 		}
 	}
 
+	/**
+	 * Updates the panel with the users who connected/ disconnected
+	 * @param userlist the most uptodate userlist
+	 */
 	public void updateUsers(String[] userlist) {
 		System.out.println("users added");
 		for (int i = 0; i < userlist.length; i++) {

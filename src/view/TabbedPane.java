@@ -17,11 +17,25 @@ import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
+/**
+ * TabbedPane extends JTabbedPane to add additional functionality, including getting context
+ * regarding with tab is currently open 
+ * @author Joshua Riccio
+ *
+ */
 public class TabbedPane extends JTabbedPane{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private HashMap<String, JTextPane> textpanemap;
 	private JPopupMenu menu;
 
+	/**
+	 * The constructor takes in the name of the new document 
+	 * @param docName the name of the new document
+	 */
 	public TabbedPane(String docName) {
 		textpanemap = new HashMap<>();
 		JTextPane textpane = new JTextPane();
@@ -47,26 +61,18 @@ public class TabbedPane extends JTabbedPane{
 
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void mouseExited(MouseEvent arg0) {	
 			}
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 		});
@@ -87,6 +93,10 @@ public class TabbedPane extends JTabbedPane{
 		
 	}
 
+	/**
+	 * Adds a new tab with the new document name
+	 * @param docName the name of the new document
+	 */
 	public void addNewTab(String docName){
 		JTextPane textpane = new JTextPane();
 		textpanemap.put(docName, textpane);
@@ -99,7 +109,11 @@ public class TabbedPane extends JTabbedPane{
 		this.addTab(docName, scrollpane);
 	}
 	
-	public JTextPane getContext(){
+	/**
+	 * Gets the TextPane of the currently viewed tab
+	 * @return returns the textpane of the currently viewed tab
+	 */
+	public JTextPane getCurrentTextPane(){
 		return textpanemap.get(this.getTitleAt(this.getSelectedIndex()));
 	}
 

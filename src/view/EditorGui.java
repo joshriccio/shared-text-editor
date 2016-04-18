@@ -281,11 +281,11 @@ public class EditorGui extends JFrame {
 	private class boldListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
 			// text is selected
-			if (tabbedpane.getContext().getSelectedText() != null) {
-				int selectStart = tabbedpane.getContext().getSelectionStart();
-				int selectEnd = tabbedpane.getContext().getSelectionEnd();
-				StyledDocument doc = (StyledDocument) tabbedpane.getContext().getStyledDocument();
-				Style style = tabbedpane.getContext().addStyle("Bold", null);
+			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
+				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				Style style = tabbedpane.getCurrentTextPane().addStyle("Bold", null);
 				StyleConstants.setBold(style, true);
 				if (!myToolBar.isBold()) {
 					StyleConstants.setBold(style, true);
@@ -302,11 +302,11 @@ public class EditorGui extends JFrame {
 	private class italicListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
 			// text is selected
-			if (tabbedpane.getContext().getSelectedText() != null) {
-				int selectStart = tabbedpane.getContext().getSelectionStart();
-				int selectEnd = tabbedpane.getContext().getSelectionEnd();
-				StyledDocument doc = (StyledDocument) tabbedpane.getContext().getStyledDocument();
-				Style style = tabbedpane.getContext().addStyle("Italic", null);
+			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
+				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				Style style = tabbedpane.getCurrentTextPane().addStyle("Italic", null);
 				if (!myToolBar.isItalic()) {
 					StyleConstants.setItalic(style, true);
 					myToolBar.setIsItalic(true);
@@ -322,11 +322,11 @@ public class EditorGui extends JFrame {
 	private class underlineListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
 			// text is selected
-			if (tabbedpane.getContext().getSelectedText() != null) {
-				int selectStart = tabbedpane.getContext().getSelectionStart();
-				int selectEnd = tabbedpane.getContext().getSelectionEnd();
-				StyledDocument doc = (StyledDocument) tabbedpane.getContext().getStyledDocument();
-				Style style = tabbedpane.getContext().addStyle("UnderLine", null);
+			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
+				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				Style style = tabbedpane.getCurrentTextPane().addStyle("UnderLine", null);
 				StyleConstants.setUnderline(style, true);
 
 				if (!myToolBar.isUnderlined()) {
@@ -346,11 +346,11 @@ public class EditorGui extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			Integer fontSize = (int) sizeFontDropDown.getSelectedItem();
 
-			if (tabbedpane.getContext().getSelectedText() != null) {
-				int selectStart = tabbedpane.getContext().getSelectionStart();
-				int selectEnd = tabbedpane.getContext().getSelectionEnd();
-				StyledDocument doc = (StyledDocument) tabbedpane.getContext().getStyledDocument();
-				Style style = tabbedpane.getContext().addStyle("FontSize", null);
+			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
+				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				Style style = tabbedpane.getCurrentTextPane().addStyle("FontSize", null);
 				StyleConstants.setFontSize(style, fontSize);
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -361,11 +361,11 @@ public class EditorGui extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String stringFont = (String) fontDropDown.getSelectedItem();
-			if (tabbedpane.getContext().getSelectedText() != null) {
-				int selectStart = tabbedpane.getContext().getSelectionStart();
-				int selectEnd = tabbedpane.getContext().getSelectionEnd();
-				StyledDocument doc = (StyledDocument) tabbedpane.getContext().getStyledDocument();
-				Style style = tabbedpane.getContext().addStyle("FontFamily", null);
+			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
+				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				Style style = tabbedpane.getCurrentTextPane().addStyle("FontFamily", null);
 				StyleConstants.setFontFamily(style, stringFont);
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -377,11 +377,11 @@ public class EditorGui extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			JColorChooser colorChooser = new JColorChooser();
 			Color newColor = JColorChooser.showDialog(colorChooser, "Choose Text Color", Color.BLACK);
-			if (tabbedpane.getContext().getSelectedText() != null) {
-				int selectStart = tabbedpane.getContext().getSelectionStart();
-				int selectEnd = tabbedpane.getContext().getSelectionEnd();
-				StyledDocument doc = (StyledDocument) tabbedpane.getContext().getStyledDocument();
-				Style style = tabbedpane.getContext().addStyle("FontColor", null);
+			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
+				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				Style style = tabbedpane.getCurrentTextPane().addStyle("FontColor", null);
 				StyleConstants.setForeground(style, newColor);
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
@@ -395,8 +395,8 @@ public class EditorGui extends JFrame {
 				try {
 					Response response = (Response) ois.readObject();
 					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
-						EditorGui.this.tabbedpane.getContext().setStyledDocument(response.getStyledDocument());
-						EditorGui.this.tabbedpane.getContext().setCaretPosition(tabbedpane.getContext().getText().length());
+						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
+						EditorGui.this.tabbedpane.getCurrentTextPane().setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
 					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
