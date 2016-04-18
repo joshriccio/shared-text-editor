@@ -1,5 +1,7 @@
 package network;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -7,11 +9,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Vector;
 import model.EditableDocument;
 import model.Password;
 import model.User;
+import model.LinkedListForSaves;
+import network.Request;
+import network.RequestCode;
+import network.Response;
+import network.ResponseCode;
+import network.Server;
 
 /**
  * The Server class acts as the communication portal between clients. The Server
@@ -22,8 +32,8 @@ import model.User;
 public class Server {
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
-	private static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
-	private static HashMap<String, Integer> usersToIndex = new HashMap<String, Integer>();
+	static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
+	static HashMap<String, Integer> usersToIndex = new HashMap<String, Integer>();
 	private static Socket socket;
 	private static ObjectInputStream ois;
 	private static ObjectOutputStream oos;
@@ -31,6 +41,7 @@ public class Server {
 	private static Response serverResponse;
 	private static User user;
 	private static String securePassword;
+	public static LinkedListForSaves savedFileList;
 
 	/**
 	 * Receives requests from the client and processes responses.
@@ -39,8 +50,9 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args Never used @throws Exception @throws
-	 * NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args
+	 *            Never used @throws Exception @throws
+	 *            NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -178,7 +190,7 @@ public class Server {
  * ClientHandler gerates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
- * (cdeeran11@email.arizona.edu)
+ *         (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -189,8 +201,9 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input the object input stream @param networkAccounts the list of
-	 * uses connected
+	 * @param input
+	 *            the object input stream @param networkAccounts the list of
+	 *            uses connected
 	 */
 	public ClientHandler(ObjectInputStream input) {
 		this.input = input;
@@ -200,18 +213,50 @@ class ClientHandler extends Thread {
 	public void run() {
 		while (isRunning) {
 			try {
-				clientRequest = (Request) input.readObject();
+				clientRequest = (Request) input.readObject(); // FIXME: Getting
+																// ClassCastException
+																// from line 253
+																// in EditorGUI
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 					EditableDocument document = clientRequest.getDocument();
-					// this.saveDocument(document); // FIXME: must be able to
-					// save from server
+					this.saveDocument(document); // FIXME: must be able to save
+													// from server
 					this.writeDocumentToClients(document);
-				} else if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
+				}
+
+				else if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
 					writeUsersToClients();
-				} else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
+				} 
+				
+				else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
 					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
 							.toggleOnline();
 					writeUsersToClients();
+				}
+
+				else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
+					String requestedDocumentName = clientRequest.getRequestedName();
+					User client = clientRequest.getUser();
+					String mostRecentFile = Server.savedFileList.getMostRecentSave(requestedDocumentName);
+					ObjectOutputStream oos = null;
+
+					oos = Server.networkAccounts.get(Server.usersToIndex.get(client.getUsername())).getOuputStream();
+
+					// networkAccounts.get(Server.usersToIndex.get(client.getUsername())).setOutputStream(oos);
+
+					try {
+						FileInputStream inFile = new FileInputStream(mostRecentFile);
+						ObjectInputStream inputStream = new ObjectInputStream(inFile);
+						EditableDocument document = (EditableDocument) inputStream.readObject();
+						inputStream.close();
+
+						Response sendDocRequest = new Response(ResponseCode.DOCUMENT_SENT, document);
+						oos.writeObject(sendDocRequest);
+
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -219,6 +264,7 @@ class ClientHandler extends Thread {
 				this.cleanUp();
 			}
 		}
+
 	}
 
 	private void cleanUp() {
@@ -227,14 +273,31 @@ class ClientHandler extends Thread {
 	}
 
 	@SuppressWarnings("unused")
-    private void saveDocument(EditableDocument doc) {
-		// TODO: Let the server do the actual saving
+	private void saveDocument(EditableDocument doc) {
+		String newDocName = doc.getName() + "-"
+				+ new SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new Date());
+		try {
+			FileOutputStream outFile = new FileOutputStream(newDocName);
+			ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
+			outputStream.writeObject(doc);
+			System.out.println("I just created a new save FILE!");
+			// Do NOT forget to close the output stream!
+			outputStream.close();
+			outFile.close();
+
+			Server.savedFileList.createSave(doc, newDocName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Couldn't create a new save file!");
+			// e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Sends new shape to all connected clients
 	 * 
-	 * @param shape the shape to write to clients
+	 * @param shape
+	 *            the shape to write to clients
 	 */
 	private void writeDocumentToClients(EditableDocument doc) {
 		synchronized (Server.getNetworkAccounts()) {
@@ -255,7 +318,8 @@ class ClientHandler extends Thread {
 	/**
 	 * Sends new shape to all connected clients
 	 * 
-	 * @param shape the shape to write to clients
+	 * @param shape
+	 *            the shape to write to clients
 	 */
 	private void writeUsersToClients() {
 		synchronized (Server.getNetworkAccounts()) {
@@ -275,11 +339,12 @@ class ClientHandler extends Thread {
 	}
 
 	/**
-	 * This method converts networkAccounts to a string array of usernames. If the user is offline 
-	 * the username is prefaced by a - symbol. When the client recieves the list they now are able
-	 * to differentiate between users online and users offline. 
-	 * @return
-	 * 		an array of type string, all users in networkAccounts
+	 * This method converts networkAccounts to a string array of usernames. If
+	 * the user is offline the username is prefaced by a - symbol. When the
+	 * client recieves the list they now are able to differentiate between users
+	 * online and users offline.
+	 * 
+	 * @return an array of type string, all users in networkAccounts
 	 */
 	private String[] usersToArray() {
 		String[] userlist = new String[Server.getNetworkAccounts().size()];
