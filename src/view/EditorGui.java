@@ -35,8 +35,11 @@ import javax.swing.text.StyledDocument;
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
+
 import network.Response;
 import network.ResponseCode;
+import network.Request;
+import network.RequestCode;
 
 /**
  * 
@@ -44,7 +47,7 @@ import network.ResponseCode;
  *
  */
 public class EditorGui extends JFrame {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 5134447391484363694L;
 	private JTextPane textpane = new JTextPane();
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
@@ -241,27 +244,17 @@ public class EditorGui extends JFrame {
 
 	private class BackupDocument extends TimerTask {
 		public void run() {
-
-			// String newDocName = docName + new
-			// SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new
-			// Date());;
-			String newDocName = "UpdatedSaveFile";// FIXME: title will always be
-			// UpdatedSaveFile
+			
+			Request r = new Request(RequestCode.DOCUMENT_SENT);
 			EditableDocument currentDoc = new EditableDocument(textpane.getStyledDocument(), docName);
+			r.setDocument(currentDoc);
+			
 			try {
-				FileOutputStream outFile = new FileOutputStream(newDocName);
-				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
-				outputStream.writeObject(currentDoc);
-				System.out.println("I just saved!");
-				// Do NOT forget to close the output stream!
-				outputStream.close();
-				outFile.close();
+				oos.writeObject(r);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				System.out.println("Couldn't create a new save file!");
-				// e.printStackTrace();
+				System.out.println("Couldn't send document to server");
+				e.printStackTrace();
 			}
-
 		}
 	}
 
