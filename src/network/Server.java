@@ -226,7 +226,8 @@ class ClientHandler extends Thread {
 		System.out.println("Client has been disconnected");
 	}
 
-	private void saveDocument(EditableDocument doc) {
+	@SuppressWarnings("unused")
+    private void saveDocument(EditableDocument doc) {
 		// TODO: Let the server do the actual saving
 	}
 
