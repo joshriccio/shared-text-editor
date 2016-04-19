@@ -8,7 +8,6 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -48,7 +47,6 @@ import network.RequestCode;
  */
 public class EditorGui extends JFrame {
 	private static final long serialVersionUID = 5134447391484363694L;
-	private JTextPane textpane = new JTextPane();
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
 	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton;
@@ -77,7 +75,7 @@ public class EditorGui extends JFrame {
 		serverListener.start();
 
 		// Set Frame
-		this.setTitle("Collaborative Editing: "); // Removed docName, since we
+		this.setTitle("Collaborative Editing"); // Removed docName, since we
 													// have tabs with the
 													// document labels
 		this.setSize(1350, 700);
@@ -246,7 +244,7 @@ public class EditorGui extends JFrame {
 		public void run() {
 			
 			Request r = new Request(RequestCode.DOCUMENT_SENT);
-			EditableDocument currentDoc = new EditableDocument(textpane.getStyledDocument(), docName);
+			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), tabbedpane.getName());
 			r.setDocument(currentDoc);
 			
 			try {

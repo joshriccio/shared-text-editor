@@ -90,12 +90,12 @@ public class UsersOnline extends JPanel {
 	 * Initializes the jpanel
 	 */
 	public void init() {
-		Request getUsers = new Request(RequestCode.GET_USER_LIST);
-		try {
-			oos.writeObject(getUsers);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		Request getUsers = new Request(RequestCode.GET_USER_LIST);
+//		try {
+//			oos.writeObject(getUsers);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

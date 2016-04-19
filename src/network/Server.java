@@ -213,10 +213,7 @@ class ClientHandler extends Thread {
 	public void run() {
 		while (isRunning) {
 			try {
-				clientRequest = (Request) input.readObject(); // FIXME: Getting
-																// ClassCastException
-																// from line 253
-																// in EditorGUI
+				clientRequest = (Request) input.readObject();
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 					EditableDocument document = clientRequest.getDocument();
 					this.saveDocument(document); // FIXME: must be able to save
