@@ -137,6 +137,7 @@ public class EditorGui extends JFrame {
 	 * This method sets up the text area.
 	 */
 	public void setTextArea(String startingText) {
+		
 		tabbedpane = new TabbedPane(docName);
 		tabbedpane.addChangeListener(new ChangeListener() {
 
@@ -152,8 +153,7 @@ public class EditorGui extends JFrame {
 		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
 		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
 		StyleConstants.setLeftIndent(style, 30);
-		StyleConstants.setRightIndent(style, 100);
-		StyleConstants.setSpaceAbove(style, 40);
+		StyleConstants.setRightIndent(style, 30);
 		doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
 	/**
