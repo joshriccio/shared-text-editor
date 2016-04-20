@@ -7,6 +7,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -24,6 +26,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -50,6 +53,7 @@ public class EditorGui extends JFrame {
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
 	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton;
+	private JToggleButton bulletListButton;
 	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
 	@SuppressWarnings("rawtypes")
 	private JComboBox sizeFontDropDown, fontDropDown;
@@ -144,6 +148,7 @@ public class EditorGui extends JFrame {
 	 * This method sets up the text area.
 	 */
 	public void setTextArea(String startingText) {
+		
 		tabbedpane = new TabbedPane(docName);
 		tabbedpane.addChangeListener(new ChangeListener() {
 		
@@ -156,8 +161,12 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
+		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+		StyleConstants.setLeftIndent(style, 30);
+		StyleConstants.setRightIndent(style, 30);
+		doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
-
 	/**
 	 * This method sets up the tool bar.
 	 */
@@ -167,12 +176,14 @@ public class EditorGui extends JFrame {
 		Image italicImage = null;
 		Image underlineImage = null;
 		Image colorImage = null;
+		Image bulletImage = null;
 		// load images
 		try {
 			boldImage = ImageIO.read(new File("./images/boldImage.png"));
 			italicImage = ImageIO.read(new File("./images/italicImage.png"));
 			underlineImage = ImageIO.read(new File("./images/underlineImage.png"));
 			colorImage = ImageIO.read(new File("./images/colorImage.png"));
+			bulletImage = ImageIO.read(new File("./images/bulletImage.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Couldn't load an image on the toolbar");
@@ -182,10 +193,12 @@ public class EditorGui extends JFrame {
 		italicFontButton = new JButton(new ImageIcon(italicImage));
 		underlineFontButton = new JButton(new ImageIcon(underlineImage));
 		colorButton = new JButton(new ImageIcon(colorImage));
+		bulletListButton = new JToggleButton(new ImageIcon(bulletImage));
 		// add buttons to the tool bar
 		javaToolBar.add(boldFontButton);
 		javaToolBar.add(italicFontButton);
 		javaToolBar.add(underlineFontButton);
+		javaToolBar.add(bulletListButton);
 		javaToolBar.add(colorButton);
 		// add drop down menus to the tool bar
 		javaToolBar.addSeparator();
@@ -274,8 +287,9 @@ public class EditorGui extends JFrame {
 		boldFontButton.addActionListener(new boldListener());
 		italicFontButton.addActionListener(new italicListener());
 		underlineFontButton.addActionListener(new underlineListener());
-		//sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
-		//fontDropDown.addActionListener(new fontDropDownListener());
+		sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
+		fontDropDown.addActionListener(new fontDropDownListener());
+		bulletListButton.addActionListener(new listListener());
 		colorButton.addActionListener(new colorListener());
 	}
 
@@ -389,6 +403,51 @@ public class EditorGui extends JFrame {
 		}
 	}
 
+	private class listListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if (bulletListButton.isSelected()) {
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				try {
+					doc.insertString(doc.getLength(), "\u2022  ", null);
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+
+				tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
+					@Override
+					public void keyPressed(KeyEvent arg0) {
+					}
+
+					@Override
+					public void keyReleased(KeyEvent arg0) {
+						if (arg0.getKeyCode() == KeyEvent.VK_ENTER && bulletListButton.isSelected()) {
+							StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+							try {
+								doc.insertString(doc.getLength(), "\u2022  ", null);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+
+						} else if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
+							KeyListener[] ls = tabbedpane.getCurrentTextPane().getKeyListeners();
+							if (ls.length > 0) {
+								tabbedpane.getCurrentTextPane().removeKeyListener(ls[0]);
+							}
+
+						}
+
+					}
+
+					@Override
+					public void keyTyped(KeyEvent arg0) {
+					}
+				});
+			}
+		}
+	}
+
 	private class ServerListener extends Thread {
 		@Override
 		public void run() {
@@ -397,7 +456,8 @@ public class EditorGui extends JFrame {
 					Response response = (Response) ois.readObject();
 					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
 						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
-						EditorGui.this.tabbedpane.getCurrentTextPane().setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
+						EditorGui.this.tabbedpane.getCurrentTextPane()
+								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
 					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
