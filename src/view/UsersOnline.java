@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -13,8 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import network.Request;
-import network.RequestCode;
+
 
 /**
  * 

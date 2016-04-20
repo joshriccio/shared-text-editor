@@ -39,6 +39,7 @@ public class SubGUI extends JFrame {
 	ObjectOutputStream oos;
 	ObjectInputStream ois;
 
+
 	// Variables for creating new documents
 	private JPanel bottomPanel = new JPanel();
 	private JButton newDocumentButton = new JButton("Create New Document");
@@ -146,6 +147,7 @@ public class SubGUI extends JFrame {
 				EditableDocument openedDocument = serverRequest.getEditableDocument();
 				EditorGui editor = new EditorGui(oos, ois, user, openedDocument);
 				editor.setVisible(true);
+				dispose();
 			} catch (ClassNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

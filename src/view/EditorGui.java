@@ -15,17 +15,19 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JTextPane;
+import javax.swing.JPasswordField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -37,11 +39,10 @@ import javax.swing.text.StyledDocument;
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
-
-import network.Response;
-import network.ResponseCode;
 import network.Request;
 import network.RequestCode;
+import network.Response;
+import network.ResponseCode;
 
 /**
  * 
@@ -87,11 +88,9 @@ public class EditorGui extends JFrame {
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
 		// initialize the file menu
-		setupFileMenu();
-		
+		setupMenuBar();
 		// initialize the text area
 		setTextArea("");
-		
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -122,8 +121,6 @@ public class EditorGui extends JFrame {
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
-		// initialize the file menu
-		setupFileMenu();
 		
 		// initialize the text area
 		try {
@@ -134,7 +131,8 @@ public class EditorGui extends JFrame {
 			setTextArea("");
 			e.printStackTrace();
 		}
-		
+		// initialize the file menu
+                setupMenuBar();
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -161,11 +159,11 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
-		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
-		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
-		StyleConstants.setLeftIndent(style, 30);
-		StyleConstants.setRightIndent(style, 30);
-		doc.setParagraphAttributes(0, doc.getLength(), style, false);
+//		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+//		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+//		StyleConstants.setLeftIndent(style, 30);
+//		StyleConstants.setRightIndent(style, 30);
+//		doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
 	/**
 	 * This method sets up the tool bar.
@@ -216,7 +214,9 @@ public class EditorGui extends JFrame {
 		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
 	}
 
-	private void setupFileMenu() {
+	private void setupMenuBar() {
+
+		// Set up the file menu
 		JMenu file = new JMenu("File");
 		JMenuItem createNewDocument = new JMenuItem("New Document");
 		file.add(createNewDocument);
@@ -224,23 +224,30 @@ public class EditorGui extends JFrame {
 		file.add(loadDocument);
 		JMenuItem refreshDocument = new JMenuItem("Refresh Document");
 		file.add(refreshDocument);
-		JMenuItem preferences = new JMenuItem("Preferences");
-		file.add(preferences);
-		JMenuItem logout = new JMenuItem("Sign Out");
-		file.add(logout);
+
+		// Set up the options menu
+		JMenu options = new JMenu("Options");
+		JMenuItem changePassword = new JMenuItem("Change Password");
+		options.add(changePassword);
+		JMenuItem signout = new JMenuItem("Sign Out");
+		options.add(signout);
 
 		// Create the menu bar and add the Items
-		JMenuBar fileBar = new JMenuBar();
-		setJMenuBar(fileBar);
-		fileBar.add(file);
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		menuBar.add(file);
+		menuBar.add(options);
 
-		// Add the same listener to all menu items requiring action
+		// Add the file menu Listeners
 		MenuItemListener menuListener = new MenuItemListener();
 		createNewDocument.addActionListener(menuListener);
 		loadDocument.addActionListener(menuListener);
 		refreshDocument.addActionListener(menuListener);
-		preferences.addActionListener(menuListener);
-		logout.addActionListener(menuListener);
+
+		// Add the options menu listeners
+		changePassword.addActionListener(menuListener);
+		signout.addActionListener(menuListener);
+
 	}
 
 	private class MenuItemListener implements ActionListener {
@@ -250,7 +257,42 @@ public class EditorGui extends JFrame {
 			if (text.equals("New Document")) {
 				String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
 				tabbedpane.addNewTab(newDocumentName);
-			} else if (text.equals("Sign Out")) {
+			} else if (text.equals("Change Password")) {
+			    JOptionPane.showMessageDialog(null, "Sorry, but this function is currently unavailable due to network errors." + "\n"
+			                    + "Please 'Sign Out' and use 'Forgot Login' to change your password. Thank you!");
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        			    
+//  Jeremy and/or Daniel can you please take a look at this and help us debug why we are getting an cast exceptions: 
+			    
+//				JLabel newPassword = new JLabel("New Password:");
+//				JPasswordField newPasswordField = new JPasswordField();
+//				Object[] forgotPasswordFields = { newPassword, newPasswordField };
+//				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Change Password",
+//						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+//				if (response == JOptionPane.YES_OPTION) {
+//				    String clientUsername = user.getUsername();
+//				    String clientPassword  = String.valueOf(newPasswordField.getPassword());
+//					try {
+//						Request clientRequest = new Request(RequestCode.RESET_PASSWORD);
+//						clientRequest.setUsername(clientUsername);
+//						clientRequest.setPassword(clientPassword);
+//						oos.writeObject(clientRequest);
+//	                                     	Response serverResponse = (Response) ois.readObject(); // <--------------------------------------------------------- Receiving exception here
+//						if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
+//							JOptionPane.showConfirmDialog(null,
+//									"Your password has been successfully resest. Please sign out and back in for changes to take place.",
+//									"Password Successfully Reset", JOptionPane.OK_OPTION);
+//						} else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
+//							JOptionPane.showConfirmDialog(null, "Oops! Something went wrong :( Please try again!",
+//									"Password Failed to Reset", JOptionPane.OK_OPTION);
+//						}
+//					} catch (IOException | ClassNotFoundException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
+//				}
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+			} 
+			else if (text.equals("Sign Out")) {
 				int userResponse = JOptionPane.showConfirmDialog(null, "Are you sure you want to sign out?", "Sign Out",
 						JOptionPane.YES_NO_OPTION);
 				if (userResponse == JOptionPane.YES_OPTION) {
@@ -259,8 +301,8 @@ public class EditorGui extends JFrame {
 					dispose();
 				}
 			}
-		}
 
+		}
 	}
 
 	private class BackupDocument extends TimerTask {
@@ -454,11 +496,11 @@ public class EditorGui extends JFrame {
 			while (true) {
 				try {
 					Response response = (Response) ois.readObject();
-//					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
-//						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
-//						EditorGui.this.tabbedpane.getCurrentTextPane()
-//								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
-//					}
+					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
+						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
+						EditorGui.this.tabbedpane.getCurrentTextPane()
+								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
+					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
 					}

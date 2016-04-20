@@ -12,10 +12,12 @@ public class LogOffListener implements WindowListener{
 	
 	private String user;
 	private ObjectOutputStream oos;
+	private boolean closedWindow;
 	
 	public LogOffListener(String user, ObjectOutputStream oos){
 		this.user = user;
 		this.oos = oos;
+		closedWindow = false;
 	}
 
 	@Override
@@ -27,18 +29,30 @@ public class LogOffListener implements WindowListener{
 	@Override
 	public void windowClosed(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+		if(!closedWindow){
+			Request exit = new Request(RequestCode.USER_EXITING);
+			exit.setUsername(user);
+			try {
+				oos.writeObject(exit);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			closedWindow = true;
+		}
 	}
 
 	@Override
 	public void windowClosing(WindowEvent e) {
-		Request exit = new Request(RequestCode.USER_EXITING);
-		exit.setUsername(user);
-		try {
-			oos.writeObject(exit);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}		
+		if(!closedWindow){
+			Request exit = new Request(RequestCode.USER_EXITING);
+			exit.setUsername(user);
+			try {
+				oos.writeObject(exit);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			closedWindow = true;
+		}	
 		
 	}
 
@@ -67,4 +81,3 @@ public class LogOffListener implements WindowListener{
 	}
 
 }
-

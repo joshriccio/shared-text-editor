@@ -31,7 +31,7 @@ public class TabbedPane extends JTabbedPane{
 	private static final long serialVersionUID = 1L;
 	private HashMap<String, JTextPane> textpanemap;
 	private JPopupMenu menu;
-
+	
 	/**
 	 * The constructor takes in the name of the new document 
 	 * @param docName the name of the new document
@@ -106,7 +106,7 @@ public class TabbedPane extends JTabbedPane{
 		JScrollPane scrollpane = new JScrollPane(textpane);
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
-		this.addTab(docName, scrollpane);
+		this.addTab(docName,scrollpane);
 	}
 	
 	/**
