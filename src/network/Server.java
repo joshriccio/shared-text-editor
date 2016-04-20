@@ -50,9 +50,8 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args
-	 *            Never used @throws Exception @throws
-	 *            NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args Never used @throws Exception @throws
+	 * NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -74,11 +73,18 @@ public class Server {
 					processAccountCreation();
 				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
 					processPasswordReset();
+				} else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
+					processNewDocumentStream(ois, oos);
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void processNewDocumentStream(ObjectInputStream input, ObjectOutputStream output) {
+		DocumentHandler d = new DocumentHandler(input, output, clientRequest);
+		d.start();
 	}
 
 	private static void processLogin() throws IOException {
@@ -114,7 +120,8 @@ public class Server {
 		if (userExists(clientRequest.getUsername())) {
 			User updatepassword = networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser();
 			try {
-				updatepassword.setPassword(Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
+				updatepassword.setPassword(
+						Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
 			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 				e.printStackTrace();
 			}
@@ -190,7 +197,7 @@ public class Server {
  * ClientHandler gerates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
- *         (cdeeran11@email.arizona.edu)
+ * (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -201,9 +208,8 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input
-	 *            the object input stream @param networkAccounts the list of
-	 *            uses connected
+	 * @param input the object input stream @param networkAccounts the list of
+	 * uses connected
 	 */
 	public ClientHandler(ObjectInputStream input) {
 		this.input = input;
@@ -214,16 +220,11 @@ class ClientHandler extends Thread {
 		while (isRunning) {
 			try {
 				clientRequest = (Request) input.readObject();
-				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
-					EditableDocument document = clientRequest.getDocument();
-					this.saveDocument(document); 
-					this.writeDocumentToClients(document);
+
+				if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
+					writeUsersToClients();
 				}
 
-				else if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
-					writeUsersToClients();
-				} 
-				
 				else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
 					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
 							.toggleOnline();
@@ -233,7 +234,7 @@ class ClientHandler extends Thread {
 				else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
 					String requestedDocumentName = clientRequest.getRequestedName();
 					User client = clientRequest.getUser();
-					String mostRecentFile = Server.savedFileList.getMostRecentSave(requestedDocumentName);
+					String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
 					ObjectOutputStream oos = null;
 
 					oos = Server.networkAccounts.get(Server.usersToIndex.get(client.getUsername())).getOuputStream();
@@ -268,32 +269,10 @@ class ClientHandler extends Thread {
 		System.out.println("Client has been disconnected");
 	}
 
-	@SuppressWarnings("unused")
-	private void saveDocument(EditableDocument doc) {
-		String newDocName = doc.getName() + "-"
-				+ new SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new Date());
-		try {
-			FileOutputStream outFile = new FileOutputStream(newDocName);
-			ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
-			outputStream.writeObject(doc);
-			System.out.println("I just created a new save FILE!");
-			// Do NOT forget to close the output stream!
-			outputStream.close();
-			outFile.close();
-
-			Server.savedFileList.createSave(doc, newDocName);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Couldn't create a new save file!");
-			// e.printStackTrace();
-		}
-	}
-
 	/**
 	 * Sends new shape to all connected clients
 	 * 
-	 * @param shape
-	 *            the shape to write to clients
+	 * @param shape the shape to write to clients
 	 */
 	private void writeDocumentToClients(EditableDocument doc) {
 		synchronized (Server.getNetworkAccounts()) {
@@ -314,8 +293,7 @@ class ClientHandler extends Thread {
 	/**
 	 * Sends new shape to all connected clients
 	 * 
-	 * @param shape
-	 *            the shape to write to clients
+	 * @param shape the shape to write to clients
 	 */
 	private void writeUsersToClients() {
 		synchronized (Server.getNetworkAccounts()) {
@@ -351,5 +329,58 @@ class ClientHandler extends Thread {
 				userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
 		}
 		return userlist;
+	}
+}
+
+class DocumentHandler extends Thread {
+	private boolean isRunning;
+	private Request clientRequest;
+	private ObjectInputStream input;
+
+	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos, Request clientRequest) {
+		this.isRunning = true;
+		this.clientRequest = clientRequest;
+		this.input = ois;
+	}
+
+	@Override
+	public void run() {
+		while (isRunning) {
+			try {
+				clientRequest = (Request) input.readObject();
+				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
+					EditableDocument document = clientRequest.getDocument();
+					this.saveDocument(document);
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				System.out.println("Document Stream Disconnected");
+				isRunning = false;
+			}
+		}
+	}
+
+	private void saveDocument(EditableDocument doc) {
+		synchronized (Server.savedFileList) {
+			String newDocName = doc.getName();
+			// + "-"
+			// + new
+			// SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new
+			// Date());
+			try {
+				FileOutputStream outFile = new FileOutputStream(newDocName);
+				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
+				outputStream.writeObject(doc);
+				System.out.println("I just created a new save FILE!");
+				// Do NOT forget to close the output stream!
+				outputStream.close();
+				outFile.close();
+
+				Server.savedFileList.createSave(doc, newDocName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println("Couldn't create a new save file!");
+				e.printStackTrace();
+			}
+		}
 	}
 }

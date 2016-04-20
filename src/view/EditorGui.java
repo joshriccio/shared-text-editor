@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,6 +44,7 @@ import network.Request;
 import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
+import network.Server;
 
 /**
  * 
@@ -59,8 +61,11 @@ public class EditorGui extends JFrame {
 	@SuppressWarnings("rawtypes")
 	private JComboBox sizeFontDropDown, fontDropDown;
 	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+	private static final String ADDRESS = "localhost";
+	private Socket socket = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
+	private ObjectOutputStream documentOutput;
 	private User user;
 	private ToolBar myToolBar = new ToolBar();
 	private String docName;
@@ -80,11 +85,11 @@ public class EditorGui extends JFrame {
 		serverListener.start();
 
 		// Set Frame
-		this.setTitle("Collaborative Editing"); 
+		this.setTitle("Collaborative Editing");
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
-		
+
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
 		// initialize the file menu
@@ -96,6 +101,16 @@ public class EditorGui extends JFrame {
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		// Add Timer for saving every period: 5s
+		try {
+			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+			socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+			documentOutput = new ObjectOutputStream(socket.getOutputStream());
+			documentOutput.writeObject(r);
+		} catch (IOException e1) {
+			System.out.println("Couldn't start stream");
+			e1.printStackTrace();
+		}
+
 		Timer timer = new Timer();
 		timer.schedule(new BackupDocument(), 0, 5000);
 		setUsersWindow();
@@ -121,7 +136,7 @@ public class EditorGui extends JFrame {
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
-		
+
 		// initialize the text area
 		try {
 			String temp = doc.getDocument().getText(0, doc.getDocument().getLength());
@@ -132,12 +147,21 @@ public class EditorGui extends JFrame {
 			e.printStackTrace();
 		}
 		// initialize the file menu
-                setupMenuBar();
+		setupMenuBar();
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		// Add Timer for saving every period: 5s
+		try {
+			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+			socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+			documentOutput = new ObjectOutputStream(socket.getOutputStream());
+			documentOutput.writeObject(r);
+		} catch (IOException e1) {
+			System.out.println("Couldn't start stream");
+			e1.printStackTrace();
+		}
 		Timer timer = new Timer();
 		timer.schedule(new BackupDocument(), 0, 5000);
 	}
@@ -146,10 +170,10 @@ public class EditorGui extends JFrame {
 	 * This method sets up the text area.
 	 */
 	public void setTextArea(String startingText) {
-		
+
 		tabbedpane = new TabbedPane(docName);
 		tabbedpane.addChangeListener(new ChangeListener() {
-		
+
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				myToolBar.setIsBold(false);
@@ -159,12 +183,15 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
-//		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
-//		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
-//		StyleConstants.setLeftIndent(style, 30);
-//		StyleConstants.setRightIndent(style, 30);
-//		doc.setParagraphAttributes(0, doc.getLength(), style, false);
+		// StyledDocument doc = (StyledDocument)
+		// tabbedpane.getCurrentTextPane().getStyledDocument();
+		// Style style = tabbedpane.getCurrentTextPane().addStyle("Indent",
+		// null);
+		// StyleConstants.setLeftIndent(style, 30);
+		// StyleConstants.setRightIndent(style, 30);
+		// doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
+
 	/**
 	 * This method sets up the tool bar.
 	 */
@@ -258,41 +285,53 @@ public class EditorGui extends JFrame {
 				String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
 				tabbedpane.addNewTab(newDocumentName);
 			} else if (text.equals("Change Password")) {
-			    JOptionPane.showMessageDialog(null, "Sorry, but this function is currently unavailable due to network errors." + "\n"
-			                    + "Please 'Sign Out' and use 'Forgot Login' to change your password. Thank you!");
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        			    
-//  Jeremy and/or Daniel can you please take a look at this and help us debug why we are getting an cast exceptions: 
-			    
-//				JLabel newPassword = new JLabel("New Password:");
-//				JPasswordField newPasswordField = new JPasswordField();
-//				Object[] forgotPasswordFields = { newPassword, newPasswordField };
-//				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Change Password",
-//						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-//				if (response == JOptionPane.YES_OPTION) {
-//				    String clientUsername = user.getUsername();
-//				    String clientPassword  = String.valueOf(newPasswordField.getPassword());
-//					try {
-//						Request clientRequest = new Request(RequestCode.RESET_PASSWORD);
-//						clientRequest.setUsername(clientUsername);
-//						clientRequest.setPassword(clientPassword);
-//						oos.writeObject(clientRequest);
-//	                                     	Response serverResponse = (Response) ois.readObject(); // <--------------------------------------------------------- Receiving exception here
-//						if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
-//							JOptionPane.showConfirmDialog(null,
-//									"Your password has been successfully resest. Please sign out and back in for changes to take place.",
-//									"Password Successfully Reset", JOptionPane.OK_OPTION);
-//						} else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
-//							JOptionPane.showConfirmDialog(null, "Oops! Something went wrong :( Please try again!",
-//									"Password Failed to Reset", JOptionPane.OK_OPTION);
-//						}
-//					} catch (IOException | ClassNotFoundException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//				}
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-			} 
-			else if (text.equals("Sign Out")) {
+				JOptionPane.showMessageDialog(null,
+						"Sorry, but this function is currently unavailable due to network errors." + "\n"
+								+ "Please 'Sign Out' and use 'Forgot Login' to change your password. Thank you!");
+								// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+								// Jeremy and/or Daniel can you please take a
+								// look at this and help us debug why we are
+								// getting an cast exceptions:
+
+				// JLabel newPassword = new JLabel("New Password:");
+				// JPasswordField newPasswordField = new JPasswordField();
+				// Object[] forgotPasswordFields = { newPassword,
+				// newPasswordField };
+				// int response = JOptionPane.showConfirmDialog(null,
+				// forgotPasswordFields, "Change Password",
+				// JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				// if (response == JOptionPane.YES_OPTION) {
+				// String clientUsername = user.getUsername();
+				// String clientPassword =
+				// String.valueOf(newPasswordField.getPassword());
+				// try {
+				// Request clientRequest = new
+				// Request(RequestCode.RESET_PASSWORD);
+				// clientRequest.setUsername(clientUsername);
+				// clientRequest.setPassword(clientPassword);
+				// oos.writeObject(clientRequest);
+				// Response serverResponse = (Response) ois.readObject(); //
+				// <---------------------------------------------------------
+				// Receiving exception here
+				// if (serverResponse.getResponseID() ==
+				// ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
+				// JOptionPane.showConfirmDialog(null,
+				// "Your password has been successfully resest. Please sign out
+				// and back in for changes to take place.",
+				// "Password Successfully Reset", JOptionPane.OK_OPTION);
+				// } else if (serverResponse.getResponseID() ==
+				// ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
+				// JOptionPane.showConfirmDialog(null, "Oops! Something went
+				// wrong :( Please try again!",
+				// "Password Failed to Reset", JOptionPane.OK_OPTION);
+				// }
+				// } catch (IOException | ClassNotFoundException e1) {
+				// // TODO Auto-generated catch block
+				// e1.printStackTrace();
+				// }
+				// }
+				// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			} else if (text.equals("Sign Out")) {
 				int userResponse = JOptionPane.showConfirmDialog(null, "Are you sure you want to sign out?", "Sign Out",
 						JOptionPane.YES_NO_OPTION);
 				if (userResponse == JOptionPane.YES_OPTION) {
@@ -307,16 +346,15 @@ public class EditorGui extends JFrame {
 
 	private class BackupDocument extends TimerTask {
 		public void run() {
-			
 			Request r = new Request(RequestCode.DOCUMENT_SENT);
-			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), tabbedpane.getName());
+			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
+					tabbedpane.getName());
 			r.setDocument(currentDoc);
-			
 			try {
-				oos.writeObject(r);
-			} catch (IOException e) {
+				documentOutput.writeObject(r);
+			} catch (IOException e1) {
 				System.out.println("Couldn't send document to server");
-				e.printStackTrace();
+				e1.printStackTrace();
 			}
 		}
 	}
