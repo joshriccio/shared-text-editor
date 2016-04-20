@@ -7,6 +7,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,11 +22,14 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -35,6 +40,8 @@ import javax.swing.text.StyledDocument;
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
+import network.Request;
+import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
 
@@ -49,6 +56,7 @@ public class EditorGui extends JFrame {
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
 	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton;
+	private JToggleButton bulletListButton;
 	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
 	@SuppressWarnings("rawtypes")
 	private JComboBox sizeFontDropDown, fontDropDown;
@@ -74,16 +82,14 @@ public class EditorGui extends JFrame {
 		serverListener.start();
 
 		// Set Frame
-		this.setTitle("Collaborative Editing: "); // Removed docName, since we
-													// have tabs with the
-													// document labels
+		this.setTitle("Collaborative Editing"); 
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
 		// initialize the file menu
-		setupFileMenu();
+		setupMenuBar();
 		// initialize the text area
 		setTextArea("");
 		// initialize the JToolbar
@@ -133,6 +139,7 @@ public class EditorGui extends JFrame {
 	 * This method sets up the text area.
 	 */
 	public void setTextArea(String startingText) {
+		
 		tabbedpane = new TabbedPane(docName);
 		tabbedpane.addChangeListener(new ChangeListener() {
 
@@ -145,8 +152,12 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
+		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+		StyleConstants.setLeftIndent(style, 30);
+		StyleConstants.setRightIndent(style, 30);
+		doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
-
 	/**
 	 * This method sets up the tool bar.
 	 */
@@ -156,12 +167,14 @@ public class EditorGui extends JFrame {
 		Image italicImage = null;
 		Image underlineImage = null;
 		Image colorImage = null;
+		Image bulletImage = null;
 		// load images
 		try {
 			boldImage = ImageIO.read(new File("./images/boldImage.png"));
 			italicImage = ImageIO.read(new File("./images/italicImage.png"));
 			underlineImage = ImageIO.read(new File("./images/underlineImage.png"));
 			colorImage = ImageIO.read(new File("./images/colorImage.png"));
+			bulletImage = ImageIO.read(new File("./images/bulletImage.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Couldn't load an image on the toolbar");
@@ -171,10 +184,12 @@ public class EditorGui extends JFrame {
 		italicFontButton = new JButton(new ImageIcon(italicImage));
 		underlineFontButton = new JButton(new ImageIcon(underlineImage));
 		colorButton = new JButton(new ImageIcon(colorImage));
+		bulletListButton = new JToggleButton(new ImageIcon(bulletImage));
 		// add buttons to the tool bar
 		javaToolBar.add(boldFontButton);
 		javaToolBar.add(italicFontButton);
 		javaToolBar.add(underlineFontButton);
+		javaToolBar.add(bulletListButton);
 		javaToolBar.add(colorButton);
 		// add drop down menus to the tool bar
 		javaToolBar.addSeparator();
@@ -192,7 +207,9 @@ public class EditorGui extends JFrame {
 		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
 	}
 
-	private void setupFileMenu() {
+	private void setupMenuBar() {
+
+		// Set up the file menu
 		JMenu file = new JMenu("File");
 		JMenuItem createNewDocument = new JMenuItem("New Document");
 		file.add(createNewDocument);
@@ -200,23 +217,30 @@ public class EditorGui extends JFrame {
 		file.add(loadDocument);
 		JMenuItem refreshDocument = new JMenuItem("Refresh Document");
 		file.add(refreshDocument);
-		JMenuItem preferences = new JMenuItem("Preferences");
-		file.add(preferences);
-		JMenuItem logout = new JMenuItem("Sign Out");
-		file.add(logout);
+
+		// Set up the options menu
+		JMenu options = new JMenu("Options");
+		JMenuItem changePassword = new JMenuItem("Change Password");
+		options.add(changePassword);
+		JMenuItem signout = new JMenuItem("Sign Out");
+		options.add(signout);
 
 		// Create the menu bar and add the Items
-		JMenuBar fileBar = new JMenuBar();
-		setJMenuBar(fileBar);
-		fileBar.add(file);
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		menuBar.add(file);
+		menuBar.add(options);
 
-		// Add the same listener to all menu items requiring action
+		// Add the file menu Listeners
 		MenuItemListener menuListener = new MenuItemListener();
 		createNewDocument.addActionListener(menuListener);
 		loadDocument.addActionListener(menuListener);
 		refreshDocument.addActionListener(menuListener);
-		preferences.addActionListener(menuListener);
-		logout.addActionListener(menuListener);
+
+		// Add the options menu listeners
+		changePassword.addActionListener(menuListener);
+		signout.addActionListener(menuListener);
+
 	}
 
 	private class MenuItemListener implements ActionListener {
@@ -226,6 +250,33 @@ public class EditorGui extends JFrame {
 			if (text.equals("New Document")) {
 				String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
 				tabbedpane.addNewTab(newDocumentName);
+			} else if (text.equals("Change Password")) {
+				JLabel newPassword = new JLabel("New Password:");
+				JPasswordField newPasswordField = new JPasswordField();
+				Object[] forgotPasswordFields = { newPassword, newPasswordField };
+				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Forgot Password",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (response == JOptionPane.YES_OPTION) {
+					try {
+						Request clientRequest = new Request(RequestCode.RESET_PASSWORD);
+						clientRequest.setUser(user);
+						clientRequest.setPassword(String.valueOf(newPasswordField.getPassword()));
+						oos.writeObject(clientRequest);
+						Response serverResponse = (Response) ois.readObject();
+						if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
+							JOptionPane.showConfirmDialog(null,
+									"Your password has been successfully resest. Please sign out and back in for changes to take place.",
+									"Password Successfully Reset", JOptionPane.OK_OPTION);
+						} else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
+							JOptionPane.showConfirmDialog(null, "Oops! Something went wrong :( Please try again!",
+									"Password Failed to Reset", JOptionPane.OK_OPTION);
+						}
+					} catch (IOException | ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+
 			} else if (text.equals("Sign Out")) {
 				int userResponse = JOptionPane.showConfirmDialog(null, "Are you sure you want to sign out?", "Sign Out",
 						JOptionPane.YES_NO_OPTION);
@@ -235,8 +286,8 @@ public class EditorGui extends JFrame {
 					dispose();
 				}
 			}
-		}
 
+		}
 	}
 
 	private class BackupDocument extends TimerTask {
@@ -275,6 +326,7 @@ public class EditorGui extends JFrame {
 		underlineFontButton.addActionListener(new underlineListener());
 		sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
 		fontDropDown.addActionListener(new fontDropDownListener());
+		bulletListButton.addActionListener(new listListener());
 		colorButton.addActionListener(new colorListener());
 	}
 
@@ -388,6 +440,51 @@ public class EditorGui extends JFrame {
 		}
 	}
 
+	private class listListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if (bulletListButton.isSelected()) {
+				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+				try {
+					doc.insertString(doc.getLength(), "\u2022  ", null);
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+
+				tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
+					@Override
+					public void keyPressed(KeyEvent arg0) {
+					}
+
+					@Override
+					public void keyReleased(KeyEvent arg0) {
+						if (arg0.getKeyCode() == KeyEvent.VK_ENTER && bulletListButton.isSelected()) {
+							StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+							try {
+								doc.insertString(doc.getLength(), "\u2022  ", null);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+
+						} else if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
+							KeyListener[] ls = tabbedpane.getCurrentTextPane().getKeyListeners();
+							if (ls.length > 0) {
+								tabbedpane.getCurrentTextPane().removeKeyListener(ls[0]);
+							}
+
+						}
+
+					}
+
+					@Override
+					public void keyTyped(KeyEvent arg0) {
+					}
+				});
+			}
+		}
+	}
+
 	private class ServerListener extends Thread {
 		@Override
 		public void run() {
@@ -396,7 +493,8 @@ public class EditorGui extends JFrame {
 					Response response = (Response) ois.readObject();
 					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
 						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
-						EditorGui.this.tabbedpane.getCurrentTextPane().setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
+						EditorGui.this.tabbedpane.getCurrentTextPane()
+								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
 					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
