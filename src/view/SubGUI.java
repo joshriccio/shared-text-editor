@@ -42,11 +42,10 @@ public class SubGUI extends JFrame {
 	// Variables for creating new documents
 	private JPanel bottomPanel = new JPanel();
 	private JButton newDocumentButton = new JButton("Create New Document");
-	private JLabel openDoc = new JLabel("Open Document:");
 
-//	private JButton loadDocumentButton = new JButton("Load Document"); // FIXME: For testing, Phase 2
+	private JButton loadDocumentButton = new JButton("Load Document"); // FIXME: For testing, Phase 2
 	
-//	private Socket socket = null;
+	private Socket socket = null;
 
 	private JTabbedPane openDocumentSelectorPane = new JTabbedPane();
 	
@@ -54,6 +53,7 @@ public class SubGUI extends JFrame {
 		this.oos = objectOutputStream;
 		this.ois = objectInputStream;
 		this.user = user;
+
 		organizeLayout();
 		assignListeners();
 	}
@@ -69,7 +69,7 @@ public class SubGUI extends JFrame {
 
 	private void organizeLayout() {
 
-		this.setTitle("Collaborative Editor");
+		this.setTitle("SubGUI (Welcome? Preferences?)");
 		this.setSize(400, 450);
 		
 		//String arrays of the names of Documents to be added to a JScrollPane
@@ -81,8 +81,8 @@ public class SubGUI extends JFrame {
 		openDocumentSelectorPane.addTab("Editable By You", new JScrollPane());
 		this.add(openDocumentSelectorPane);
 
-//		bottomPanel.add(loadDocumentButton); // FIXME: Save from SubGUI - For
-//												// testing
+		bottomPanel.add(loadDocumentButton); // FIXME: Save from SubGUI - For
+												// testing
 
 		// Add newDocButton
 		bottomPanel.add(newDocumentButton);
@@ -117,7 +117,7 @@ public class SubGUI extends JFrame {
 	}
 
 	private void assignListeners() {
-//		loadDocumentButton.addActionListener(new LoadButtonListener());
+		loadDocumentButton.addActionListener(new LoadButtonListener());
 		// FIXME: ADD list listeners
 		newDocumentButton.addActionListener(new CreateNewDocumentListener());
 
@@ -153,6 +153,7 @@ public class SubGUI extends JFrame {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+
 //			try {
 //				FileInputStream inFile = new FileInputStream("UpdatedSaveFile");
 //				ObjectInputStream inputStream = new ObjectInputStream(inFile);
@@ -160,16 +161,12 @@ public class SubGUI extends JFrame {
 //				inputStream.close();
 //				EditorGui editor = new EditorGui(oos, ois, user, document);
 //				editor.setVisible(true);
-//				dispose();
-
 //			} catch (Exception e1) {
 //				// TODO Auto-generated catch block
 //				e1.printStackTrace();
 //			}
-
 		}
 	}
-
 
 	private class CreateNewDocumentListener implements ActionListener {
 

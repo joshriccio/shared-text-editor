@@ -90,7 +90,6 @@ public class EditorGui extends JFrame {
 		setupMenuBar();
 		// initialize the text area
 		setTextArea("");
-		
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -131,7 +130,8 @@ public class EditorGui extends JFrame {
 			setTextArea("");
 			e.printStackTrace();
 		}
-		
+		// initialize the file menu
+                setupMenuBar();
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -158,11 +158,11 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
-		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
-		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
-		StyleConstants.setLeftIndent(style, 30);
-		StyleConstants.setRightIndent(style, 30);
-		doc.setParagraphAttributes(0, doc.getLength(), style, false);
+//		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+//		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+//		StyleConstants.setLeftIndent(style, 30);
+//		StyleConstants.setRightIndent(style, 30);
+//		doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
 	/**
 	 * This method sets up the tool bar.
@@ -487,11 +487,11 @@ public class EditorGui extends JFrame {
 			while (true) {
 				try {
 					Response response = (Response) ois.readObject();
-//					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
-//						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
-//						EditorGui.this.tabbedpane.getCurrentTextPane()
-//								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
-//					}
+					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
+						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
+						EditorGui.this.tabbedpane.getCurrentTextPane()
+								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
+					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
 					}
