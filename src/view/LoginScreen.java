@@ -167,7 +167,7 @@ public class LoginScreen extends JFrame {
                                 "Failed to Create Account", JOptionPane.OK_OPTION);
             } else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
                 JOptionPane.showConfirmDialog(null,
-                                "Your password has been successfully resest. Please login to continue.",
+                                "Your password has been successfully reset. Please login to continue.",
                                 "Password Successfully Reset", JOptionPane.OK_OPTION);
             } else if (serverResponse.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
                 JOptionPane.showConfirmDialog(null, "Sorry your username you entered is incorrect!",

@@ -114,8 +114,7 @@ public class Server {
 		if (userExists(clientRequest.getUsername())) {
 			User updatepassword = networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser();
 			try {
-				updatepassword.setPassword(
-						Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
+				updatepassword.setPassword(Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
 			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 				e.printStackTrace();
 			}
