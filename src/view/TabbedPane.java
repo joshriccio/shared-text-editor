@@ -116,5 +116,13 @@ public class TabbedPane extends JTabbedPane{
 	public JTextPane getCurrentTextPane(){
 		return textpanemap.get(this.getTitleAt(this.getSelectedIndex()));
 	}
-
+	
+	/**
+	 * Gets the title of the currently vied tab
+	 * @return returns the title of the currently viewed tab
+	 */
+	public String getName() {
+		return this.getTitleAt(this.getSelectedIndex());
+	}
+	
 }

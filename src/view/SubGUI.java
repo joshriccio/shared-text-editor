@@ -18,16 +18,21 @@ import model.EditableDocument;
 import model.User;
 import network.Request;
 import network.RequestCode;
+import network.ResponseCode;
 import network.Server;
+import network.Response;
 
 public class SubGUI extends JFrame {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3977650348030935566L;
 
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException {
 		User user = new User("Stephen", "boss");
 		new SubGUI(user);
 	}
-
-	private static final long serialVersionUID = 1L;
 
 	// Pass-through variables
 	User user;
@@ -118,12 +123,36 @@ public class SubGUI extends JFrame {
 
 	}
 
-//	// Listener for testing saving and loading files
-//	private class LoadButtonListener implements ActionListener {
-//
-//		@Override
-//		public void actionPerformed(ActionEvent e) {
-//
+	// Listener for testing saving and loading files
+	private class LoadButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			String documentName = JOptionPane.showInputDialog("What is the document named?");
+			Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
+			requestDocument.setRequestedName(documentName);
+			requestDocument.setUser(user);
+			
+			try {
+				oos.writeObject(requestDocument);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			try {
+				Response serverRequest = (Response) ois.readObject();
+				EditableDocument openedDocument = serverRequest.getEditableDocument();
+				EditorGui editor = new EditorGui(oos, ois, user, openedDocument);
+				editor.setVisible(true);
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 //			try {
 //				FileInputStream inFile = new FileInputStream("UpdatedSaveFile");
 //				ObjectInputStream inputStream = new ObjectInputStream(inFile);
@@ -132,12 +161,15 @@ public class SubGUI extends JFrame {
 //				EditorGui editor = new EditorGui(oos, ois, user, document);
 //				editor.setVisible(true);
 //				dispose();
+
 //			} catch (Exception e1) {
 //				// TODO Auto-generated catch block
 //				e1.printStackTrace();
 //			}
-//		}
-//	}
+
+		}
+	}
+
 
 	private class CreateNewDocumentListener implements ActionListener {
 

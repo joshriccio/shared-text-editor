@@ -14,12 +14,17 @@ import model.User;
  */
 public class Request implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8964365134630346582L;
 	private RequestCode requestCode;
 	private User user;
 	private String username;
 	private String password;
 	private EditableDocument doc;
+	private String documentName;
+	
 
 	/**
 	 * Constructor for request code
@@ -67,6 +72,22 @@ public class Request implements Serializable {
 	 */
 	public EditableDocument getDocument() {
 		return doc;
+	}
+	
+	/**
+	 * @param String
+	 *            sets the name of the requestedDoc
+	 */
+	public void setRequestedName(String name) {
+		this.documentName = name;
+	}
+	
+	/**
+	 * 
+	 * @return returns the name of the requestedDoc
+	 */
+	public String getRequestedName() {
+		return documentName;
 	}
 
 	public void setUsername(String username) {
