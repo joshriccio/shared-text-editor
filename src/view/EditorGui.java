@@ -75,18 +75,19 @@ public class EditorGui extends JFrame {
 		serverListener.start();
 
 		// Set Frame
-		this.setTitle("Collaborative Editing"); // Removed docName, since we
-													// have tabs with the
-													// document labels
+		this.setTitle("Collaborative Editing"); 
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
+		
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
 		// initialize the file menu
 		setupFileMenu();
+		
 		// initialize the text area
 		setTextArea("");
+		
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -101,26 +102,35 @@ public class EditorGui extends JFrame {
 	 * Constructor for when previous document is loaded
 	 */
 
+	@SuppressWarnings("unchecked")
 	public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
 		this.oos = oos;
 		this.ois = ois;
 		this.user = user;
+		docName = doc.getName();
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
-		docName = doc.getName();
 
 		// Set Frame
 		this.setTitle("Collaborative Editing");
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
+		sizeFontDropDown = new JComboBox(fontSizes);
+		fontDropDown = new JComboBox(fonts);
+		// initialize the file menu
+		setupFileMenu();
+		
 		// initialize the text area
 		try {
-			setTextArea(doc.getDocument().getText(0, doc.getDocument().getLength()));
+			String temp = doc.getDocument().getText(0, doc.getDocument().getLength());
+			setTextArea(temp);
+			tabbedpane.getCurrentTextPane().setDocument(doc.getDocument());
 		} catch (BadLocationException e) {
 			setTextArea("");
 			e.printStackTrace();
 		}
+		
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -136,7 +146,7 @@ public class EditorGui extends JFrame {
 	public void setTextArea(String startingText) {
 		tabbedpane = new TabbedPane(docName);
 		tabbedpane.addChangeListener(new ChangeListener() {
-
+		
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				myToolBar.setIsBold(false);
@@ -264,8 +274,8 @@ public class EditorGui extends JFrame {
 		boldFontButton.addActionListener(new boldListener());
 		italicFontButton.addActionListener(new italicListener());
 		underlineFontButton.addActionListener(new underlineListener());
-		sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
-		fontDropDown.addActionListener(new fontDropDownListener());
+		//sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
+		//fontDropDown.addActionListener(new fontDropDownListener());
 		colorButton.addActionListener(new colorListener());
 	}
 

@@ -60,6 +60,7 @@ public class Server {
 		serverSocket = null;
 		ois = null;
 		oos = null;
+		savedFileList = new LinkedListForSaves();
 		try {
 			serverSocket = new ServerSocket(PORT_NUMBER);
 			while (true) {
@@ -216,8 +217,7 @@ class ClientHandler extends Thread {
 				clientRequest = (Request) input.readObject();
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 					EditableDocument document = clientRequest.getDocument();
-					this.saveDocument(document); // FIXME: must be able to save
-													// from server
+					this.saveDocument(document); 
 					this.writeDocumentToClients(document);
 				}
 
