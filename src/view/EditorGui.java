@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -38,8 +37,11 @@ import javax.swing.text.StyledDocument;
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
+
 import network.Response;
 import network.ResponseCode;
+import network.Request;
+import network.RequestCode;
 
 /**
  * 
@@ -47,8 +49,7 @@ import network.ResponseCode;
  *
  */
 public class EditorGui extends JFrame {
-	private static final long serialVersionUID = 1L;
-	private JTextPane textpane = new JTextPane();
+	private static final long serialVersionUID = 5134447391484363694L;
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
 	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton;
@@ -78,18 +79,19 @@ public class EditorGui extends JFrame {
 		serverListener.start();
 
 		// Set Frame
-		this.setTitle("Collaborative Editing: "); // Removed docName, since we
-													// have tabs with the
-													// document labels
+		this.setTitle("Collaborative Editing"); 
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
+		
 		sizeFontDropDown = new JComboBox(fontSizes);
 		fontDropDown = new JComboBox(fonts);
 		// initialize the file menu
 		setupFileMenu();
+		
 		// initialize the text area
 		setTextArea("");
+		
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -104,26 +106,35 @@ public class EditorGui extends JFrame {
 	 * Constructor for when previous document is loaded
 	 */
 
+	@SuppressWarnings("unchecked")
 	public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
 		this.oos = oos;
 		this.ois = ois;
 		this.user = user;
+		docName = doc.getName();
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
-		docName = doc.getName();
 
 		// Set Frame
 		this.setTitle("Collaborative Editing");
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
+		sizeFontDropDown = new JComboBox(fontSizes);
+		fontDropDown = new JComboBox(fonts);
+		// initialize the file menu
+		setupFileMenu();
+		
 		// initialize the text area
 		try {
-			setTextArea(doc.getDocument().getText(0, doc.getDocument().getLength()));
+			String temp = doc.getDocument().getText(0, doc.getDocument().getLength());
+			setTextArea(temp);
+			tabbedpane.getCurrentTextPane().setDocument(doc.getDocument());
 		} catch (BadLocationException e) {
 			setTextArea("");
 			e.printStackTrace();
 		}
+		
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -140,7 +151,7 @@ public class EditorGui extends JFrame {
 		
 		tabbedpane = new TabbedPane(docName);
 		tabbedpane.addChangeListener(new ChangeListener() {
-
+		
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				myToolBar.setIsBold(false);
@@ -254,27 +265,17 @@ public class EditorGui extends JFrame {
 
 	private class BackupDocument extends TimerTask {
 		public void run() {
-
-			// String newDocName = docName + new
-			// SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new
-			// Date());;
-			String newDocName = "UpdatedSaveFile";// FIXME: title will always be
-			// UpdatedSaveFile
-			EditableDocument currentDoc = new EditableDocument(textpane.getStyledDocument(), docName);
+			
+			Request r = new Request(RequestCode.DOCUMENT_SENT);
+			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), tabbedpane.getName());
+			r.setDocument(currentDoc);
+			
 			try {
-				FileOutputStream outFile = new FileOutputStream(newDocName);
-				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
-				outputStream.writeObject(currentDoc);
-				System.out.println("I just saved!");
-				// Do NOT forget to close the output stream!
-				outputStream.close();
-				outFile.close();
+				oos.writeObject(r);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				System.out.println("Couldn't create a new save file!");
-				// e.printStackTrace();
+				System.out.println("Couldn't send document to server");
+				e.printStackTrace();
 			}
-
 		}
 	}
 
@@ -453,11 +454,11 @@ public class EditorGui extends JFrame {
 			while (true) {
 				try {
 					Response response = (Response) ois.readObject();
-					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
-						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
-						EditorGui.this.tabbedpane.getCurrentTextPane()
-								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
-					}
+//					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
+//						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
+//						EditorGui.this.tabbedpane.getCurrentTextPane()
+//								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
+//					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
 					}
