@@ -454,11 +454,11 @@ public class EditorGui extends JFrame {
 			while (true) {
 				try {
 					Response response = (Response) ois.readObject();
-					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
-						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
-						EditorGui.this.tabbedpane.getCurrentTextPane()
-								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
-					}
+//					if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
+//						EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(response.getStyledDocument());
+//						EditorGui.this.tabbedpane.getCurrentTextPane()
+//								.setCaretPosition(tabbedpane.getCurrentTextPane().getText().length());
+//					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
 					}
