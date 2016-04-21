@@ -44,7 +44,6 @@ public class TabbedPane extends JTabbedPane{
 		this.setupMenu();
 		textpane.setPreferredSize(new Dimension(100, 100));
 		textpane.setBackground(Color.WHITE);
-		textpane.setText("");
 		JScrollPane scrollpane = new JScrollPane(textpane);
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
@@ -102,7 +101,6 @@ public class TabbedPane extends JTabbedPane{
 		textpanemap.put(docName, textpane);
 		textpane.setPreferredSize(new Dimension(100, 100));
 		textpane.setBackground(Color.WHITE);
-		textpane.setText("");
 		JScrollPane scrollpane = new JScrollPane(textpane);
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
