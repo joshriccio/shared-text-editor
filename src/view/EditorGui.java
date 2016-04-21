@@ -285,51 +285,27 @@ public class EditorGui extends JFrame {
 				String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
 				tabbedpane.addNewTab(newDocumentName);
 			} else if (text.equals("Change Password")) {
-				JOptionPane.showMessageDialog(null,
-						"Sorry, but this function is currently unavailable due to network errors." + "\n"
-								+ "Please 'Sign Out' and use 'Forgot Login' to change your password. Thank you!");
-								// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-								// Jeremy and/or Daniel can you please take a
-								// look at this and help us debug why we are
-								// getting an cast exceptions:
 
-				// JLabel newPassword = new JLabel("New Password:");
-				// JPasswordField newPasswordField = new JPasswordField();
-				// Object[] forgotPasswordFields = { newPassword,
-				// newPasswordField };
-				// int response = JOptionPane.showConfirmDialog(null,
-				// forgotPasswordFields, "Change Password",
-				// JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-				// if (response == JOptionPane.YES_OPTION) {
-				// String clientUsername = user.getUsername();
-				// String clientPassword =
-				// String.valueOf(newPasswordField.getPassword());
-				// try {
-				// Request clientRequest = new
-				// Request(RequestCode.RESET_PASSWORD);
-				// clientRequest.setUsername(clientUsername);
-				// clientRequest.setPassword(clientPassword);
-				// oos.writeObject(clientRequest);
-				// Response serverResponse = (Response) ois.readObject(); //
-				// <---------------------------------------------------------
-				// Receiving exception here
-				// if (serverResponse.getResponseID() ==
-				// ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
-				// JOptionPane.showConfirmDialog(null,
-				// "Your password has been successfully resest. Please sign out
-				// and back in for changes to take place.",
-				// "Password Successfully Reset", JOptionPane.OK_OPTION);
-				// } else if (serverResponse.getResponseID() ==
-				// ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
-				// JOptionPane.showConfirmDialog(null, "Oops! Something went
-				// wrong :( Please try again!",
-				// "Password Failed to Reset", JOptionPane.OK_OPTION);
-				// }
-				// } catch (IOException | ClassNotFoundException e1) {
-				// // TODO Auto-generated catch block
-				// e1.printStackTrace();
-				// }
-				// }
+				JLabel newPassword = new JLabel("New Password:");
+				JPasswordField newPasswordField = new JPasswordField();
+				Object[] forgotPasswordFields = { newPassword, newPasswordField };
+				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Change Password",
+						JOptionPane.YES_NO_OPTION);
+				if (response == JOptionPane.YES_OPTION) {
+					System.out.println("OPTION YES from "+ user.getUsername());
+					String clientUsername = user.getUsername();
+					String clientPassword = String.valueOf(newPasswordField.getPassword());
+					try {
+						Request clientRequest = new Request(RequestCode.RESET_PASSWORD);
+						clientRequest.setUsername(clientUsername);
+						clientRequest.setPassword(clientPassword);
+						oos.writeObject(clientRequest);
+						
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 				// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			} else if (text.equals("Sign Out")) {
 				int userResponse = JOptionPane.showConfirmDialog(null, "Are you sure you want to sign out?", "Sign Out",
@@ -541,6 +517,14 @@ public class EditorGui extends JFrame {
 					}
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
+					}
+					if (response.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
+						JOptionPane.showConfirmDialog(null,
+								"Your password has been successfully resest. Please sign outand back in for changes to take place.",
+								"Password Successfully Reset", JOptionPane.OK_OPTION);
+					} else if (response.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED) {
+						JOptionPane.showConfirmDialog(null, "Oops! Something went wrong :( Please try again!",
+								"Password Failed to Reset", JOptionPane.OK_OPTION);
 					}
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();

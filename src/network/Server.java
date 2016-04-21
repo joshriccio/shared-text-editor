@@ -223,15 +223,11 @@ class ClientHandler extends Thread {
 
 				if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
 					writeUsersToClients();
-				}
-
-				else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
+				}else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
 					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
 							.toggleOnline();
 					writeUsersToClients();
-				}
-
-				else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
+				}else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
 					String requestedDocumentName = clientRequest.getRequestedName();
 					User client = clientRequest.getUser();
 					String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
@@ -254,6 +250,8 @@ class ClientHandler extends Thread {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+				}else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
+					processPasswordReset();
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -267,6 +265,20 @@ class ClientHandler extends Thread {
 	private void cleanUp() {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
+	}
+	
+	private void processPasswordReset() throws IOException {
+
+			User updatepassword = Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).getUser();
+			try {
+				updatepassword.setPassword(
+						Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
+			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+				e.printStackTrace();
+			}
+			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
+			Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).getOuputStream().writeObject(serverResponse);
+
 	}
 
 	/**
@@ -361,7 +373,7 @@ class DocumentHandler extends Thread {
 
 	private void saveDocument(EditableDocument doc) {
 		synchronized (Server.savedFileList) {
-			String newDocName = doc.getName();
+			String newDocName = doc.getName() + System.currentTimeMillis();
 			// + "-"
 			// + new
 			// SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new
