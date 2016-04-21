@@ -23,6 +23,8 @@ public class Response implements Serializable {
 	private ResponseCode responseCode;
 	private EditableDocument doc;
 	private String[] userlist;
+	private String[] editorList;
+	private String[] ownerList;
 	private User user;
 
 	/**
@@ -100,5 +102,37 @@ public class Response implements Serializable {
 	 */
 	public void setUser(User user) {
 		this.user = user;
+	}
+	
+	/**
+	 * 
+	 * @param editorlist sets the document list
+	 */
+	public void setEditorList(String[] editorlist) {
+		this.editorList = editorlist;
+	}
+	
+	/**
+	 * 
+	 * Gets the list of documents
+	 */
+	public String[] getEditorList() {
+		return this.editorList;
+	}
+	
+	/**
+	 * 
+	 * @param ownerList sets the document list
+	 */
+	public void setOwnerList(String[] ownerList) {
+		this.ownerList = ownerList;
+	}
+	
+	/**
+	 * 
+	 * Gets the list of documents
+	 */
+	public String[] getOwnerList() {
+		return this.ownerList;
 	}
 }

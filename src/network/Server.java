@@ -1,5 +1,6 @@
 package network;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,11 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.Vector;
-
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.StyledDocument;
-
 import model.EditableDocument;
 import model.Password;
 import model.User;
@@ -62,10 +58,14 @@ public class Server {
 		serverSocket = null;
 		ois = null;
 		oos = null;
-		savedFileList = new LinkedListForSaves();
+		if(loadServerState()){
+			System.out.println("Previous state loaded");
+		}else
+			savedFileList = new LinkedListForSaves();
 		try {
 			serverSocket = new ServerSocket(PORT_NUMBER);
 			while (true) {
+				saveServerState();
 				socket = serverSocket.accept();
 				ois = new ObjectInputStream(socket.getInputStream());
 				oos = new ObjectOutputStream(socket.getOutputStream());
@@ -77,7 +77,7 @@ public class Server {
 				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
 					processPasswordReset();
 				} else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
-					processNewDocumentStream(ois);
+					processNewDocumentStream(ois, oos);
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
@@ -85,8 +85,38 @@ public class Server {
 		}
 	}
 
-	private static void processNewDocumentStream(ObjectInputStream input) {
-		DocumentHandler d = new DocumentHandler(input);
+	private static boolean loadServerState() {
+		File serverbackup = new File("server.bak");
+		if(serverbackup.exists() && !serverbackup.isDirectory()) { 
+			try {
+				ObjectInputStream input = new ObjectInputStream(new FileInputStream(serverbackup));
+				savedFileList = (LinkedListForSaves)input.readObject();
+				input.close();
+				return true;
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+
+	private static void saveServerState() {
+		try {
+			FileOutputStream outFile = new FileOutputStream("server.bak");
+			ObjectOutputStream outputStream;
+			outputStream = new ObjectOutputStream(outFile);
+			outputStream.writeObject(savedFileList);
+			System.out.println("Server backed up");
+			outputStream.close();
+			outFile.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	private static void processNewDocumentStream(ObjectInputStream input, ObjectOutputStream output) {
+		DocumentHandler d = new DocumentHandler(input, output);
 		d.start();
 	}
 
@@ -197,10 +227,10 @@ public class Server {
 }
 
 /**
- * ClientHandler gerates a new thread to manage client activity
+ * ClientHandler generates a new thread to manage client activity
  * 
- * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
- * (cdeeran11@email.arizona.edu)
+ * @author Josh Riccio (jriccio@email.arizona.edu) 
+ * @author Cody Deeran (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -231,25 +261,7 @@ class ClientHandler extends Thread {
 							.toggleOnline();
 					writeUsersToClients();
 				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
-					String requestedDocumentName = clientRequest.getRequestedName();
-					User client = clientRequest.getUser();
-					String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
-					ObjectOutputStream oos = null;
-
-					oos = Server.networkAccounts.get(Server.usersToIndex.get(client.getUsername())).getOuputStream();
-
-					try {
-						FileInputStream inFile = new FileInputStream(mostRecentFile);
-						ObjectInputStream inputStream = new ObjectInputStream(inFile);
-						EditableDocument document = (EditableDocument) inputStream.readObject();
-						inputStream.close();
-
-						Response sendDocRequest = new Response(ResponseCode.DOCUMENT_SENT, document);
-						oos.writeObject(sendDocRequest);
-
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
+					processDocumentRequest();
 				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
 					processPasswordReset();
 				}
@@ -260,6 +272,25 @@ class ClientHandler extends Thread {
 			}
 		}
 
+	}
+
+	private void processDocumentRequest() {
+		String requestedDocumentName = clientRequest.getRequestedName();
+		User client = clientRequest.getUser();
+		String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
+		ObjectOutputStream oos = null;
+		oos = Server.networkAccounts.get(Server.usersToIndex.get(client.getUsername())).getOuputStream();
+
+		try {
+			FileInputStream inFile = new FileInputStream(mostRecentFile);
+			ObjectInputStream inputStream = new ObjectInputStream(inFile);
+			EditableDocument document = (EditableDocument) inputStream.readObject();
+			inputStream.close();
+			Response sendDocRequest = new Response(ResponseCode.DOCUMENT_SENT, document);
+			oos.writeObject(sendDocRequest);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	private void cleanUp() {
@@ -335,23 +366,24 @@ class ClientHandler extends Thread {
 
 class DocumentHandler extends Thread {
 	private ObjectInputStream input;
+	private ObjectOutputStream output;
 
-	public DocumentHandler(ObjectInputStream ois) {
+	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos) {
 		this.input = ois;
+		this.output = oos;
 	}
 
 	@Override
 	public void run() {
 		try {
 			Request clientRequest = (Request) input.readObject();
-			//TODO Remove print statement, for debugging
-			System.out.println(clientRequest.getDocument().getName() + " text: " + clientRequest.getDocument()
-					.getDocument().getText(0, clientRequest.getDocument().getDocument().getLength()));
 			if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 				EditableDocument document = clientRequest.getDocument();
 				this.saveDocument(document);
+			}else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT_LIST) {
+				processDocumentListRequest(clientRequest.getUsername());
 			}
-		} catch (ClassNotFoundException | IOException | BadLocationException e) {
+		} catch (ClassNotFoundException | IOException e) {
 			System.out.println("Document Stream Disconnected");
 		}
 	}
@@ -368,11 +400,28 @@ class DocumentHandler extends Thread {
 				outputStream.close();
 				outFile.close();
 
-				Server.savedFileList.createSave(doc, newDocName);
+				Server.savedFileList.createSave(doc, newDocName, doc.getDocumentOwner());
 			} catch (IOException e) {
 				System.out.println("Couldn't create a new save file!");
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private void processDocumentListRequest(String username) {
+		System.out.println("Processing Document lists for: " + username);
+		String[] editorlist = Server.savedFileList.getDocumentsByEditor(username);
+		System.out.println("Editable by List has " + editorlist.length + " documents");
+		String[] ownerlist = Server.savedFileList.getDocumentsByOwner(username);
+		System.out.println("Owned by List has " + ownerlist.length + " documents");
+		
+		Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT);
+		response.setEditorList(editorlist);
+		response.setOwnerList(ownerlist);
+		try {
+			output.writeObject(response);
+		} catch (IOException e) {
+			e.printStackTrace();
+		};
 	}
 }

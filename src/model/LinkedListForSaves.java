@@ -1,4 +1,6 @@
 package model;
+
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -6,45 +8,80 @@ import java.util.List;
 import model.EditableDocument;
 import model.User;
 
-public class LinkedListForSaves {
-	
+/**
+ * LinkedList to store saved documents
+ *
+ */
+public class LinkedListForSaves implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 	private SpineNode headOfList;
-	
-	// Nodes to store the documentName and the users who can edit it
-	private class SpineNode {
+
+	/**
+	 * Nodes to store the documentName and the users who can edit it
+	 *
+	 */
+	private class SpineNode implements Serializable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private String documentName;
-		private List<User> editors;
+		private List<String> editors;
+		private List<String> owners;
 		private EdgeNode mostRecentSave;
 		private SpineNode nextDocumentNode;
-		
+
 		private SpineNode(String documentName) {
 			this.documentName = documentName;
+			editors = new ArrayList<String>();
+			owners = new ArrayList<String>();
 		}
+		
+		private void addNewEditor(String user){
+			editors.add(user);
+		}
+		
+		private void addnewOwner(String user){
+			owners.add(user);
+		}
+
+
 	}
-	
-	// Nodes which store the documents themselves
-	private class EdgeNode {
+
+	/**
+	 * Nodes which store the documents themselves
+	 *
+	 */
+	private class EdgeNode implements Serializable{
+
+		private static final long serialVersionUID = -3279145660210051848L;
 		private String fileName;
 		private EdgeNode nextOlderSave;
 		private Timestamp timeSaved;
-		
+
 		private EdgeNode(String fileName) {
 			this.fileName = fileName;
 		}
 	}
-	
-	// Create a new list of SpineNodes
+
+	/**
+	 * Create a new list of SpineNodes
+	 */
 	public LinkedListForSaves() {
-		
 		headOfList = new SpineNode("Head of List");
 	}
-	
-	// This will be the function call from the server to create a new save, pass in the documentName and the fileName
-	public void createSave(EditableDocument document, String fileName) {
-		
+
+	/**
+	 * This will be the function call from the server to create a new save, pass
+	 * in the documentName and the fileName
+	 * 
+	 * @param document
+	 * @param fileName
+	 */
+	public void createSave(EditableDocument document, String fileName, User user) {
 		SpineNode temp = headOfList;
 		String documentName = document.getName();
-		
 		while (temp != null) {
 			if (temp.documentName.equals(documentName)) {
 				addNewSave(fileName, temp);
@@ -52,38 +89,33 @@ public class LinkedListForSaves {
 			}
 			temp = temp.nextDocumentNode;
 		}
-		
-		addNewDocument(documentName, fileName);
-		
-	}
-	
-	// Create a new SpineNode and insert it immediately after headOfList, then create the first saveNode
-	private void addNewDocument(String documentName, String fileName) {
-		
-		SpineNode newDocumentNode = new SpineNode(documentName);
-		
-		newDocumentNode.nextDocumentNode = headOfList.nextDocumentNode;
-		headOfList.nextDocumentNode = newDocumentNode;
-		
-		addNewSave(fileName, newDocumentNode);
-		
+		addNewDocument(documentName, fileName, user);
 	}
 
-	// Create a new edge node with info for a saved file and attach it to the appropriate spine node.
+	private void addNewDocument(String documentName, String fileName, User user) {
+		SpineNode newDocumentNode = new SpineNode(documentName);
+		newDocumentNode.addnewOwner(user.getUsername());
+		newDocumentNode.addNewEditor(user.getUsername());
+		newDocumentNode.nextDocumentNode = headOfList.nextDocumentNode;
+		headOfList.nextDocumentNode = newDocumentNode;
+		addNewSave(fileName, newDocumentNode);
+	}
+
 	private void addNewSave(String fileName, SpineNode documentNode) {
-		
 		EdgeNode newSaveNode = new EdgeNode(fileName);
-		
 		newSaveNode.timeSaved = new Timestamp(System.currentTimeMillis());
 		newSaveNode.nextOlderSave = documentNode.mostRecentSave;
 		documentNode.mostRecentSave = newSaveNode;
 	}
-	
-	// Access the fileName of the most recent save
+
+	/**
+	 * Access the fileName of the most recent save
+	 * 
+	 * @param documentName
+	 * @return
+	 */
 	public String getMostRecentSave(String documentName) {
-		
 		SpineNode temp = headOfList;
-		
 		while (temp != null) {
 			if (temp.documentName.equals(documentName)) {
 				return temp.mostRecentSave.fileName;
@@ -93,27 +125,42 @@ public class LinkedListForSaves {
 		return "Document Not Found";
 	}
 	
+	/**
+	 * 
+	 * @param editor
+	 * @return
+	 */
+	public String[] getDocumentsByEditor(String editor){
+		ArrayList<String> docs = new ArrayList<>();
+		SpineNode node = this.headOfList;
+		while(node != null){
+			if(node.editors.contains(editor)){
+				System.out.println("Found document editable by " + editor + ": " + node.documentName);
+				docs.add(node.documentName);
+			}
+			node = node.nextDocumentNode;
+		}
+		String[] doclist = new String[docs.size()];
+		return docs.toArray(doclist);
+	}
 	
-//	
-//	public ArrayList<Timestamp> getOlderSaves(int numberOfSavesToFetch, EditableDocument document) {
-//		ArrayList<Timestamp> olderSaveTimestamps = new ArrayList<>();
-//		String documentName = document.getName();
-//		
-//		SpineNode temp = headOfList;
-//		
-//		while (temp != null) {
-//			if (temp.documentName.equals(documentName)) {
-//				return temp.mostRecentSave.fileName;
-//			}
-//			temp = temp.nextDocumentNode;
-//		}
-//		
-//		
-//		for (int i = 0; i < numberOfSavesToFetch; i++) {
-//			
-//		}
-//		
-//		return olderSaveTimestamps;
-//	}
+	/**
+	 * 
+	 * @param owner
+	 * @return
+	 */
+	public String[] getDocumentsByOwner(String owner){
+		ArrayList<String> docs = new ArrayList<>();
+		SpineNode node = this.headOfList;
+		while(node != null){
+			if(node.editors.contains(owner)){
+				System.out.println("Found document owned by " + owner + ": " + node.documentName);
+				docs.add(node.documentName);
+			}
+			node = node.nextDocumentNode;
+		}
+		String[] doclist = new String[docs.size()];
+		return docs.toArray(doclist);
+	}
 
 }

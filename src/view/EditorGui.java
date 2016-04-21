@@ -332,17 +332,14 @@ public class EditorGui extends JFrame {
 				e1.printStackTrace();
 			}
 			Request r = new Request(RequestCode.DOCUMENT_SENT);
-			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
+			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
 					tabbedpane.getName());
 			r.setDocument(currentDoc);
 			try {
-				//TODO Remove print statement, for debugging
-				System.out.println(r.getDocument().getName() + " text: "
-						+ r.getDocument().getDocument().getText(0, r.getDocument().getDocument().getLength()));
 				documentOutput.writeObject(r);
 				documentOutput.flush();
 				documentOutput.close();
-			} catch (IOException | BadLocationException e1) {
+			} catch (IOException e1) {
 				System.out.println("Couldn't send document to server");
 				e1.printStackTrace();
 			}
