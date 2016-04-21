@@ -402,7 +402,7 @@ class DocumentHandler extends Thread {
 
 	private void saveDocument(EditableDocument doc) {
 		synchronized (Server.savedFileList) {
-			String newDocName = "./revisionhistory/" + doc.getName() + System.currentTimeMillis();
+			String newDocName = "revisionhistory/" + doc.getName() + System.currentTimeMillis();
 			try {
 
 				FileOutputStream outFile = new FileOutputStream(newDocName);
