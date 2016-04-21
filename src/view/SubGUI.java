@@ -6,11 +6,15 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import javax.swing.*;
+
+import model.EditableDocument;
 import model.User;
 import network.Request;
 import network.RequestCode;
@@ -27,8 +31,11 @@ public class SubGUI extends JFrame {
 	private JButton loadDocumentButton = new JButton("Refresh Document List"); 
 	private Socket socket = null;
 	private JTabbedPane openDocumentSelectorPane = new JTabbedPane();
-	private ListPane editorList = new ListPane();
-	private ListPane ownerList = new ListPane();
+
+	private JList<String> editorlist = new JList<String>();
+	private JList<String> ownerlist = new JList<String>();
+	private DefaultListModel<String> olistmodel = new DefaultListModel<String>();
+	private DefaultListModel<String> elistmodel = new DefaultListModel<String>();
 
 	public SubGUI(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
 		this.oos = objectOutputStream;
@@ -65,8 +72,8 @@ public class SubGUI extends JFrame {
 		try {
 			documentOutput.writeObject(request);
 			Response response = (Response)documentInput.readObject();
-			editorList.updateDocumentList(response.getEditorList());
-			ownerList.updateDocumentList(response.getOwnerList());
+			updateDocumentList(response.getEditorList(), elistmodel);
+			updateDocumentList(response.getOwnerList(), olistmodel);
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -75,9 +82,25 @@ public class SubGUI extends JFrame {
 	private void organizeLayout() {
 		this.setTitle("Welcome");
 		this.setSize(400, 450);
-		// Add tabbedPane
-		openDocumentSelectorPane.addTab("Owned By You", ownerList);
-		openDocumentSelectorPane.addTab("Editable By You", editorList);
+		// Add tabbedPane		
+		JScrollPane escrollpane;
+		elistmodel = new DefaultListModel<String>();
+		editorlist = new JList<String>(elistmodel);
+		escrollpane = new JScrollPane(editorlist, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		escrollpane.setPreferredSize(new Dimension(120, 100));
+		setLayout(new BorderLayout());
+		
+		JScrollPane oscrollpane;
+		ownerlist = new JList<String>(this.olistmodel);
+		oscrollpane = new JScrollPane(ownerlist, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		oscrollpane.setPreferredSize(new Dimension(120, 100));
+		setLayout(new BorderLayout());
+		
+		openDocumentSelectorPane.addTab("Owned By You", oscrollpane);
+		openDocumentSelectorPane.addTab("Editable By You", escrollpane);
+		
 		//editorList.addDemoDocuments();
 		this.add(openDocumentSelectorPane);
 		bottomPanel.add(loadDocumentButton);
@@ -101,6 +124,62 @@ public class SubGUI extends JFrame {
 		loadDocumentButton.addActionListener(new LoadButtonListener());
 		// FIXME: ADD list listeners
 		newDocumentButton.addActionListener(new CreateNewDocumentListener());
+		
+		ownerlist.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent event) {
+				  if (event.getClickCount() == 2) {
+					    System.out.println("double clicked on " + ownerlist.getSelectedValue());
+					    launchDocument(ownerlist.getSelectedValue());
+					  }
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {	
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {	
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {	
+			}
+			
+		});
+		
+		editorlist.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent event) {
+				  if (event.getClickCount() == 2) {
+					    System.out.println("double clicked on " + editorlist.getSelectedValue());
+					    launchDocument(editorlist.getSelectedValue());
+					  }
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {	
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+			}
+			
+		});
 	}
 
 	// Listener for testing saving and loading files
@@ -119,6 +198,42 @@ public class SubGUI extends JFrame {
 			EditorGui editor = new EditorGui(oos, ois, user, newDocumentName);
 			editor.setVisible(true);
 			dispose();
+		}
+	}
+	
+	public void updateDocumentList(String[] documentList, DefaultListModel<String> listmodel) {
+		for (int i = 0; i < documentList.length; i++) {
+			if (documentList[i].substring(0, 1).equals("-")) {
+				if (listmodel.contains(documentList[i].substring(1, documentList[i].length()))) {
+					listmodel.removeElement(documentList[i].substring(1, documentList[i].length()));
+				}
+			} else if (!listmodel.contains(documentList[i])) {
+				listmodel.addElement(documentList[i]);
+			}
+		}
+	}
+	
+	private void launchDocument(String documentName){
+		Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
+		requestDocument.setRequestedName(documentName);
+		requestDocument.setUser(user);
+		
+		try {
+			oos.writeObject(requestDocument);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		try {
+			Response serverRequest = (Response) ois.readObject();
+			EditableDocument openedDocument = serverRequest.getEditableDocument();
+			EditorGui editor = new EditorGui(oos, ois, user, openedDocument);
+			editor.setVisible(true);
+			dispose();
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
 	}
 
