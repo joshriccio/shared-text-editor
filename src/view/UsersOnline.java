@@ -17,10 +17,10 @@ import javax.swing.SwingUtilities;
 import network.Request;
 import network.RequestCode;
 
-
 /**
  * 
  * A JPanel that lists all the users currently connected to the server.
+ * 
  * @author Joshua Riccio
  *
  */
@@ -34,8 +34,9 @@ public class UsersOnline extends JPanel {
 	private JPopupMenu menu;
 
 	/**
-	 * The constructor takes the current objectoutputstream so that it can get the most up to
-	 * date info on who is connected
+	 * The constructor takes the current objectoutputstream so that it can get
+	 * the most up to date info on who is connected
+	 * 
 	 * @param oos
 	 */
 	public UsersOnline(ObjectOutputStream oos) {
@@ -102,7 +103,9 @@ public class UsersOnline extends JPanel {
 
 	/**
 	 * Updates the panel with the users who connected/ disconnected
-	 * @param userlist the most uptodate userlist
+	 * 
+	 * @param userlist
+	 *            the most uptodate userlist
 	 */
 	public void updateUsers(String[] userlist) {
 		System.out.println("users added");

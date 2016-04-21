@@ -29,6 +29,8 @@ import network.Server;
  * @author Cody Deeran(cdeeran11@email.arizona.edu) @author Joshua Riccio
  */
 public class Server {
+	public static final String ADDRESS = "localhost";
+	//public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production server
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
 	static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
@@ -49,8 +51,9 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args Never used @throws Exception @throws
-	 * NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args
+	 *            Never used @throws Exception @throws
+	 *            NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -58,9 +61,9 @@ public class Server {
 		serverSocket = null;
 		ois = null;
 		oos = null;
-		if(loadServerState()){
+		if (loadServerState()) {
 			System.out.println("Previous state loaded");
-		}else
+		} else
 			savedFileList = new LinkedListForSaves();
 		try {
 			serverSocket = new ServerSocket(PORT_NUMBER);
@@ -87,10 +90,10 @@ public class Server {
 
 	private static boolean loadServerState() {
 		File serverbackup = new File("server.bak");
-		if(serverbackup.exists() && !serverbackup.isDirectory()) { 
+		if (serverbackup.exists() && !serverbackup.isDirectory()) {
 			try {
 				ObjectInputStream input = new ObjectInputStream(new FileInputStream(serverbackup));
-				savedFileList = (LinkedListForSaves)input.readObject();
+				savedFileList = (LinkedListForSaves) input.readObject();
 				input.close();
 				return true;
 			} catch (IOException | ClassNotFoundException e) {
@@ -112,7 +115,7 @@ public class Server {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private static void processNewDocumentStream(ObjectInputStream input, ObjectOutputStream output) {
@@ -215,11 +218,21 @@ public class Server {
 		return false;
 	}
 
+	/**
+	 * Returns the Network Accounts vector
+	 * 
+	 * @return the Network Accounts vector
+	 */
 	public static Vector<UserStreamModel> getNetworkAccounts() {
 		return networkAccounts;
 
 	}
 
+	/**
+	 * Returns the UsersToIndex map
+	 * 
+	 * @return the UsersToIndex map
+	 */
 	public static HashMap<String, Integer> getUsersToIndex() {
 		return usersToIndex;
 
@@ -229,7 +242,7 @@ public class Server {
 /**
  * ClientHandler generates a new thread to manage client activity
  * 
- * @author Josh Riccio (jriccio@email.arizona.edu) 
+ * @author Josh Riccio (jriccio@email.arizona.edu)
  * @author Cody Deeran (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
@@ -241,8 +254,9 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input the object input stream @param networkAccounts the list of
-	 * uses connected
+	 * @param input
+	 *            the object input stream @param networkAccounts the list of
+	 *            uses connected
 	 */
 	public ClientHandler(ObjectInputStream input) {
 		this.input = input;
@@ -313,22 +327,6 @@ class ClientHandler extends Thread {
 
 	}
 
-	private void writeDocumentToClients(EditableDocument doc) {
-		synchronized (Server.getNetworkAccounts()) {
-			serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
-			for (UserStreamModel user : Server.getNetworkAccounts()) {
-				try {
-					if (user.isOnline())
-						user.getOuputStream().writeObject(serverResponse);
-				} catch (IOException e) {
-					// If user is no longer online, exception occurs, changes
-					// their status to offline
-					user.toggleOnline();
-				}
-			}
-		}
-	}
-
 	private void writeUsersToClients() {
 		synchronized (Server.getNetworkAccounts()) {
 			serverResponse = new Response(ResponseCode.USER_LIST_SENT);
@@ -364,10 +362,24 @@ class ClientHandler extends Thread {
 	}
 }
 
+/**
+ * This class handles document processing in a new thread
+ * 
+ * @author Joshua Riccio
+ *
+ */
 class DocumentHandler extends Thread {
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
 
+	/**
+	 * Builds a new DocumentHandler
+	 * 
+	 * @param ois
+	 *            ObjectInputStream
+	 * @param oos
+	 *            ObjectOutputStream
+	 */
 	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos) {
 		this.input = ois;
 		this.output = oos;
@@ -380,7 +392,7 @@ class DocumentHandler extends Thread {
 			if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 				EditableDocument document = clientRequest.getDocument();
 				this.saveDocument(document);
-			}else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT_LIST) {
+			} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT_LIST) {
 				processDocumentListRequest(clientRequest.getUsername());
 			}
 		} catch (ClassNotFoundException | IOException e) {
@@ -407,14 +419,14 @@ class DocumentHandler extends Thread {
 			}
 		}
 	}
-	
+
 	private void processDocumentListRequest(String username) {
 		System.out.println("Processing Document lists for: " + username);
 		String[] editorlist = Server.savedFileList.getDocumentsByEditor(username);
 		System.out.println("Editable by List has " + editorlist.length + " documents");
 		String[] ownerlist = Server.savedFileList.getDocumentsByOwner(username);
 		System.out.println("Owned by List has " + ownerlist.length + " documents");
-		
+
 		Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT);
 		response.setEditorList(editorlist);
 		response.setOwnerList(ownerlist);
@@ -422,6 +434,6 @@ class DocumentHandler extends Thread {
 			output.writeObject(response);
 		} catch (IOException e) {
 			e.printStackTrace();
-		};
+		}
 	}
 }

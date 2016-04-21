@@ -61,7 +61,6 @@ public class EditorGui extends JFrame {
 	@SuppressWarnings("rawtypes")
 	private JComboBox sizeFontDropDown, fontDropDown;
 	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-	private static final String ADDRESS = "localhost";
 	private Socket socket = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
@@ -103,7 +102,7 @@ public class EditorGui extends JFrame {
 		// Add Timer for saving every period: 5s
 		try {
 			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-			socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 			documentOutput = new ObjectOutputStream(socket.getOutputStream());
 			documentOutput.writeObject(r);
 		} catch (IOException e1) {
@@ -324,7 +323,7 @@ public class EditorGui extends JFrame {
 		public void run() {
 			try {
 				Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-				socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+				socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 				documentOutput = new ObjectOutputStream(socket.getOutputStream());
 				documentOutput.writeObject(r);
 			} catch (IOException e1) {
