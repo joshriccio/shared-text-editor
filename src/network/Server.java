@@ -9,8 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Vector;
 import model.EditableDocument;
@@ -247,7 +245,6 @@ class ClientHandler extends Thread {
 						oos.writeObject(sendDocRequest);
 
 					} catch (Exception e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
@@ -281,11 +278,6 @@ class ClientHandler extends Thread {
 
 	}
 
-	/**
-	 * Sends new shape to all connected clients
-	 * 
-	 * @param shape the shape to write to clients
-	 */
 	private void writeDocumentToClients(EditableDocument doc) {
 		synchronized (Server.getNetworkAccounts()) {
 			serverResponse = new Response(ResponseCode.DOCUMENT_SENT, doc);
@@ -302,11 +294,6 @@ class ClientHandler extends Thread {
 		}
 	}
 
-	/**
-	 * Sends new shape to all connected clients
-	 * 
-	 * @param shape the shape to write to clients
-	 */
 	private void writeUsersToClients() {
 		synchronized (Server.getNetworkAccounts()) {
 			serverResponse = new Response(ResponseCode.USER_LIST_SENT);
@@ -316,8 +303,6 @@ class ClientHandler extends Thread {
 					if (user.isOnline())
 						user.getOuputStream().writeObject(serverResponse);
 				} catch (IOException e) {
-					// If user is no longer online, exception occurs, changes
-					// their status to offline
 					user.toggleOnline();
 				}
 			}
@@ -373,23 +358,17 @@ class DocumentHandler extends Thread {
 
 	private void saveDocument(EditableDocument doc) {
 		synchronized (Server.savedFileList) {
-			String newDocName = doc.getName() + System.currentTimeMillis();
-			// + "-"
-			// + new
-			// SimpleDateFormat("dd-yyyy-MM-dd'T'HH:mm:ss.SSSZ-yyyy").format(new
-			// Date());
+			String newDocName = "./revisionhistory/"+doc.getName() + System.currentTimeMillis();
 			try {
 				FileOutputStream outFile = new FileOutputStream(newDocName);
 				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
 				outputStream.writeObject(doc);
 				System.out.println("I just created a new save FILE!");
-				// Do NOT forget to close the output stream!
 				outputStream.close();
 				outFile.close();
 
 				Server.savedFileList.createSave(doc, newDocName);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				System.out.println("Couldn't create a new save file!");
 				e.printStackTrace();
 			}

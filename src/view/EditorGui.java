@@ -292,7 +292,7 @@ public class EditorGui extends JFrame {
 				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Change Password",
 						JOptionPane.YES_NO_OPTION);
 				if (response == JOptionPane.YES_OPTION) {
-					System.out.println("OPTION YES from "+ user.getUsername());
+					System.out.println("OPTION YES from " + user.getUsername());
 					String clientUsername = user.getUsername();
 					String clientPassword = String.valueOf(newPasswordField.getPassword());
 					try {
@@ -300,13 +300,12 @@ public class EditorGui extends JFrame {
 						clientRequest.setUsername(clientUsername);
 						clientRequest.setPassword(clientPassword);
 						oos.writeObject(clientRequest);
-						
+
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
-				// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			} else if (text.equals("Sign Out")) {
 				int userResponse = JOptionPane.showConfirmDialog(null, "Are you sure you want to sign out?", "Sign Out",
 						JOptionPane.YES_NO_OPTION);
