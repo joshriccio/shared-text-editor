@@ -11,6 +11,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.Vector;
+
+import javax.swing.text.BadLocationException;
+
 import model.EditableDocument;
 import model.Password;
 import model.User;
@@ -72,7 +75,7 @@ public class Server {
 				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
 					processPasswordReset();
 				} else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
-					processNewDocumentStream(ois, oos);
+					processNewDocumentStream(ois);
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
@@ -80,8 +83,8 @@ public class Server {
 		}
 	}
 
-	private static void processNewDocumentStream(ObjectInputStream input, ObjectOutputStream output) {
-		DocumentHandler d = new DocumentHandler(input, output, clientRequest);
+	private static void processNewDocumentStream(ObjectInputStream input) {
+		DocumentHandler d = new DocumentHandler(input);
 		d.start();
 	}
 
@@ -331,12 +334,10 @@ class ClientHandler extends Thread {
 
 class DocumentHandler extends Thread {
 	private boolean isRunning;
-	private Request clientRequest;
 	private ObjectInputStream input;
 
-	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos, Request clientRequest) {
+	public DocumentHandler(ObjectInputStream ois) {
 		this.isRunning = true;
-		this.clientRequest = clientRequest;
 		this.input = ois;
 	}
 
@@ -344,12 +345,13 @@ class DocumentHandler extends Thread {
 	public void run() {
 		while (isRunning) {
 			try {
-				clientRequest = (Request) input.readObject();
+				Request clientRequest = (Request) input.readObject();
+				System.out.println(clientRequest.getDocument().getName()+" text: " + clientRequest.getDocument().getDocument().getText(0, clientRequest.getDocument().getDocument().getLength()));
 				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
 					EditableDocument document = clientRequest.getDocument();
 					this.saveDocument(document);
 				}
-			} catch (ClassNotFoundException | IOException e) {
+			} catch (ClassNotFoundException | IOException | BadLocationException e) {
 				System.out.println("Document Stream Disconnected");
 				isRunning = false;
 			}
@@ -360,10 +362,11 @@ class DocumentHandler extends Thread {
 		synchronized (Server.savedFileList) {
 			String newDocName = "./revisionhistory/"+doc.getName() + System.currentTimeMillis();
 			try {
+				
 				FileOutputStream outFile = new FileOutputStream(newDocName);
 				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
 				outputStream.writeObject(doc);
-				System.out.println("I just created a new save FILE!");
+				System.out.println("File Saved: " + doc.getName());
 				outputStream.close();
 				outFile.close();
 

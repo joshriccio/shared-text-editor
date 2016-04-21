@@ -326,8 +326,10 @@ public class EditorGui extends JFrame {
 					tabbedpane.getName());
 			r.setDocument(currentDoc);
 			try {
+				System.out.println(r.getDocument().getName()+" text: " + r.getDocument().getDocument().getText(0, r.getDocument().getDocument().getLength()));
 				documentOutput.writeObject(r);
-			} catch (IOException e1) {
+				documentOutput.flush();
+			} catch (IOException | BadLocationException e1) {
 				System.out.println("Couldn't send document to server");
 				e1.printStackTrace();
 			}
