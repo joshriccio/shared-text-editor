@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.StyledDocument;
 
 import model.EditableDocument;
 import model.Password;
@@ -224,19 +226,17 @@ class ClientHandler extends Thread {
 
 				if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
 					writeUsersToClients();
-				}else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
+				} else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
 					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
 							.toggleOnline();
 					writeUsersToClients();
-				}else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
+				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
 					String requestedDocumentName = clientRequest.getRequestedName();
 					User client = clientRequest.getUser();
 					String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
 					ObjectOutputStream oos = null;
 
 					oos = Server.networkAccounts.get(Server.usersToIndex.get(client.getUsername())).getOuputStream();
-
-					// networkAccounts.get(Server.usersToIndex.get(client.getUsername())).setOutputStream(oos);
 
 					try {
 						FileInputStream inFile = new FileInputStream(mostRecentFile);
@@ -250,7 +250,7 @@ class ClientHandler extends Thread {
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
-				}else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
+				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
 					processPasswordReset();
 				}
 			} catch (ClassNotFoundException e) {
@@ -266,18 +266,19 @@ class ClientHandler extends Thread {
 		isRunning = false;
 		System.out.println("Client has been disconnected");
 	}
-	
-	private void processPasswordReset() throws IOException {
 
-			User updatepassword = Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).getUser();
-			try {
-				updatepassword.setPassword(
-						Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
-			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-				e.printStackTrace();
-			}
-			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
-			Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).getOuputStream().writeObject(serverResponse);
+	private void processPasswordReset() throws IOException {
+		User updatepassword = Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
+				.getUser();
+		try {
+			updatepassword.setPassword(
+					Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			e.printStackTrace();
+		}
+		serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
+		Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).getOuputStream()
+				.writeObject(serverResponse);
 
 	}
 
@@ -333,36 +334,33 @@ class ClientHandler extends Thread {
 }
 
 class DocumentHandler extends Thread {
-	private boolean isRunning;
 	private ObjectInputStream input;
 
 	public DocumentHandler(ObjectInputStream ois) {
-		this.isRunning = true;
 		this.input = ois;
 	}
 
 	@Override
 	public void run() {
-		while (isRunning) {
-			try {
-				Request clientRequest = (Request) input.readObject();
-				System.out.println(clientRequest.getDocument().getName()+" text: " + clientRequest.getDocument().getDocument().getText(0, clientRequest.getDocument().getDocument().getLength()));
-				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
-					EditableDocument document = clientRequest.getDocument();
-					this.saveDocument(document);
-				}
-			} catch (ClassNotFoundException | IOException | BadLocationException e) {
-				System.out.println("Document Stream Disconnected");
-				isRunning = false;
+		try {
+			Request clientRequest = (Request) input.readObject();
+			//TODO Remove print statement, for debugging
+			System.out.println(clientRequest.getDocument().getName() + " text: " + clientRequest.getDocument()
+					.getDocument().getText(0, clientRequest.getDocument().getDocument().getLength()));
+			if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
+				EditableDocument document = clientRequest.getDocument();
+				this.saveDocument(document);
 			}
+		} catch (ClassNotFoundException | IOException | BadLocationException e) {
+			System.out.println("Document Stream Disconnected");
 		}
 	}
 
 	private void saveDocument(EditableDocument doc) {
 		synchronized (Server.savedFileList) {
-			String newDocName = "./revisionhistory/"+doc.getName() + System.currentTimeMillis();
+			String newDocName = "./revisionhistory/" + doc.getName() + System.currentTimeMillis();
 			try {
-				
+
 				FileOutputStream outFile = new FileOutputStream(newDocName);
 				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
 				outputStream.writeObject(doc);

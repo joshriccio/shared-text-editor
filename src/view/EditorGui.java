@@ -153,17 +153,18 @@ public class EditorGui extends JFrame {
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		// Add Timer for saving every period: 5s
-		try {
-			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-			socket = new Socket(ADDRESS, Server.PORT_NUMBER);
-			documentOutput = new ObjectOutputStream(socket.getOutputStream());
-			documentOutput.writeObject(r);
-		} catch (IOException e1) {
-			System.out.println("Couldn't start stream");
-			e1.printStackTrace();
-		}
+		// try {
+		// Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+		// socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+		// documentOutput = new ObjectOutputStream(socket.getOutputStream());
+		// documentOutput.writeObject(r);
+		// } catch (IOException e1) {
+		// System.out.println("Couldn't start stream");
+		// e1.printStackTrace();
+		// }
 		Timer timer = new Timer();
 		timer.schedule(new BackupDocument(), 0, 5000);
+		setUsersWindow();
 	}
 
 	/**
@@ -321,14 +322,26 @@ public class EditorGui extends JFrame {
 
 	private class BackupDocument extends TimerTask {
 		public void run() {
+			try {
+				Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+				socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+				documentOutput = new ObjectOutputStream(socket.getOutputStream());
+				documentOutput.writeObject(r);
+			} catch (IOException e1) {
+				System.out.println("Couldn't start stream");
+				e1.printStackTrace();
+			}
 			Request r = new Request(RequestCode.DOCUMENT_SENT);
 			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
 					tabbedpane.getName());
 			r.setDocument(currentDoc);
 			try {
-				System.out.println(r.getDocument().getName()+" text: " + r.getDocument().getDocument().getText(0, r.getDocument().getDocument().getLength()));
+				//TODO Remove print statement, for debugging
+				System.out.println(r.getDocument().getName() + " text: "
+						+ r.getDocument().getDocument().getText(0, r.getDocument().getDocument().getLength()));
 				documentOutput.writeObject(r);
 				documentOutput.flush();
+				documentOutput.close();
 			} catch (IOException | BadLocationException e1) {
 				System.out.println("Couldn't send document to server");
 				e1.printStackTrace();
