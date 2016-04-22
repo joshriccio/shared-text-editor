@@ -131,5 +131,5 @@ public class TabbedPane extends JTabbedPane {
 	public String getName() {
 		return this.getTitleAt(this.getSelectedIndex());
 	}
-
 }
+
