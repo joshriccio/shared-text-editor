@@ -396,9 +396,32 @@ class DocumentHandler extends Thread {
 				this.saveDocument(document);
 			} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT_LIST) {
 				processDocumentListRequest(clientRequest.getUsername());
+			} else if (clientRequest.getRequestType() == RequestCode.ADD_USER_AS_EDITOR) {
+				processAddUserAsEditor(clientRequest);
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			System.out.println("Error: Document Stream Disconnected");
+		}
+	}
+
+	private void processAddUserAsEditor(Request clientRequest) {
+		Response response;
+		if(Server.savedFileList.addUserAsEditor(clientRequest.getUsername(), clientRequest.getDocumentName())){
+			response = new Response(ResponseCode.USER_ADDED);
+			try {
+				this.output.writeObject(response);
+				this.output.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}else{
+			response = new Response(ResponseCode.USER_NOT_ADDED);
+			try {
+				this.output.writeObject(response);
+				this.output.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

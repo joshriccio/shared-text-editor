@@ -153,7 +153,7 @@ public class LinkedListForSaves implements Serializable{
 		ArrayList<String> docs = new ArrayList<>();
 		SpineNode node = this.headOfList;
 		while(node != null){
-			if(node.editors.contains(owner)){
+			if(node.owners.contains(owner)){
 				docs.add(node.documentName);
 			}
 			node = node.nextDocumentNode;
@@ -161,6 +161,18 @@ public class LinkedListForSaves implements Serializable{
 		System.out.println("Server: Found " + docs.size() + " documents owned by " + owner);
 		String[] doclist = new String[docs.size()];
 		return docs.toArray(doclist);
+	}
+	
+	public boolean addUserAsEditor(String username, String documentname){
+		SpineNode node = this.headOfList;
+		while(node != null){
+			if(node.documentName.equals(documentname)){
+				node.editors.add(username);
+				return true;
+			}
+			node = node.nextDocumentNode;
+		}
+		return false;
 	}
 
 }
