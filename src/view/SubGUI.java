@@ -60,6 +60,7 @@ public class SubGUI extends JFrame {
 		this.user = user;
 		organizeLayout();
 		assignListeners();
+		loadDocuments();
 	}
 
 	/**
@@ -73,6 +74,7 @@ public class SubGUI extends JFrame {
 		organizeLayout();
 		assignListeners();
 		this.setVisible(true);
+		loadDocuments();
 	}
 
 	private void loadDocuments() {

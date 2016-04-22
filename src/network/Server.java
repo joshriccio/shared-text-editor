@@ -62,7 +62,7 @@ public class Server {
 		ois = null;
 		oos = null;
 		if (loadServerState()) {
-			System.out.println("Previous state loaded");
+			System.out.println("Server: Previous server state loaded");
 		} else
 			savedFileList = new LinkedListForSaves();
 		try {
@@ -109,7 +109,7 @@ public class Server {
 			ObjectOutputStream outputStream;
 			outputStream = new ObjectOutputStream(outFile);
 			outputStream.writeObject(savedFileList);
-			System.out.println("Server backed up");
+			System.out.println("Server: Server state backed up");
 			outputStream.close();
 			outFile.close();
 		} catch (IOException e) {
@@ -128,9 +128,9 @@ public class Server {
 			serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
 			serverResponse.setUser(networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser());
 			networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).setOutputStream(oos);
-			System.out.println(serverResponse.getResponseID());
+			System.out.println("Server: User "+clientRequest.getUsername() + " has logged in");
 			oos.writeObject(serverResponse);
-			ClientHandler c = new ClientHandler(ois);
+			ClientHandler c = new ClientHandler(ois, clientRequest.getUsername());
 			c.start();
 		} else {
 			serverResponse = new Response(ResponseCode.LOGIN_FAILED);
@@ -250,6 +250,7 @@ class ClientHandler extends Thread {
 	private volatile boolean isRunning = true;
 	private Request clientRequest;
 	private Response serverResponse;
+	private String username;
 
 	/**
 	 * Constructor
@@ -258,7 +259,7 @@ class ClientHandler extends Thread {
 	 *            the object input stream @param networkAccounts the list of
 	 *            uses connected
 	 */
-	public ClientHandler(ObjectInputStream input) {
+	public ClientHandler(ObjectInputStream input, String username) {
 		this.input = input;
 	}
 
@@ -309,7 +310,7 @@ class ClientHandler extends Thread {
 
 	private void cleanUp() {
 		isRunning = false;
-		System.out.println("Client has been disconnected");
+		System.out.println("Server: "+ username +" has been disconnected");
 	}
 
 	private void processPasswordReset() throws IOException {
@@ -396,7 +397,7 @@ class DocumentHandler extends Thread {
 				processDocumentListRequest(clientRequest.getUsername());
 			}
 		} catch (ClassNotFoundException | IOException e) {
-			System.out.println("Document Stream Disconnected");
+			System.out.println("Error: Document Stream Disconnected");
 		}
 	}
 
@@ -408,24 +409,22 @@ class DocumentHandler extends Thread {
 				FileOutputStream outFile = new FileOutputStream(newDocName);
 				ObjectOutputStream outputStream = new ObjectOutputStream(outFile);
 				outputStream.writeObject(doc);
-				System.out.println("File Saved: " + doc.getName());
+				System.out.println("Server: File saved - " + doc.getName());
 				outputStream.close();
 				outFile.close();
 
 				Server.savedFileList.createSave(doc, newDocName, doc.getDocumentOwner());
 			} catch (IOException e) {
-				System.out.println("Couldn't create a new save file!");
+				System.out.println("Error: Couldn't create a new save file");
 				e.printStackTrace();
 			}
 		}
 	}
 
 	private void processDocumentListRequest(String username) {
-		System.out.println("Processing Document lists for: " + username);
+		System.out.println("Server: Processing Document lists for: " + username);
 		String[] editorlist = Server.savedFileList.getDocumentsByEditor(username);
-		System.out.println("Editable by List has " + editorlist.length + " documents");
 		String[] ownerlist = Server.savedFileList.getDocumentsByOwner(username);
-		System.out.println("Owned by List has " + ownerlist.length + " documents");
 
 		Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT);
 		response.setEditorList(editorlist);
