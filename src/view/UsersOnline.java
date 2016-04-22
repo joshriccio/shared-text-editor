@@ -2,10 +2,15 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -16,11 +21,14 @@ import javax.swing.SwingUtilities;
 
 import network.Request;
 import network.RequestCode;
-
+import network.Response;
+import network.ResponseCode;
+import network.Server;
 
 /**
  * 
  * A JPanel that lists all the users currently connected to the server.
+ * 
  * @author Joshua Riccio
  *
  */
@@ -34,16 +42,16 @@ public class UsersOnline extends JPanel {
 	private JPopupMenu menu;
 
 	/**
-	 * The constructor takes the current objectoutputstream so that it can get the most up to
-	 * date info on who is connected
+	 * The constructor takes the current objectoutputstream so that it can get
+	 * the most up to date info on who is connected
+	 * 
 	 * @param oos
 	 */
-	public UsersOnline(ObjectOutputStream oos) {
-		this.menu = new JPopupMenu();
-		this.setupMenu();
+	public UsersOnline(ObjectOutputStream oos, DefaultListModel<String> listmodel, JList<String> list, JPopupMenu menu) {
+		this.listmodel = listmodel;
+		this.list = list;
+		this.menu = menu;
 		this.oos = oos;
-		listmodel = new DefaultListModel<String>();
-		list = new JList<String>(listmodel);
 		scrollpane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollpane.setPreferredSize(new Dimension(120, 100));
@@ -53,7 +61,6 @@ public class UsersOnline extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e)) {
-					System.out.println("You clicked on " + list.getSelectedValue());
 					UsersOnline.this.menu.show(e.getComponent(), e.getX(), e.getY());
 				}
 
@@ -79,15 +86,6 @@ public class UsersOnline extends JPanel {
 		this.add(scrollpane, BorderLayout.CENTER);
 	}
 
-	private void setupMenu() {
-		JMenuItem item = new JMenuItem("Add as Editor");
-		this.menu.add(item);
-		item = new JMenuItem("Add as Owner");
-		this.menu.add(item);
-		item = new JMenuItem("Send private message");
-		this.menu.add(item);
-	}
-
 	/**
 	 * Initializes the jpanel
 	 */
@@ -102,7 +100,9 @@ public class UsersOnline extends JPanel {
 
 	/**
 	 * Updates the panel with the users who connected/ disconnected
-	 * @param userlist the most uptodate userlist
+	 * 
+	 * @param userlist
+	 *            the most up to date userlist
 	 */
 	public void updateUsers(String[] userlist) {
 		System.out.println("users added");

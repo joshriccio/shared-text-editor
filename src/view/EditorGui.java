@@ -18,17 +18,20 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
+import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -61,7 +64,6 @@ public class EditorGui extends JFrame {
 	@SuppressWarnings("rawtypes")
 	private JComboBox sizeFontDropDown, fontDropDown;
 	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-	private static final String ADDRESS = "localhost";
 	private Socket socket = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
@@ -103,7 +105,7 @@ public class EditorGui extends JFrame {
 		// Add Timer for saving every period: 5s
 		try {
 			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-			socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 			documentOutput = new ObjectOutputStream(socket.getOutputStream());
 			documentOutput.writeObject(r);
 		} catch (IOException e1) {
@@ -153,15 +155,6 @@ public class EditorGui extends JFrame {
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		// Add Timer for saving every period: 5s
-		// try {
-		// Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-		// socket = new Socket(ADDRESS, Server.PORT_NUMBER);
-		// documentOutput = new ObjectOutputStream(socket.getOutputStream());
-		// documentOutput.writeObject(r);
-		// } catch (IOException e1) {
-		// System.out.println("Couldn't start stream");
-		// e1.printStackTrace();
-		// }
 		Timer timer = new Timer();
 		timer.schedule(new BackupDocument(), 0, 5000);
 		setUsersWindow();
@@ -184,13 +177,6 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
-		// StyledDocument doc = (StyledDocument)
-		// tabbedpane.getCurrentTextPane().getStyledDocument();
-		// Style style = tabbedpane.getCurrentTextPane().addStyle("Indent",
-		// null);
-		// StyleConstants.setLeftIndent(style, 30);
-		// StyleConstants.setRightIndent(style, 30);
-		// doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
 
 	/**
@@ -233,13 +219,6 @@ public class EditorGui extends JFrame {
 		javaToolBar.add(fontDropDown);
 		// add the tool bar to the frame
 		this.add(javaToolBar, BorderLayout.NORTH);
-	}
-
-	private void setUsersWindow() {
-		userslist = new UsersOnline(oos);
-		userslist.init();
-		this.add(userslist, BorderLayout.EAST);
-		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
 	}
 
 	private void setupMenuBar() {
@@ -303,7 +282,6 @@ public class EditorGui extends JFrame {
 						oos.writeObject(clientRequest);
 
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -319,12 +297,61 @@ public class EditorGui extends JFrame {
 
 		}
 	}
+	
+	private void setUsersWindow() {
+		DefaultListModel<String> listmodel = new DefaultListModel<String>();
+		JList<String> list = new JList<String>(listmodel);
+		JPopupMenu menu = new JPopupMenu();
+		JMenuItem editorItem = new JMenuItem("Add as Editor");
+		menu.add(editorItem);
+		JMenuItem messageItem = new JMenuItem("Send private message");
+		menu.add(messageItem);
+		
+		editorItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent event) {
+					ObjectOutputStream documentOutput = null;
+					ObjectInputStream documentInput = null;
+					Socket socket = null;
+					try {
+						Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+						socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+						documentOutput = new ObjectOutputStream(socket.getOutputStream());
+						documentInput = new ObjectInputStream(socket.getInputStream());
+						documentOutput.writeObject(r);
+					} catch (IOException e1) {
+						System.out.println("Error: Couldn't start stream");
+						e1.printStackTrace();
+					}
+					Request request = new Request(RequestCode.ADD_USER_AS_EDITOR);
+					request.setUsername(list.getSelectedValue());
+					request.setDocumentName(tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()));
+					try {
+						documentOutput.writeObject(request);
+						Response response = (Response) documentInput.readObject();
+						if(response.getResponseID() == ResponseCode.USER_ADDED){
+							System.out.println(list.getSelectedValue() + " successfully added as editor");
+						}else{
+							System.out.println(list.getSelectedValue() + " failed to be added as editor");
+						}
+						socket.close();
+					} catch (IOException | ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+			}
+		});
+		
+		userslist = new UsersOnline(oos, listmodel, list, menu);
+		userslist.init();
+		this.add(userslist, BorderLayout.EAST);
+		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
+	}
 
 	private class BackupDocument extends TimerTask {
 		public void run() {
 			try {
 				Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-				socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+				socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 				documentOutput = new ObjectOutputStream(socket.getOutputStream());
 				documentOutput.writeObject(r);
 			} catch (IOException e1) {
@@ -332,17 +359,14 @@ public class EditorGui extends JFrame {
 				e1.printStackTrace();
 			}
 			Request r = new Request(RequestCode.DOCUMENT_SENT);
-			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
+			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
 					tabbedpane.getName());
 			r.setDocument(currentDoc);
 			try {
-				//TODO Remove print statement, for debugging
-				System.out.println(r.getDocument().getName() + " text: "
-						+ r.getDocument().getDocument().getText(0, r.getDocument().getDocument().getLength()));
 				documentOutput.writeObject(r);
 				documentOutput.flush();
 				documentOutput.close();
-			} catch (IOException | BadLocationException e1) {
+			} catch (IOException e1) {
 				System.out.println("Couldn't send document to server");
 				e1.printStackTrace();
 			}

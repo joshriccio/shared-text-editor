@@ -24,6 +24,7 @@ import network.ResponseCode;
 import network.Server;
 
 /**
+ * The initial login screen
  * @author Cody, Josh
  */
 public class LoginScreen extends JFrame {
@@ -32,8 +33,6 @@ public class LoginScreen extends JFrame {
     private JPasswordField passwordField = new JPasswordField(15);
     public static boolean loginButtonState = false; // Means button has not been pressed
     public static boolean createAccountButtonState = false; // Means button has not been pressed
-//    private static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com";
-    private static final String ADDRESS = "localhost";
     private Socket socket = null;
     private ObjectOutputStream oos = null;
     private ObjectInputStream ois = null;
@@ -143,7 +142,7 @@ public class LoginScreen extends JFrame {
      */
     private void openConnection(RequestCode requestCode) {
         try {
-            socket = new Socket(ADDRESS, Server.PORT_NUMBER);
+            socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
             this.oos = new ObjectOutputStream(socket.getOutputStream());
             this.ois = new ObjectInputStream(socket.getInputStream());
             Request clientRequest = new Request(requestCode);

@@ -18,23 +18,26 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 /**
- * TabbedPane extends JTabbedPane to add additional functionality, including getting context
- * regarding with tab is currently open 
+ * TabbedPane extends JTabbedPane to add additional functionality, including
+ * getting context regarding with tab is currently open
+ * 
  * @author Joshua Riccio
  *
  */
-public class TabbedPane extends JTabbedPane{
-	
+public class TabbedPane extends JTabbedPane {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private HashMap<String, JTextPane> textpanemap;
 	private JPopupMenu menu;
-	
+
 	/**
-	 * The constructor takes in the name of the new document 
-	 * @param docName the name of the new document
+	 * The constructor takes in the name of the new document
+	 * 
+	 * @param docName
+	 *            the name of the new document
 	 */
 	public TabbedPane(String docName) {
 		textpanemap = new HashMap<>();
@@ -48,14 +51,14 @@ public class TabbedPane extends JTabbedPane{
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
 		this.addTab(docName, scrollpane);
-		this.addMouseListener(new MouseListener(){
+		this.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e)) {
 					TabbedPane.this.menu.show(e.getComponent(), e.getX(), e.getY());
 				}
-				
+
 			}
 
 			@Override
@@ -63,7 +66,7 @@ public class TabbedPane extends JTabbedPane{
 			}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) {	
+			public void mouseExited(MouseEvent arg0) {
 			}
 
 			@Override
@@ -73,30 +76,32 @@ public class TabbedPane extends JTabbedPane{
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 			}
-			
+
 		});
 	}
-	
+
 	private void setupMenu() {
 		JMenuItem item = new JMenuItem("Close Tab");
-		item.addActionListener(new ActionListener(){
+		item.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				TabbedPane.this.remove(TabbedPane.this.getSelectedIndex());
-				
+
 			}
-			
+
 		});
 		this.menu.add(item);
-		
+
 	}
 
 	/**
 	 * Adds a new tab with the new document name
-	 * @param docName the name of the new document
+	 * 
+	 * @param docName
+	 *            the name of the new document
 	 */
-	public void addNewTab(String docName){
+	public void addNewTab(String docName) {
 		JTextPane textpane = new JTextPane();
 		textpanemap.put(docName, textpane);
 		textpane.setPreferredSize(new Dimension(100, 100));
@@ -104,23 +109,27 @@ public class TabbedPane extends JTabbedPane{
 		JScrollPane scrollpane = new JScrollPane(textpane);
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
-		this.addTab(docName,scrollpane);
+		this.addTab(docName, scrollpane);
 	}
-	
+
 	/**
 	 * Gets the TextPane of the currently viewed tab
+	 * 
 	 * @return returns the textpane of the currently viewed tab
 	 */
-	public JTextPane getCurrentTextPane(){
+	public JTextPane getCurrentTextPane() {
+		if(this.getSelectedIndex() == -1)
+			return null;
 		return textpanemap.get(this.getTitleAt(this.getSelectedIndex()));
 	}
-	
+
 	/**
 	 * Gets the title of the currently vied tab
+	 * 
 	 * @return returns the title of the currently viewed tab
 	 */
 	public String getName() {
 		return this.getTitleAt(this.getSelectedIndex());
 	}
-	
+
 }

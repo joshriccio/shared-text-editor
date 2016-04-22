@@ -106,6 +106,14 @@ public class Request implements Serializable {
 		return this.password;
 		
 	}
+
+	public void setDocumentName(String documentName) {
+		this.documentName = documentName;
+	}
+	
+	public String getDocumentName(){
+		return this.documentName;
+	}
 	
 
 }
