@@ -87,7 +87,7 @@ public class SubGUI extends JFrame {
 			documentInput = new ObjectInputStream(socket.getInputStream());
 			documentOutput.writeObject(r);
 		} catch (IOException e1) {
-			System.out.println("Couldn't start stream");
+			System.out.println("Error: Couldn't start stream");
 			e1.printStackTrace();
 		}
 
@@ -155,7 +155,6 @@ public class SubGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				if (event.getClickCount() == 2) {
-					System.out.println("double clicked on " + ownerlist.getSelectedValue());
 					launchDocument(ownerlist.getSelectedValue());
 				}
 			}
@@ -183,7 +182,6 @@ public class SubGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				if (event.getClickCount() == 2) {
-					System.out.println("double clicked on " + editorlist.getSelectedValue());
 					launchDocument(editorlist.getSelectedValue());
 				}
 			}
