@@ -261,6 +261,7 @@ class ClientHandler extends Thread {
 	 */
 	public ClientHandler(ObjectInputStream input, String username) {
 		this.input = input;
+		this.username = username;
 	}
 
 	@Override
