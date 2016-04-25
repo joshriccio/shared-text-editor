@@ -399,7 +399,7 @@ class DocumentHandler extends Thread {
 				} else if (clientRequest.getRequestType() == RequestCode.ADD_USER_AS_EDITOR) {
 					processAddUserAsEditor(clientRequest);
 				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
-					processDocument(clientRequest.getDocumentName());
+					processDocument(clientRequest.getDocumentName(), clientRequest.getSummary());
 				} else if (clientRequest.getRequestType() == RequestCode.GET_REVISION_HISTORY) {
 					processVersionHistory(clientRequest.getDocumentName());
 				}
@@ -425,9 +425,9 @@ class DocumentHandler extends Thread {
 		}
 	}
 	
-	private void processDocument(String requestedDocumentName) {
+	private void processDocument(String requestedDocumentName, String summary) {
 		System.out.println("Server: " + requestedDocumentName + " request being processed");
-		String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
+		String mostRecentFile = "./" + Server.savedFileList.getOldSave(requestedDocumentName, summary);
 		try {
 			FileInputStream inFile = new FileInputStream(mostRecentFile);
 			ObjectInputStream inputStream = new ObjectInputStream(inFile);

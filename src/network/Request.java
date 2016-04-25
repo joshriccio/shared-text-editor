@@ -24,6 +24,7 @@ public class Request implements Serializable {
 	private String password;
 	private EditableDocument doc;
 	private String documentName;
+	private String summary;
 	
 
 	/**
@@ -113,6 +114,15 @@ public class Request implements Serializable {
 	
 	public String getDocumentName(){
 		return this.documentName;
+	}
+
+	public String getSummary() {
+		
+		return this.summary;
+	}
+	
+	public void setSummary(String summary) {
+		this.summary = summary;
 	}
 	
 

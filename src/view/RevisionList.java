@@ -62,7 +62,7 @@ public class RevisionList extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				if (event.getClickCount() == 2) {
-					launchDocument(list.getSelectedValue());
+					launchDocument(tabs.getTitleAt(tabs.getSelectedIndex()), list.getSelectedValue());
 				}
 			}
 
@@ -84,12 +84,12 @@ public class RevisionList extends JPanel {
 		});
 	}
 	
-	private void launchDocument(String documentname) {
+	private void launchDocument(String documentname, String summary) {
 		try {
 			Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
 			requestDocument.setRequestedName(documentname);
+			requestDocument.setSummary(summary);
 			oos.writeObject(requestDocument);
-			System.out.println("Request sent");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -140,9 +140,6 @@ public class RevisionList extends JPanel {
 		}
 
 		private void openDocumentInTab(EditableDocument doc) {
-			System.out.println(doc.getName());
-			tabs.addNewTab(doc.getName());
-			tabs.setSelectedIndex(tabs.getTabCount()-1);
 			tabs.getCurrentTextPane().setStyledDocument(doc.getDocument());
 		}
 

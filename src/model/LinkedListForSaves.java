@@ -193,12 +193,28 @@ public class LinkedListForSaves implements Serializable{
 		else{
 			while(version != null){
 				history.add(version.summary);
-				System.out.println(version.summary);
 				version = version.nextOlderSave;
 			}
 			return history;
 		}
+	}
 	
+	public String getOldSave(String documentName, String summary) {
+		SpineNode spinenode = headOfList;
+		EdgeNode edgenode = null;
+		while (spinenode != null) {
+			if (spinenode.documentName.equals(documentName)) {
+				edgenode = spinenode.mostRecentSave;
+				while(edgenode != null){
+					if(edgenode.summary.equals(summary)){
+						return edgenode.fileName;
+					}
+					edgenode = edgenode.nextOlderSave;
+				}
+			}
+			spinenode = spinenode.nextDocumentNode;
+		}
+		return "Document Not Found";
 	}
 
 }
