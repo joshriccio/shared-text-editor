@@ -14,6 +14,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import model.EditableDocument;
 import model.User;
@@ -82,6 +84,18 @@ public class RevisionList extends JPanel {
 			public void mouseReleased(MouseEvent arg0) {	
 			}
 		});
+		
+		tabs.addChangeListener(new ChangeListener(){
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				if(!tabs.getTitleAt(tabs.getSelectedIndex()).equals("Chat")){
+					listmodel.clear();
+					makeRequest();
+				}
+			}
+			
+		});
 	}
 	
 	private void launchDocument(String documentname, String summary) {
@@ -112,7 +126,7 @@ public class RevisionList extends JPanel {
 	
 	private void makeRequest() {
 		Request request = new Request(RequestCode.GET_REVISION_HISTORY);
-		request.setDocumentName(tabs.getTitleAt(0));
+		request.setDocumentName(tabs.getTitleAt(tabs.getSelectedIndex()));
 		try {
 			oos.writeObject(request);
 		} catch (IOException e1) {
