@@ -1,14 +1,18 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -37,6 +41,7 @@ public class RevisionList extends JPanel {
     private User user;
 	private JPopupMenu menu;
 	private TabbedPane tabs;
+	private JButton refreshButton;
 	
 	public RevisionList(User user, TabbedPane tabs) {
 		this.user = user;
@@ -51,14 +56,20 @@ public class RevisionList extends JPanel {
 		
 		this.scrollpane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		
+		refreshButton = new JButton("Refresh");
 		setListeners();
 		setLayout(new BorderLayout());
 		this.add(scrollpane);
+		this.add(refreshButton, BorderLayout.NORTH);
 		connect();
 		makeRequest();
 	}
 	
 	private void setListeners() {
+		refreshButton.addActionListener(new refreshButtonListener());
+	
 		this.list.addMouseListener(new MouseListener(){
 
 			@Override
@@ -165,4 +176,13 @@ public class RevisionList extends JPanel {
 		}
 	}
 
+	private class refreshButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO: Implement Refresh button to refresh the revision history
+			
+		}
+		
+	}
 }
