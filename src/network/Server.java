@@ -404,7 +404,6 @@ class DocumentHandler extends Thread {
 					processVersionHistory(clientRequest.getDocumentName());
 				}
 			} catch (ClassNotFoundException | IOException e) {
-				System.out.println("Error: Document Stream Disconnected");
 				isRunning = false;
 			}
 		}
