@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 import model.EditableDocument;
@@ -30,7 +31,9 @@ import network.Server;
  */
 public class Server {
 	public static final String ADDRESS = "localhost";
-	//public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production server
+	// public static final String ADDRESS =
+	// "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production
+	// server
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
 	static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
@@ -51,9 +54,8 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args
-	 *            Never used @throws Exception @throws
-	 *            NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args Never used @throws Exception @throws
+	 * NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -128,7 +130,7 @@ public class Server {
 			serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
 			serverResponse.setUser(networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser());
 			networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).setOutputStream(oos);
-			System.out.println("Server: User "+clientRequest.getUsername() + " has logged in");
+			System.out.println("Server: User " + clientRequest.getUsername() + " has logged in");
 			oos.writeObject(serverResponse);
 			ClientHandler c = new ClientHandler(ois, clientRequest.getUsername());
 			c.start();
@@ -242,8 +244,8 @@ public class Server {
 /**
  * ClientHandler generates a new thread to manage client activity
  * 
- * @author Josh Riccio (jriccio@email.arizona.edu)
- * @author Cody Deeran (cdeeran11@email.arizona.edu)
+ * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
+ * (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -255,9 +257,8 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input
-	 *            the object input stream @param networkAccounts the list of
-	 *            uses connected
+	 * @param input the object input stream @param networkAccounts the list of
+	 * uses connected
 	 */
 	public ClientHandler(ObjectInputStream input, String username) {
 		this.input = input;
@@ -311,7 +312,7 @@ class ClientHandler extends Thread {
 
 	private void cleanUp() {
 		isRunning = false;
-		System.out.println("Server: "+ username +" has been disconnected");
+		System.out.println("Server: " + username + " has been disconnected");
 	}
 
 	private void processPasswordReset() throws IOException {
@@ -373,14 +374,12 @@ class ClientHandler extends Thread {
 class DocumentHandler extends Thread {
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
+	private boolean isRunning = true;
 
 	/**
 	 * Builds a new DocumentHandler
 	 * 
-	 * @param ois
-	 *            ObjectInputStream
-	 * @param oos
-	 *            ObjectOutputStream
+	 * @param ois ObjectInputStream @param oos ObjectOutputStream
 	 */
 	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos) {
 		this.input = ois;
@@ -389,24 +388,61 @@ class DocumentHandler extends Thread {
 
 	@Override
 	public void run() {
-		try {
-			Request clientRequest = (Request) input.readObject();
-			if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
-				EditableDocument document = clientRequest.getDocument();
-				this.saveDocument(document);
-			} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT_LIST) {
-				processDocumentListRequest(clientRequest.getUsername());
-			} else if (clientRequest.getRequestType() == RequestCode.ADD_USER_AS_EDITOR) {
-				processAddUserAsEditor(clientRequest);
+		while (isRunning) {
+			try {
+				Request clientRequest = (Request) input.readObject();
+				if (clientRequest.getRequestType() == RequestCode.DOCUMENT_SENT) {
+					EditableDocument document = clientRequest.getDocument();
+					this.saveDocument(document);
+				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT_LIST) {
+					processDocumentListRequest(clientRequest.getUsername());
+				} else if (clientRequest.getRequestType() == RequestCode.ADD_USER_AS_EDITOR) {
+					processAddUserAsEditor(clientRequest);
+				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
+					processDocument(clientRequest.getDocumentName());
+				} else if (clientRequest.getRequestType() == RequestCode.GET_REVISION_HISTORY) {
+					processVersionHistory(clientRequest.getDocumentName());
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				System.out.println("Error: Document Stream Disconnected");
+				isRunning = false;
 			}
-		} catch (ClassNotFoundException | IOException e) {
-			System.out.println("Error: Document Stream Disconnected");
+		}
+	}
+	
+	private void processVersionHistory(String documentName) {
+		System.out.println("Server: Processing revision history for " + documentName);
+		ArrayList<String> list = Server.savedFileList.getRevisionHistroy(documentName);
+		if (list != null) {
+			String[] history = list.toArray(new String[list.size()]);
+			Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT);
+			response.setEditorList(history);
+			try {
+				output.writeObject(response);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void processDocument(String requestedDocumentName) {
+		System.out.println("Server: " + requestedDocumentName + " request being processed");
+		String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
+		try {
+			FileInputStream inFile = new FileInputStream(mostRecentFile);
+			ObjectInputStream inputStream = new ObjectInputStream(inFile);
+			EditableDocument document = (EditableDocument) inputStream.readObject();
+			inputStream.close();
+			Response response = new Response(ResponseCode.DOCUMENT_SENT, document);
+			output.writeObject(response);
+		} catch (Exception e1) {
+			e1.printStackTrace();
 		}
 	}
 
 	private void processAddUserAsEditor(Request clientRequest) {
 		Response response;
-		if(Server.savedFileList.addUserAsEditor(clientRequest.getUsername(), clientRequest.getDocumentName())){
+		if (Server.savedFileList.addUserAsEditor(clientRequest.getUsername(), clientRequest.getDocumentName())) {
 			response = new Response(ResponseCode.USER_ADDED);
 			try {
 				this.output.writeObject(response);
@@ -414,7 +450,7 @@ class DocumentHandler extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}else{
+		} else {
 			response = new Response(ResponseCode.USER_NOT_ADDED);
 			try {
 				this.output.writeObject(response);

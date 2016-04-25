@@ -32,6 +32,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -343,7 +344,11 @@ public class EditorGui extends JFrame {
 		
 		userslist = new UsersOnline(oos, listmodel, list, menu);
 		userslist.init();
-		this.add(userslist, BorderLayout.EAST);
+		JTabbedPane sidebar = new JTabbedPane();
+		sidebar.add("Users Online", userslist);
+		RevisionList revisionlist = new RevisionList(user, tabbedpane);
+		sidebar.add("Revision History", revisionlist);
+		this.add(sidebar, BorderLayout.EAST);
 		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
 	}
 

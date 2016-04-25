@@ -57,6 +57,7 @@ public class LinkedListForSaves implements Serializable{
 
 		private static final long serialVersionUID = -3279145660210051848L;
 		private String fileName;
+		private String summary;
 		private EdgeNode nextOlderSave;
 		private Timestamp timeSaved;
 
@@ -173,6 +174,30 @@ public class LinkedListForSaves implements Serializable{
 			node = node.nextDocumentNode;
 		}
 		return false;
+	}
+	
+	public ArrayList<String> getRevisionHistroy(String documentname){
+		SpineNode node = this.headOfList;
+		EdgeNode version = null;
+		ArrayList<String> history = new ArrayList<String>();
+		while(node != null){
+			if(node.documentName.equals(documentname)){
+				version = node.mostRecentSave;
+				break;
+			}
+			node = node.nextDocumentNode;
+		}
+		if(node == null)
+			return null;
+		else{
+			while(version != null){
+				history.add(version.summary);
+				System.out.println(version.summary);
+				version = version.nextOlderSave;
+			}
+			return history;
+		}
+	
 	}
 
 }
