@@ -61,8 +61,9 @@ public class LinkedListForSaves implements Serializable{
 		private EdgeNode nextOlderSave;
 		private Timestamp timeSaved;
 
-		private EdgeNode(String fileName) {
+		private EdgeNode(String fileName, String summary) {
 			this.fileName = fileName;
+			this.summary = summary;
 		}
 	}
 
@@ -85,25 +86,25 @@ public class LinkedListForSaves implements Serializable{
 		String documentName = document.getName();
 		while (temp != null) {
 			if (temp.documentName.equals(documentName)) {
-				addNewSave(fileName, temp);
+				addNewSave(fileName, temp, document.getSummary());
 				return;
 			}
 			temp = temp.nextDocumentNode;
 		}
-		addNewDocument(documentName, fileName, user);
+		addNewDocument(documentName, fileName, user, document.getSummary());
 	}
 
-	private void addNewDocument(String documentName, String fileName, User user) {
+	private void addNewDocument(String documentName, String fileName, User user, String summary) {
 		SpineNode newDocumentNode = new SpineNode(documentName);
 		newDocumentNode.addnewOwner(user.getUsername());
 		newDocumentNode.addNewEditor(user.getUsername());
 		newDocumentNode.nextDocumentNode = headOfList.nextDocumentNode;
 		headOfList.nextDocumentNode = newDocumentNode;
-		addNewSave(fileName, newDocumentNode);
+		addNewSave(fileName, newDocumentNode, summary);
 	}
 
-	private void addNewSave(String fileName, SpineNode documentNode) {
-		EdgeNode newSaveNode = new EdgeNode(fileName);
+	private void addNewSave(String fileName, SpineNode documentNode, String summary) {
+		EdgeNode newSaveNode = new EdgeNode(fileName, summary);
 		newSaveNode.timeSaved = new Timestamp(System.currentTimeMillis());
 		newSaveNode.nextOlderSave = documentNode.mostRecentSave;
 		documentNode.mostRecentSave = newSaveNode;
