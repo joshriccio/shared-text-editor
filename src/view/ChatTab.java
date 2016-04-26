@@ -5,11 +5,16 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+
 import network.Request;
 import network.RequestCode;
+import network.Response;
 
 public class ChatTab extends JPanel {
 
@@ -18,14 +23,16 @@ public class ChatTab extends JPanel {
      */
     private static final long serialVersionUID = 1L;
     private ObjectOutputStream oos;
+    private ObjectInputStream ois;
     private ChatMessages messages;
     private ChatTextArea chatArea;
     private JTextPane chatpane;
     private String conversation;
     private String name;
+    private Socket socket;
 
-    public ChatTab(String username, ObjectOutputStream oos) {
-        this.oos = oos;
+    public ChatTab(String username, Socket socket) {
+        this.socket = socket;
         this.messages = new ChatMessages();
         this.name = username;
         this.conversation = new String();
@@ -35,7 +42,7 @@ public class ChatTab extends JPanel {
         this.add(messages, BorderLayout.CENTER);
         this.add(chatArea, BorderLayout.SOUTH);
         setListeners();
-        
+
     }
 
     private void setListeners() {
@@ -51,11 +58,15 @@ public class ChatTab extends JPanel {
                     if (chatArea.getMessage().length() > 1) {
                         message = chatArea.getMessage().substring(0, chatArea.getMessage().length() - 2);
                     }
-                    Request request = new Request(RequestCode.SEND_MESSAGE, name, message);
-                    chatArea.clearText();
                     try {
+                        Request request = new Request(RequestCode.SEND_MESSAGE, name, message);
+                        ois = new ObjectInputStream(socket.getInputStream());
+                        oos = new ObjectOutputStream(socket.getOutputStream());
+                        chatArea.clearText();
                         oos.writeObject(request);
-                    } catch (IOException e) {
+                        Response response = ((Response) ois.readObject());
+                        updateConversation(response.getUser().getUsername(), response.getMessage());
+                    } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
                 }

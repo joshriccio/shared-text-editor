@@ -184,7 +184,7 @@ public class EditorGui extends JFrame {
     }
     
    private void setupChatTab() {
-      ChatTab chat = new ChatTab(user.getUsername(), oos);
+      ChatTab chat = new ChatTab(user.getUsername(), socket);
       tabbedpane.addTab("Chat", chat);
       System.out.println("Chat added!");
    }

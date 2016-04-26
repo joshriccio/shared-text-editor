@@ -83,6 +83,8 @@ public class Server {
                     processPasswordReset();
                 } else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
                     processNewDocumentStream(ois, oos);
+                } else if (clientRequest.getRequestType() == RequestCode.SEND_MESSAGE) {
+                    processSendMessage(ois, clientRequest.getUser());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -123,6 +125,11 @@ public class Server {
     private static void processNewDocumentStream(ObjectInputStream input, ObjectOutputStream output) {
         DocumentHandler d = new DocumentHandler(input, output);
         d.start();
+    }
+
+    private static void processSendMessage(ObjectInputStream ois, User user) {
+        ChatHandler ch = new ChatHandler(ois, user);
+        ch.start();
     }
 
     private static void processLogin() throws IOException {
@@ -461,60 +468,62 @@ class DocumentHandler extends Thread {
             e.printStackTrace();
         }
     }
+}
 
-    class ChatHandler extends Thread {
-        private ObjectInputStream incomingMessage;
-        private String username;
+class ChatHandler extends Thread {
+    private ObjectInputStream incomingMessage;
+    private String username;
 
-        public ChatHandler(ObjectInputStream ois, User user) {
-            this.incomingMessage = ois;
-            this.username = user.getUsername();
+    public ChatHandler(ObjectInputStream ois, User user) {
+        this.incomingMessage = ois;
+        this.username = user.getUsername();
+    }
+
+    @Override
+    public void run() {
+        try {
+            Request request = (Request) incomingMessage.readObject();
+            if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
+                sendMessageToClients(request.getMessage());
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
         }
+    }
 
-        @Override
-        public void run() {
-            try {
-                Request request = (Request) incomingMessage.readObject();
-                if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
-                    sendMessageToClients(request.getMessage());
+    private void sendMessageToClients(String message) {
+        synchronized (Server.getNetworkAccounts()) {
+            Response response = new Response(ResponseCode.NEW_MESSAGE, this.username, message);
+            response.setUserList(usersToArray());
+            for (UserStreamModel user : Server.getNetworkAccounts()) {
+                try {
+                    if (user.isOnline())
+                        System.out.println("Server: Sending the following repsonse" + response.getResponseID()
+                                        + this.username + response.getMessage());
+                    user.getOuputStream().writeObject(response);
+                } catch (IOException e) {
+                    user.toggleOnline();
                 }
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
             }
         }
+    }
 
-        private void sendMessageToClients(String message) {
-            synchronized (Server.getNetworkAccounts()) {
-                Response response = new Response(ResponseCode.NEW_MESSAGE, this.username, message);
-                response.setUserList(usersToArray());
-                for (UserStreamModel user : Server.getNetworkAccounts()) {
-                    try {
-                        if (user.isOnline())
-                            user.getOuputStream().writeObject(response);
-                    } catch (IOException e) {
-                        user.toggleOnline();
-                    }
-                }
-            }
+    /**
+     * This method converts networkAccounts to a string array of usernames. If
+     * the user is offline the username is prefaced by a - symbol. When the
+     * client recieves the list they now are able to differentiate between users
+     * online and users offline.
+     * 
+     * @return an array of type string, all users in networkAccounts
+     */
+    private String[] usersToArray() {
+        String[] userlist = new String[Server.getNetworkAccounts().size()];
+        for (int i = 0; i < userlist.length; i++) {
+            if (Server.getNetworkAccounts().get(i).isOnline())
+                userlist[i] = Server.getNetworkAccounts().get(i).getUser().getUsername();
+            else
+                userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
         }
-
-        /**
-         * This method converts networkAccounts to a string array of usernames.
-         * If the user is offline the username is prefaced by a - symbol. When
-         * the client recieves the list they now are able to differentiate
-         * between users online and users offline.
-         * 
-         * @return an array of type string, all users in networkAccounts
-         */
-        private String[] usersToArray() {
-            String[] userlist = new String[Server.getNetworkAccounts().size()];
-            for (int i = 0; i < userlist.length; i++) {
-                if (Server.getNetworkAccounts().get(i).isOnline())
-                    userlist[i] = Server.getNetworkAccounts().get(i).getUser().getUsername();
-                else
-                    userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
-            }
-            return userlist;
-        }
+        return userlist;
     }
 }
