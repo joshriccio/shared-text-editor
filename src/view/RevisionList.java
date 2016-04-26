@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -55,7 +56,9 @@ public class RevisionList extends JPanel {
 		menu.add(messageItem);
 		
 		this.scrollpane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		
+		this.scrollpane.setPreferredSize(new Dimension(200, 1000));
 
 		
 		refreshButton = new JButton("Refresh");

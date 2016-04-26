@@ -66,17 +66,17 @@ public class SummaryCollector {
 		String summary = username;
 		if (boldEvent) {
 			summary = summary + " added bold text,";
-		} else if (italicEvent) {
+		} if (italicEvent) {
 			summary = summary + " added italic text,";
-		} else if (underLineEvent) {
+		} if (underLineEvent) {
 			summary = summary + " added underline text,";
-		} else if (fontSizeEvent) {
+		} if (fontSizeEvent) {
 			summary = summary + " changed font size,";
-		} else if (fontColorEvent) {
+		} if (fontColorEvent) {
 			summary = summary + " changed font color,";
-		} else if (fontEvent) {
+		} if (fontEvent) {
 			summary = summary + " changed font,";
-		} else if (bulletEvent) {
+		} if (bulletEvent) {
 			summary = summary + " added list,";
 		} else{
 			summary = summary + " made changes,";
