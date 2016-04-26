@@ -180,8 +180,10 @@ public class RevisionList extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: Implement Refresh button to refresh the revision history
-			
+			if(!tabs.getTitleAt(tabs.getSelectedIndex()).equals("Chat")){
+				listmodel.clear();
+				makeRequest();
+			}
 		}
 		
 	}
