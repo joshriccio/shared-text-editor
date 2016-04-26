@@ -9,15 +9,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-
 import network.Request;
 import network.RequestCode;
 import network.Response;
-import network.ResponseCode;
 import network.Server;
 
 public class ChatTab extends JPanel {

@@ -155,6 +155,8 @@ public class EditorGui extends JFrame {
 		}
 		// initialize the file menu
 		setupMenuBar();
+		// initialize the chatTab
+		setupChatTab();
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
