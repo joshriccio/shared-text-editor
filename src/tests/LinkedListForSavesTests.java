@@ -46,7 +46,7 @@ public class LinkedListForSavesTests {
 		String [] list = {"docName1", "docName2", "docName3"};
 		System.out.println("This is the list: " +  savedFileList.getDocumentsByEditor("Brittany"));
 		String [] editableList = savedFileList.getDocumentsByEditor("Brittany");
-		String [] ownerList = savedFileList.getDocumentsByEditor("Brittany");
+		String [] ownerList = savedFileList.getDocumentsByOwner("Brittany");
 		//assertTrue(list.equals(ownerList));
 		//assertTrue(list.equals(editableList));
 	}
@@ -60,5 +60,12 @@ public class LinkedListForSavesTests {
 		assertFalse(savedFileList.addUserAsEditor("Cody", fakeDocName));
 	}
 	
-	
+	@Test
+	public void getRevisionHistory()  throws NoSuchAlgorithmException, NoSuchProviderException{
+		savedFileList.getRevisionHistroy(docName1);
+		assertNull(savedFileList.getRevisionHistroy(fakeDocName));
+		savedFileList.getOldSave(docName2, "Josh added bold text,");
+		assertTrue(savedFileList.getOldSave(fakeDocName, "Summary").equals("Document Not Found"));
+		
+	}
 }
