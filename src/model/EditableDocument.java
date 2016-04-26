@@ -179,5 +179,9 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	public String getSummary(){
 		return this.summary;
 	}
+	
+	public void setSummary(String summary){
+		this.summary = summary + " on " + timestamp.toString();
+	}
 
 }
