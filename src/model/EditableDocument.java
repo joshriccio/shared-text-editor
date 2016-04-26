@@ -23,6 +23,7 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	private String name;
 	private Vector<User> owners = new Vector<User>();
 	private Vector<User> editors = new Vector<User>();
+	private String summary;
 
 	/**
 	 * Constructor
@@ -37,6 +38,7 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 		documentOwner = ownr;
 		this.name = name;
 		generateNewTimeStamp();
+		this.summary = this.documentOwner.getUsername() + " made changes on " + timestamp.toString();
 	}
 
 	/**
@@ -48,6 +50,7 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	public EditableDocument(StyledDocument doc, String name) {
 		document = doc;
 		this.name = name;
+		this.summary = this.name + " changes made recently";
 	}
 	
 	
@@ -167,6 +170,18 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	 */
 	public void removeEditor(User user){
 		editors.remove(user);
+	}
+	
+	public void changeSummary(String summary){
+		this.summary = summary;
+	}
+	
+	public String getSummary(){
+		return this.summary;
+	}
+	
+	public void setSummary(String summary){
+		this.summary = summary + " on " + timestamp.toString();
 	}
 
 }
