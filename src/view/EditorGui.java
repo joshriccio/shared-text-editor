@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
@@ -32,6 +33,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -73,6 +75,7 @@ public class EditorGui extends JFrame {
 	private String docName;
 	private UsersOnline userslist;
 	private TabbedPane tabbedpane;
+	private SummaryCollector summary;
 
 	/**
 	 * Constructor for when New Document is begun
@@ -98,6 +101,7 @@ public class EditorGui extends JFrame {
 		setupMenuBar();
 		// initialize the text area
 		setTextArea("");
+		this.summary = new SummaryCollector(user.getUsername());
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -343,7 +347,11 @@ public class EditorGui extends JFrame {
 		
 		userslist = new UsersOnline(oos, listmodel, list, menu);
 		userslist.init();
-		this.add(userslist, BorderLayout.EAST);
+		JTabbedPane sidebar = new JTabbedPane();
+		sidebar.add("Users Online", userslist);
+		RevisionList revisionlist = new RevisionList(user, tabbedpane);
+		sidebar.add("Revision History", revisionlist);
+		this.add(sidebar, BorderLayout.EAST);
 		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
 	}
 
@@ -361,6 +369,7 @@ public class EditorGui extends JFrame {
 			Request r = new Request(RequestCode.DOCUMENT_SENT);
 			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
 					tabbedpane.getName());
+			currentDoc.setSummary(summary.getSummary());
 			r.setDocument(currentDoc);
 			try {
 				documentOutput.writeObject(r);
@@ -391,6 +400,7 @@ public class EditorGui extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			// text is selected
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				summary.boldEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
 				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
 				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
@@ -412,6 +422,7 @@ public class EditorGui extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			// text is selected
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				summary.italicEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
 				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
 				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
@@ -432,6 +443,7 @@ public class EditorGui extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			// text is selected
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				summary.underLineEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
 				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
 				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
@@ -456,6 +468,7 @@ public class EditorGui extends JFrame {
 			Integer fontSize = (int) sizeFontDropDown.getSelectedItem();
 
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				summary.fontSizeEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
 				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
 				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
@@ -471,6 +484,7 @@ public class EditorGui extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			String stringFont = (String) fontDropDown.getSelectedItem();
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				summary.fontEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
 				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
 				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
@@ -487,6 +501,7 @@ public class EditorGui extends JFrame {
 			JColorChooser colorChooser = new JColorChooser();
 			Color newColor = JColorChooser.showDialog(colorChooser, "Choose Text Color", Color.BLACK);
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
+				summary.fontColorEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
 				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
 				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
@@ -517,6 +532,7 @@ public class EditorGui extends JFrame {
 					@Override
 					public void keyReleased(KeyEvent arg0) {
 						if (arg0.getKeyCode() == KeyEvent.VK_ENTER && bulletListButton.isSelected()) {
+							summary.bulletEvent();
 							StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
 							try {
 								doc.insertString(doc.getLength(), "\u2022  ", null);

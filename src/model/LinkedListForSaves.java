@@ -57,11 +57,13 @@ public class LinkedListForSaves implements Serializable{
 
 		private static final long serialVersionUID = -3279145660210051848L;
 		private String fileName;
+		private String summary;
 		private EdgeNode nextOlderSave;
 		private Timestamp timeSaved;
 
-		private EdgeNode(String fileName) {
+		private EdgeNode(String fileName, String summary) {
 			this.fileName = fileName;
+			this.summary = summary;
 		}
 	}
 
@@ -84,25 +86,25 @@ public class LinkedListForSaves implements Serializable{
 		String documentName = document.getName();
 		while (temp != null) {
 			if (temp.documentName.equals(documentName)) {
-				addNewSave(fileName, temp);
+				addNewSave(fileName, temp, document.getSummary());
 				return;
 			}
 			temp = temp.nextDocumentNode;
 		}
-		addNewDocument(documentName, fileName, user);
+		addNewDocument(documentName, fileName, user, document.getSummary());
 	}
 
-	private void addNewDocument(String documentName, String fileName, User user) {
+	private void addNewDocument(String documentName, String fileName, User user, String summary) {
 		SpineNode newDocumentNode = new SpineNode(documentName);
 		newDocumentNode.addnewOwner(user.getUsername());
 		newDocumentNode.addNewEditor(user.getUsername());
 		newDocumentNode.nextDocumentNode = headOfList.nextDocumentNode;
 		headOfList.nextDocumentNode = newDocumentNode;
-		addNewSave(fileName, newDocumentNode);
+		addNewSave(fileName, newDocumentNode, summary);
 	}
 
-	private void addNewSave(String fileName, SpineNode documentNode) {
-		EdgeNode newSaveNode = new EdgeNode(fileName);
+	private void addNewSave(String fileName, SpineNode documentNode, String summary) {
+		EdgeNode newSaveNode = new EdgeNode(fileName, summary);
 		newSaveNode.timeSaved = new Timestamp(System.currentTimeMillis());
 		newSaveNode.nextOlderSave = documentNode.mostRecentSave;
 		documentNode.mostRecentSave = newSaveNode;
@@ -173,6 +175,46 @@ public class LinkedListForSaves implements Serializable{
 			node = node.nextDocumentNode;
 		}
 		return false;
+	}
+	
+	public ArrayList<String> getRevisionHistroy(String documentname){
+		SpineNode node = this.headOfList;
+		EdgeNode version = null;
+		ArrayList<String> history = new ArrayList<String>();
+		while(node != null){
+			if(node.documentName.equals(documentname)){
+				version = node.mostRecentSave;
+				break;
+			}
+			node = node.nextDocumentNode;
+		}
+		if(node == null)
+			return null;
+		else{
+			while(version != null){
+				history.add(version.summary);
+				version = version.nextOlderSave;
+			}
+			return history;
+		}
+	}
+	
+	public String getOldSave(String documentName, String summary) {
+		SpineNode spinenode = headOfList;
+		EdgeNode edgenode = null;
+		while (spinenode != null) {
+			if (spinenode.documentName.equals(documentName)) {
+				edgenode = spinenode.mostRecentSave;
+				while(edgenode != null){
+					if(edgenode.summary.equals(summary)){
+						return edgenode.fileName;
+					}
+					edgenode = edgenode.nextOlderSave;
+				}
+			}
+			spinenode = spinenode.nextDocumentNode;
+		}
+		return "Document Not Found";
 	}
 
 }
