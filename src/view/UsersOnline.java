@@ -80,7 +80,7 @@ public class UsersOnline extends JPanel {
 	 * Initializes the jpanel
 	 */
 	public void init() {
-		Request getUsers = new Request(RequestCode.GET_USER_LIST, null, null);
+		Request getUsers = new Request(RequestCode.GET_USER_LIST);
 		try {
 			oos.writeObject(getUsers);
 		} catch (IOException e) {

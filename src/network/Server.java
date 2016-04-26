@@ -84,11 +84,21 @@ public class Server {
 					processPasswordReset();
 				} else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
 					processNewDocumentStream(ois, oos);
+				} else if (clientRequest.getRequestType() == RequestCode.START_CHAT_HANDLER) {
+					System.out.println(clientRequest.getUsername());
+					processChatHandler(ois, oos, clientRequest.getUsername());
+
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void processChatHandler(ObjectInputStream ois2, ObjectOutputStream oos2, String username) {
+		ChatHandler ch = new ChatHandler(ois2, oos2, username);
+		ch.start();
+
 	}
 
 	private static boolean loadServerState() {
@@ -128,7 +138,7 @@ public class Server {
 
 	private static void processLogin() throws IOException {
 		if (authenticate(clientRequest.getUsername(), clientRequest.getPassword())) {
-			serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL, null, null);
+			serverResponse = new Response(ResponseCode.LOGIN_SUCCESSFUL);
 			serverResponse.setUser(networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).getUser());
 			networkAccounts.get(usersToIndex.get(clientRequest.getUsername())).setOutputStream(oos);
 			System.out.println("Server: User " + clientRequest.getUsername() + " has logged in");
@@ -136,7 +146,7 @@ public class Server {
 			ClientHandler c = new ClientHandler(ois, clientRequest.getUsername());
 			c.start();
 		} else {
-			serverResponse = new Response(ResponseCode.LOGIN_FAILED, null, null);
+			serverResponse = new Response(ResponseCode.LOGIN_FAILED);
 			oos.writeObject(serverResponse);
 		}
 	}
@@ -147,10 +157,10 @@ public class Server {
 			UserStreamModel usm = new UserStreamModel(user, null);
 			usersToIndex.put(user.getUsername(), networkAccounts.size());
 			networkAccounts.add(usm);
-			serverResponse = new Response(ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY, null, null);
+			serverResponse = new Response(ResponseCode.ACCOUNT_CREATED_SUCCESSFULLY);
 			oos.writeObject(serverResponse);
 		} else {
-			serverResponse = new Response(ResponseCode.ACCOUNT_CREATION_FAILED, null, null);
+			serverResponse = new Response(ResponseCode.ACCOUNT_CREATION_FAILED);
 			oos.writeObject(serverResponse);
 		}
 	}
@@ -164,10 +174,10 @@ public class Server {
 			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 				e.printStackTrace();
 			}
-			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL, null, null);
+			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
 			oos.writeObject(serverResponse);
 		} else {
-			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED, securePassword, securePassword);
+			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_FAILED);
 			oos.writeObject(serverResponse);
 		}
 	}
@@ -242,131 +252,131 @@ public class Server {
 	}
 }
 
+/**
+ * ClientHandler generates a new thread to manage client activity
+ * 
+ * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
+ *         (cdeeran11@email.arizona.edu)
+ */
+class ClientHandler extends Thread {
+	private ObjectInputStream input;
+	private volatile boolean isRunning = true;
+	private Request clientRequest;
+	private Response serverResponse;
+	private String username;
+
 	/**
-	 * ClientHandler generates a new thread to manage client activity
+	 * Constructor
 	 * 
-	 * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
-	 *         (cdeeran11@email.arizona.edu)
+	 * @param input
+	 *            the object input stream @param networkAccounts the list of
+	 *            uses connected
 	 */
-	class ClientHandler extends Thread {
-		private ObjectInputStream input;
-		private volatile boolean isRunning = true;
-		private Request clientRequest;
-		private Response serverResponse;
-		private String username;
+	public ClientHandler(ObjectInputStream input, String username) {
+		this.input = input;
+		this.username = username;
+	}
 
-		/**
-		 * Constructor
-		 * 
-		 * @param input
-		 *            the object input stream @param networkAccounts the list of
-		 *            uses connected
-		 */
-		public ClientHandler(ObjectInputStream input, String username) {
-			this.input = input;
-			this.username = username;
-		}
+	@Override
+	public void run() {
+		while (isRunning) {
+			try {
+				clientRequest = (Request) input.readObject();
 
-		@Override
-		public void run() {
-			while (isRunning) {
-				try {
-					clientRequest = (Request) input.readObject();
-
-					if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
-						writeUsersToClients();
-					} else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
-						Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
-								.toggleOnline();
-						writeUsersToClients();
-					} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
-						processDocumentRequest();
-					} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
-						processPasswordReset();
-					}
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					this.cleanUp();
+				if (clientRequest.getRequestType() == RequestCode.GET_USER_LIST) {
+					writeUsersToClients();
+				} else if (clientRequest.getRequestType() == RequestCode.USER_EXITING) {
+					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
+							.toggleOnline();
+					writeUsersToClients();
+				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
+					processDocumentRequest();
+				} else if (clientRequest.getRequestType() == RequestCode.RESET_PASSWORD) {
+					processPasswordReset();
 				}
-			}
-
-		}
-
-		private void processDocumentRequest() {
-			String requestedDocumentName = clientRequest.getRequestedName();
-			User client = clientRequest.getUser();
-			String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
-			ObjectOutputStream oos = null;
-			oos = Server.networkAccounts.get(Server.usersToIndex.get(client.getUsername())).getOuputStream();
-
-			try {
-				FileInputStream inFile = new FileInputStream(mostRecentFile);
-				ObjectInputStream inputStream = new ObjectInputStream(inFile);
-				EditableDocument document = (EditableDocument) inputStream.readObject();
-				inputStream.close();
-				Response sendDocRequest = new Response(ResponseCode.DOCUMENT_SENT, document);
-				oos.writeObject(sendDocRequest);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		}
-
-		private void cleanUp() {
-			isRunning = false;
-			System.out.println("Server: " + username + " has been disconnected");
-		}
-
-		private void processPasswordReset() throws IOException {
-			User updatepassword = Server.getNetworkAccounts()
-					.get(Server.getUsersToIndex().get(clientRequest.getUsername())).getUser();
-			try {
-				updatepassword.setPassword(
-						Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
-			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} catch (IOException e) {
+				this.cleanUp();
 			}
-			serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL, username, username);
-			Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).getOuputStream()
-					.writeObject(serverResponse);
-
-		}
-
-		private void writeUsersToClients() {
-			synchronized (Server.getNetworkAccounts()) {
-				serverResponse = new Response(ResponseCode.USER_LIST_SENT, username, username);
-				serverResponse.setUserList(usersToArray());
-				for (UserStreamModel user : Server.getNetworkAccounts()) {
-					try {
-						if (user.isOnline())
-							user.getOuputStream().writeObject(serverResponse);
-					} catch (IOException e) {
-						user.toggleOnline();
-					}
-				}
-			}
-		}
-
-		/**
-		 * This method converts networkAccounts to a string array of usernames.
-		 * If the user is offline the username is prefaced by a - symbol. When
-		 * the client recieves the list they now are able to differentiate
-		 * between users online and users offline.
-		 * 
-		 * @return an array of type string, all users in networkAccounts
-		 */
-		private String[] usersToArray() {
-			String[] userlist = new String[Server.getNetworkAccounts().size()];
-			for (int i = 0; i < userlist.length; i++) {
-				if (Server.getNetworkAccounts().get(i).isOnline())
-					userlist[i] = Server.getNetworkAccounts().get(i).getUser().getUsername();
-				else
-					userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
-			}
-			return userlist;
 		}
 
 	}
+
+	private void processDocumentRequest() {
+		String requestedDocumentName = clientRequest.getRequestedName();
+		User client = clientRequest.getUser();
+		String mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
+		ObjectOutputStream oos = null;
+		oos = Server.networkAccounts.get(Server.usersToIndex.get(client.getUsername())).getOuputStream();
+
+		try {
+			FileInputStream inFile = new FileInputStream(mostRecentFile);
+			ObjectInputStream inputStream = new ObjectInputStream(inFile);
+			EditableDocument document = (EditableDocument) inputStream.readObject();
+			inputStream.close();
+			Response sendDocRequest = new Response(ResponseCode.DOCUMENT_SENT, document);
+			oos.writeObject(sendDocRequest);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	private void cleanUp() {
+		isRunning = false;
+		System.out.println("Server: " + username + " has been disconnected");
+	}
+
+	private void processPasswordReset() throws IOException {
+		User updatepassword = Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername()))
+				.getUser();
+		try {
+			updatepassword.setPassword(
+					Password.generateSecurePassword(clientRequest.getPassword(), updatepassword.getSalt()));
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			e.printStackTrace();
+		}
+		serverResponse = new Response(ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL);
+		Server.getNetworkAccounts().get(Server.getUsersToIndex().get(clientRequest.getUsername())).getOuputStream()
+				.writeObject(serverResponse);
+
+	}
+
+	private void writeUsersToClients() {
+		synchronized (Server.getNetworkAccounts()) {
+			serverResponse = new Response(ResponseCode.USER_LIST_SENT);
+			serverResponse.setUserList(usersToArray());
+			for (UserStreamModel user : Server.getNetworkAccounts()) {
+				try {
+					if (user.isOnline())
+						user.getOuputStream().writeObject(serverResponse);
+				} catch (IOException e) {
+					user.toggleOnline();
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method converts networkAccounts to a string array of usernames. If
+	 * the user is offline the username is prefaced by a - symbol. When the
+	 * client recieves the list they now are able to differentiate between users
+	 * online and users offline.
+	 * 
+	 * @return an array of type string, all users in networkAccounts
+	 */
+	private String[] usersToArray() {
+		String[] userlist = new String[Server.getNetworkAccounts().size()];
+		for (int i = 0; i < userlist.length; i++) {
+			if (Server.getNetworkAccounts().get(i).isOnline())
+				userlist[i] = Server.getNetworkAccounts().get(i).getUser().getUsername();
+			else
+				userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
+		}
+		return userlist;
+	}
+
+}
 
 /**
  * This class handles document processing in a new thread
@@ -418,7 +428,7 @@ class DocumentHandler extends Thread {
 		ArrayList<String> list = Server.savedFileList.getRevisionHistroy(documentName);
 		if (list != null) {
 			String[] history = list.toArray(new String[list.size()]);
-			Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT, documentName, documentName);
+			Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT);
 			response.setEditorList(history);
 			try {
 				output.writeObject(response);
@@ -446,7 +456,7 @@ class DocumentHandler extends Thread {
 	private void processAddUserAsEditor(Request clientRequest) {
 		Response response;
 		if (Server.savedFileList.addUserAsEditor(clientRequest.getUsername(), clientRequest.getDocumentName())) {
-			response = new Response(ResponseCode.USER_ADDED, null, null);
+			response = new Response(ResponseCode.USER_ADDED);
 			try {
 				this.output.writeObject(response);
 				this.output.close();
@@ -454,7 +464,7 @@ class DocumentHandler extends Thread {
 				e.printStackTrace();
 			}
 		} else {
-			response = new Response(ResponseCode.USER_NOT_ADDED, null, null);
+			response = new Response(ResponseCode.USER_NOT_ADDED);
 			try {
 				this.output.writeObject(response);
 				this.output.close();
@@ -489,7 +499,7 @@ class DocumentHandler extends Thread {
 		String[] editorlist = Server.savedFileList.getDocumentsByEditor(username);
 		String[] ownerlist = Server.savedFileList.getDocumentsByOwner(username);
 
-		Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT, null, null);
+		Response response = new Response(ResponseCode.DOCUMENT_LISTS_SENT);
 		response.setEditorList(editorlist);
 		response.setOwnerList(ownerlist);
 		try {
@@ -501,59 +511,51 @@ class DocumentHandler extends Thread {
 }
 
 class ChatHandler extends Thread {
-	private ObjectInputStream incomingMessage;
+	private ObjectInputStream ois;
+	private ObjectOutputStream oos;
 	private String username;
+	private boolean isRunning;
 
-	public ChatHandler(ObjectInputStream ois, User user) {
-		this.incomingMessage = ois;
-		this.username = user.getUsername();
+	public ChatHandler(ObjectInputStream ois, ObjectOutputStream oos, String username) {
+		this.ois = ois;
+		this.oos = oos;
+		Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).setChatObjectOutputStream(this.oos);
+		this.username = username;
+		isRunning = true;
 	}
 
 	@Override
 	public void run() {
-		try {
-			Request request = (Request) incomingMessage.readObject();
-			if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
-				sendMessageToClients(request.getMessage());
+		while (isRunning) {
+			try {
+				Request request = (Request) ois.readObject();
+				if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
+					System.out.println(request.getMessage());
+					sendMessageToClients(request.getMessage());
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				e.printStackTrace();
+				isRunning = false;
 			}
-		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
 		}
 	}
 
 	private void sendMessageToClients(String message) {
 		synchronized (Server.getNetworkAccounts()) {
-			Response response = new Response(ResponseCode.NEW_MESSAGE, this.username, message);
-			response.setUserList(usersToArray());
+			Response response = new Response(ResponseCode.NEW_MESSAGE);
+			response.setMessage(message);
+			response.setUsername(username);
 			for (UserStreamModel user : Server.getNetworkAccounts()) {
 				try {
-					if (user.isOnline())
-						System.out.println("Server: Sending the following repsonse" + response.getResponseID()
-								+ this.username + response.getMessage());
-					user.getOuputStream().writeObject(response);
+					if (user.isOnline()) {
+						user.getChatOuputStream().writeObject(response);
+					}
 				} catch (IOException e) {
-					user.toggleOnline();
+					System.out.println("Error: Message failed to send.");
+					e.printStackTrace();
 				}
 			}
-		}
-	}
 
-	/**
-	 * This method converts networkAccounts to a string array of usernames. If
-	 * the user is offline the username is prefaced by a - symbol. When the
-	 * client recieves the list they now are able to differentiate between users
-	 * online and users offline.
-	 * 
-	 * @return an array of type string, all users in networkAccounts
-	 */
-	private String[] usersToArray() {
-		String[] userlist = new String[Server.getNetworkAccounts().size()];
-		for (int i = 0; i < userlist.length; i++) {
-			if (Server.getNetworkAccounts().get(i).isOnline())
-				userlist[i] = Server.getNetworkAccounts().get(i).getUser().getUsername();
-			else
-				userlist[i] = "-" + Server.getNetworkAccounts().get(i).getUser().getUsername();
 		}
-		return userlist;
 	}
 }

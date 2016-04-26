@@ -13,6 +13,7 @@ public class UserStreamModel {
 
 	private User user;
 	private ObjectOutputStream oos;
+	private ObjectOutputStream chatoos;
 	private boolean online;
 	
 	/**
@@ -63,6 +64,18 @@ public class UserStreamModel {
 	 */
 	public boolean isOnline(){
 		return this.online;
+	}
+	
+	public void setChatObjectOutputStream(ObjectOutputStream oos){
+		this.chatoos = oos;
+	}
+	
+	/**
+	 * Gets the chatoos
+	 * @return returns the users chatoos
+	 */
+	public ObjectOutputStream getChatOuputStream(){
+		return chatoos;
 	}
 
 }

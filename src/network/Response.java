@@ -27,18 +27,18 @@ public class Response implements Serializable {
 	private String[] ownerList;
 	private String message;
 	private User user;
+	private String username;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param responseCode
 	 *            the code specifying specific response
-	 * @param message 
-	 * @param username 
+	 * @param message
+	 * @param username
 	 */
-	public Response(ResponseCode responseCode, String username, String message) {
+	public Response(ResponseCode responseCode) {
 		this.responseCode = responseCode;
-		this.message = message;
 	}
 
 	/**
@@ -77,15 +77,17 @@ public class Response implements Serializable {
 
 	/**
 	 * 
-	 * @param userlist sets the list of users in system
+	 * @param userlist
+	 *            sets the list of users in system
 	 */
 	public void setUserList(String[] userlist) {
 		this.userlist = userlist;
 	}
-	
+
 	/**
 	 * 
-	 * @param userlist sets the list of users in system
+	 * @param userlist
+	 *            sets the list of users in system
 	 */
 	public String[] getUserList() {
 		return this.userlist;
@@ -99,7 +101,7 @@ public class Response implements Serializable {
 	public User getUser() {
 		return this.user;
 	}
-	
+
 	/**
 	 * 
 	 * @param user
@@ -107,15 +109,16 @@ public class Response implements Serializable {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	
+
 	/**
 	 * 
-	 * @param editorlist sets the document list
+	 * @param editorlist
+	 *            sets the document list
 	 */
 	public void setEditorList(String[] editorlist) {
 		this.editorList = editorlist;
 	}
-	
+
 	/**
 	 * 
 	 * Gets the list of documents
@@ -123,15 +126,16 @@ public class Response implements Serializable {
 	public String[] getEditorList() {
 		return this.editorList;
 	}
-	
+
 	/**
 	 * 
-	 * @param ownerList sets the document list
+	 * @param ownerList
+	 *            sets the document list
 	 */
 	public void setOwnerList(String[] ownerList) {
 		this.ownerList = ownerList;
 	}
-	
+
 	/**
 	 * 
 	 * Gets the list of documents
@@ -139,13 +143,29 @@ public class Response implements Serializable {
 	public String[] getOwnerList() {
 		return this.ownerList;
 	}
+
+	public void setMessage(String message) {
+		this.message = message;
+
+	}
+
+	/**
+	 * Gets the requests code
+	 * 
+	 * @return Returns the response's message
+	 */
+	public String getMessage() {
+		return this.message;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+		
+	}
 	
-	       /**
-         * Gets the requests code
-         * 
-         * @return Returns the response's message
-         */
-        public String getMessage() {
-                return this.message;
-        }
+	public String getUsername() {
+		return this.username;
+		
+	}
+
 }

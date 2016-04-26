@@ -101,13 +101,15 @@ public class EditorGui extends JFrame {
 		// initialize the text area
 		setTextArea("");
 		this.summary = new SummaryCollector(user.getUsername());
+		// initialize the chatTab
+		setupChatTab();
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		// Add Timer for saving every period: 5s
 		try {
-			Request r = new Request(RequestCode.START_DOCUMENT_STREAM, null, null);
+			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
 			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 			documentOutput = new ObjectOutputStream(socket.getOutputStream());
 			documentOutput.writeObject(r);
@@ -180,6 +182,11 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
+	}
+	
+	public void setupChatTab(){
+		ChatTab chat = new ChatTab(user.getUsername());
+		tabbedpane.addTab("Chat", chat);
 	}
 
 	/**
@@ -279,7 +286,7 @@ public class EditorGui extends JFrame {
 					String clientUsername = user.getUsername();
 					String clientPassword = String.valueOf(newPasswordField.getPassword());
 					try {
-						Request clientRequest = new Request(RequestCode.RESET_PASSWORD, null, null);
+						Request clientRequest = new Request(RequestCode.RESET_PASSWORD);
 						clientRequest.setUsername(clientUsername);
 						clientRequest.setPassword(clientPassword);
 						oos.writeObject(clientRequest);
@@ -317,7 +324,7 @@ public class EditorGui extends JFrame {
 					ObjectInputStream documentInput = null;
 					Socket socket = null;
 					try {
-						Request r = new Request(RequestCode.START_DOCUMENT_STREAM, null, null);
+						Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
 						socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 						documentOutput = new ObjectOutputStream(socket.getOutputStream());
 						documentInput = new ObjectInputStream(socket.getInputStream());
@@ -326,7 +333,7 @@ public class EditorGui extends JFrame {
 						System.out.println("Error: Couldn't start stream");
 						e1.printStackTrace();
 					}
-					Request request = new Request(RequestCode.ADD_USER_AS_EDITOR, null, null);
+					Request request = new Request(RequestCode.ADD_USER_AS_EDITOR);
 					request.setUsername(list.getSelectedValue());
 					request.setDocumentName(tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()));
 					try {
@@ -357,7 +364,7 @@ public class EditorGui extends JFrame {
 	private class BackupDocument extends TimerTask {
 		public void run() {
 			try {
-				Request r = new Request(RequestCode.START_DOCUMENT_STREAM, null, null);
+				Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
 				socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 				documentOutput = new ObjectOutputStream(socket.getOutputStream());
 				documentOutput.writeObject(r);
@@ -365,7 +372,7 @@ public class EditorGui extends JFrame {
 				System.out.println("Couldn't start stream");
 				e1.printStackTrace();
 			}
-			Request r = new Request(RequestCode.DOCUMENT_SENT, null, null);
+			Request r = new Request(RequestCode.DOCUMENT_SENT);
 			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
 					tabbedpane.getName());
 			currentDoc.setSummary(summary.getSummary());

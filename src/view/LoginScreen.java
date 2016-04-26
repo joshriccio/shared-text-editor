@@ -145,7 +145,7 @@ public class LoginScreen extends JFrame {
             socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
             this.oos = new ObjectOutputStream(socket.getOutputStream());
             this.ois = new ObjectInputStream(socket.getInputStream());
-            Request clientRequest = new Request(requestCode, null, null);
+            Request clientRequest = new Request(requestCode);
             clientRequest.setUsername(clientUsername);
             clientRequest.setPassword(clientPassword);
             oos.writeObject(clientRequest);
