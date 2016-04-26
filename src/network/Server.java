@@ -16,7 +16,6 @@ import java.util.Vector;
 import model.EditableDocument;
 import model.Password;
 import model.User;
-import model.LinkedListForSaves;
 import network.Request;
 import network.RequestCode;
 import network.Response;
