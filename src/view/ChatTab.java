@@ -78,12 +78,10 @@ public class ChatTab extends JPanel {
                     String message = "";
                     if (chatArea.getMessage().length() > 1) {
                         message = chatArea.getMessage().substring(0, chatArea.getMessage().length() - 2);
-                        System.out.println(message);
                     }
                     try {
                         Request request = new Request(RequestCode.SEND_MESSAGE);
                         request.setUsername(name);
-                        System.out.println(message);
                         request.setMessage(message);
                         chatArea.clearText();
                         oos.writeObject(request);                     

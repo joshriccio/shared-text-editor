@@ -530,11 +530,9 @@ class ChatHandler extends Thread {
 			try {
 				Request request = (Request) ois.readObject();
 				if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
-					System.out.println(request.getMessage());
 					sendMessageToClients(request.getMessage());
 				}
 			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
 				isRunning = false;
 			}
 		}

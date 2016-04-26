@@ -115,7 +115,7 @@ public class TabbedPane extends JTabbedPane {
 	 * @return returns the textpane of the currently viewed tab
 	 */
 	public JTextPane getCurrentTextPane() {
-		if(this.getSelectedIndex() == -1)
+		if(this.getSelectedIndex() == -1 || this.getTitleAt(this.getSelectedIndex()).equals("Chat"))
 			return null;
 		return textpanemap.get(this.getTitleAt(this.getSelectedIndex()));
 	}
