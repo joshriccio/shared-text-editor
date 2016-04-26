@@ -2,7 +2,6 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
@@ -351,6 +350,15 @@ public class EditorGui extends JFrame {
 						e.printStackTrace();
 					}
 			}
+		});
+		
+		messageItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				PrivateChatWindow pcw = new PrivateChatWindow(user.getUsername());
+				
+			}
+			
 		});
 		
 		userslist = new UsersOnline(oos, listmodel, list, menu);

@@ -85,9 +85,9 @@ public class Server {
 				} else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
 					processNewDocumentStream(ois, oos);
 				} else if (clientRequest.getRequestType() == RequestCode.START_CHAT_HANDLER) {
-					System.out.println(clientRequest.getUsername());
 					processChatHandler(ois, oos, clientRequest.getUsername());
-
+				}else if (clientRequest.getRequestType() == RequestCode.START_PRIVATE_CHAT_HANDLER) {
+					processPrivateChatHandler(ois, oos, clientRequest.getUsername());
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
@@ -95,8 +95,14 @@ public class Server {
 		}
 	}
 
-	private static void processChatHandler(ObjectInputStream ois2, ObjectOutputStream oos2, String username) {
-		ChatHandler ch = new ChatHandler(ois2, oos2, username);
+	private static void processPrivateChatHandler(ObjectInputStream ois2, ObjectOutputStream oos2, String username) {
+		PrivateChatHandler pch = new PrivateChatHandler(ois, oos, username);
+		pch.start();
+		
+	}
+
+	private static void processChatHandler(ObjectInputStream ois, ObjectOutputStream oos, String username) {
+		ChatHandler ch = new ChatHandler(ois, oos, username);
 		ch.start();
 
 	}
@@ -554,6 +560,53 @@ class ChatHandler extends Thread {
 				}
 			}
 
+		}
+	}
+}
+
+class PrivateChatHandler extends Thread {
+	private ObjectInputStream ois;
+	private ObjectOutputStream oos;
+	private String username;
+	private boolean isRunning;
+
+	public PrivateChatHandler(ObjectInputStream ois, ObjectOutputStream oos, String username) {
+		this.ois = ois;
+		this.oos = oos;
+		Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).setChatObjectOutputStream(this.oos);
+		this.username = username;
+		isRunning = true;
+	}
+
+	@Override
+	public void run() {
+		while (isRunning) {
+			try {
+				Request request = (Request) ois.readObject();
+				if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
+					sendMessageToClients(request.getMessage());
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				isRunning = false;
+			}
+		}
+	}
+
+	private void sendMessageToClients(String message) {
+		synchronized (Server.getNetworkAccounts()) {
+			Response response = new Response(ResponseCode.NEW_MESSAGE);
+			response.setMessage(message);
+			response.setUsername(username);
+			for (UserStreamModel user : Server.getNetworkAccounts()) {
+				try {
+					if (user.isOnline()) {
+						user.getChatOuputStream().writeObject(response);
+					}
+				} catch (IOException e) {
+					System.out.println("Error: Message failed to send.");
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

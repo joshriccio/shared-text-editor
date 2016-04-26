@@ -49,7 +49,6 @@ public class ChatTab extends JPanel {
 		}
     	
         this.messages = new ChatMessages();
-        this.name = username;
         this.conversation = new String();
         this.chatpane = new JTextPane();
         this.chatArea = new ChatTextArea(chatpane);
