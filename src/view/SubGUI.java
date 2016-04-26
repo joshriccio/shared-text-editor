@@ -81,7 +81,7 @@ public class SubGUI extends JFrame {
 		ObjectOutputStream documentOutput = null;
 		ObjectInputStream documentInput = null;
 		try {
-			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+			Request r = new Request(RequestCode.START_DOCUMENT_STREAM, null, null);
 			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
 			documentOutput = new ObjectOutputStream(socket.getOutputStream());
 			documentInput = new ObjectInputStream(socket.getInputStream());
@@ -91,7 +91,7 @@ public class SubGUI extends JFrame {
 			e1.printStackTrace();
 		}
 
-		Request request = new Request(RequestCode.REQUEST_DOCUMENT_LIST);
+		Request request = new Request(RequestCode.REQUEST_DOCUMENT_LIST, null, null);
 		request.setUsername(user.getUsername());
 
 		try {
@@ -245,7 +245,7 @@ public class SubGUI extends JFrame {
 	}
 
 	private void launchDocument(String documentName) {
-		Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
+		Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT,null, null);
 		requestDocument.setRequestedName(documentName);
 		requestDocument.setUser(user);
 

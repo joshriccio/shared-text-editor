@@ -114,7 +114,7 @@ public class RevisionList extends JPanel {
 	
 	private void launchDocument(String documentname, String summary) {
 		try {
-			Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
+			Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT, null, null);
 			requestDocument.setRequestedName(documentname);
 			requestDocument.setSummary(summary);
 			oos.writeObject(requestDocument);
@@ -130,7 +130,7 @@ public class RevisionList extends JPanel {
 	        this.ois = new ObjectInputStream(socket.getInputStream());
 	        ServerListener serverlistener = new ServerListener();
 	        serverlistener.start();
-	        Request request = new Request(RequestCode.START_DOCUMENT_STREAM);
+	        Request request = new Request(RequestCode.START_DOCUMENT_STREAM, null, null);
 	        request.setUsername(user.getUsername());
 	        oos.writeObject(request);
 		} catch (IOException e) {
@@ -139,7 +139,7 @@ public class RevisionList extends JPanel {
 	}
 	
 	private void makeRequest() {
-		Request request = new Request(RequestCode.GET_REVISION_HISTORY);
+		Request request = new Request(RequestCode.GET_REVISION_HISTORY, null, null);
 		request.setDocumentName(tabs.getTitleAt(tabs.getSelectedIndex()));
 		try {
 			oos.writeObject(request);

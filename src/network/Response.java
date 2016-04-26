@@ -25,6 +25,7 @@ public class Response implements Serializable {
 	private String[] userlist;
 	private String[] editorList;
 	private String[] ownerList;
+	private String message;
 	private User user;
 
 	/**
@@ -32,9 +33,12 @@ public class Response implements Serializable {
 	 * 
 	 * @param responseCode
 	 *            the code specifying specific response
+	 * @param message 
+	 * @param username 
 	 */
-	public Response(ResponseCode responseCode) {
+	public Response(ResponseCode responseCode, String username, String message) {
 		this.responseCode = responseCode;
+		this.message = message;
 	}
 
 	/**
@@ -135,4 +139,13 @@ public class Response implements Serializable {
 	public String[] getOwnerList() {
 		return this.ownerList;
 	}
+	
+	       /**
+         * Gets the requests code
+         * 
+         * @return Returns the response's message
+         */
+        public String getMessage() {
+                return this.message;
+        }
 }

@@ -22,6 +22,7 @@ public class Request implements Serializable {
 	private User user;
 	private String username;
 	private String password;
+	private String message;
 	private EditableDocument doc;
 	private String documentName;
 	private String summary;
@@ -32,9 +33,12 @@ public class Request implements Serializable {
 	 * 
 	 * @param requestCode
 	 *            the request code
+	 * @param message2 
+	 * @param name 
 	 */
-	public Request(RequestCode requestCode) {
+	public Request(RequestCode requestCode, String name, String message) {
 		this.requestCode = requestCode;
+		this.message = message;
 	}
 
 	/**
@@ -125,5 +129,13 @@ public class Request implements Serializable {
 		this.summary = summary;
 	}
 	
+	/**
+         * Gets the requests message
+         * 
+         * @return Returns the request's message
+         */
+        public String getMessage() {
+                return this.message;
+        }
 
 }

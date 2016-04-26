@@ -43,7 +43,7 @@ public class LogOffListener implements WindowListener {
 	public void windowClosed(WindowEvent e) {
 		// TODO Auto-generated method stub
 		if (!closedWindow) {
-			Request exit = new Request(RequestCode.USER_EXITING);
+			Request exit = new Request(RequestCode.USER_EXITING, null, null);
 			exit.setUsername(user);
 			try {
 				oos.writeObject(exit);
@@ -57,7 +57,7 @@ public class LogOffListener implements WindowListener {
 	@Override
 	public void windowClosing(WindowEvent e) {
 		if (!closedWindow) {
-			Request exit = new Request(RequestCode.USER_EXITING);
+			Request exit = new Request(RequestCode.USER_EXITING, null, null);
 			exit.setUsername(user);
 			try {
 				oos.writeObject(exit);
