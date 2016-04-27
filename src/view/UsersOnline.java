@@ -95,7 +95,6 @@ public class UsersOnline extends JPanel {
 	 *            the most up to date userlist
 	 */
 	public void updateUsers(String[] userlist) {
-		System.out.println("users added");
 		for (int i = 0; i < userlist.length; i++) {
 			if (userlist[i].substring(0, 1).equals("-")) {
 				if (listmodel.contains(userlist[i].substring(1, userlist[i].length()))) {
