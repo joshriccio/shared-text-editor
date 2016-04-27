@@ -374,7 +374,7 @@ public class EditorGui extends JFrame {
 				System.out.println("Error: Couldn't start stream");
 				e1.printStackTrace();
 			}
-			if(tabbedpane.getCurrentTextPane() != null){
+			if(tabbedpane.getCurrentTextPane() != null && !tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()).equals("Chat")){
 				Request r = new Request(RequestCode.DOCUMENT_SENT);
 				EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
 						tabbedpane.getName());
