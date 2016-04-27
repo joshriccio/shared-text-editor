@@ -2,28 +2,18 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-
 import network.Request;
 import network.RequestCode;
-import network.Response;
-import network.ResponseCode;
-import network.Server;
 
 /**
  * 
@@ -105,7 +95,6 @@ public class UsersOnline extends JPanel {
 	 *            the most up to date userlist
 	 */
 	public void updateUsers(String[] userlist) {
-		System.out.println("users added");
 		for (int i = 0; i < userlist.length; i++) {
 			if (userlist[i].substring(0, 1).equals("-")) {
 				if (listmodel.contains(userlist[i].substring(1, userlist[i].length()))) {

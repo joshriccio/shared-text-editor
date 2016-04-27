@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
-
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -52,10 +51,9 @@ public class TabbedPane extends JTabbedPane {
 		textpane.setBorder(borderOutline);
 		this.addTab(docName, scrollpane);
 		this.addMouseListener(new MouseListener() {
-
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
+				if (SwingUtilities.isRightMouseButton(e) && !TabbedPane.this.getName().equals("Chat")) {
 					TabbedPane.this.menu.show(e.getComponent(), e.getX(), e.getY());
 				}
 
@@ -83,7 +81,6 @@ public class TabbedPane extends JTabbedPane {
 	private void setupMenu() {
 		JMenuItem item = new JMenuItem("Close Tab");
 		item.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				TabbedPane.this.remove(TabbedPane.this.getSelectedIndex());
@@ -118,7 +115,7 @@ public class TabbedPane extends JTabbedPane {
 	 * @return returns the textpane of the currently viewed tab
 	 */
 	public JTextPane getCurrentTextPane() {
-		if(this.getSelectedIndex() == -1)
+		if(this.getSelectedIndex() == -1 || this.getTitleAt(this.getSelectedIndex()).equals("Chat"))
 			return null;
 		return textpanemap.get(this.getTitleAt(this.getSelectedIndex()));
 	}

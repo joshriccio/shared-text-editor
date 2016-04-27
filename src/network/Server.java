@@ -53,8 +53,9 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args Never used @throws Exception @throws
-	 * NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args
+	 *            Never used @throws Exception @throws
+	 *            NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -82,11 +83,21 @@ public class Server {
 					processPasswordReset();
 				} else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
 					processNewDocumentStream(ois, oos);
+				} else if (clientRequest.getRequestType() == RequestCode.START_CHAT_HANDLER) {
+					System.out.println(clientRequest.getUsername());
+					processChatHandler(ois, oos, clientRequest.getUsername());
+
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void processChatHandler(ObjectInputStream ois2, ObjectOutputStream oos2, String username) {
+		ChatHandler ch = new ChatHandler(ois2, oos2, username);
+		ch.start();
+
 	}
 
 	private static boolean loadServerState() {
@@ -244,7 +255,7 @@ public class Server {
  * ClientHandler generates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
- * (cdeeran11@email.arizona.edu)
+ *         (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -256,8 +267,9 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input the object input stream @param networkAccounts the list of
-	 * uses connected
+	 * @param input
+	 *            the object input stream @param networkAccounts the list of
+	 *            uses connected
 	 */
 	public ClientHandler(ObjectInputStream input, String username) {
 		this.input = input;
@@ -362,6 +374,7 @@ class ClientHandler extends Thread {
 		}
 		return userlist;
 	}
+
 }
 
 /**
@@ -378,7 +391,8 @@ class DocumentHandler extends Thread {
 	/**
 	 * Builds a new DocumentHandler
 	 * 
-	 * @param ois ObjectInputStream @param oos ObjectOutputStream
+	 * @param ois
+	 *            ObjectInputStream @param oos ObjectOutputStream
 	 */
 	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos) {
 		this.input = ois;
@@ -407,7 +421,7 @@ class DocumentHandler extends Thread {
 			}
 		}
 	}
-	
+
 	private void processVersionHistory(String documentName) {
 		System.out.println("Server: Processing revision history for " + documentName);
 		ArrayList<String> list = Server.savedFileList.getRevisionHistroy(documentName);
@@ -422,7 +436,7 @@ class DocumentHandler extends Thread {
 			}
 		}
 	}
-	
+
 	private void processDocument(String requestedDocumentName, String summary) {
 		System.out.println("Server: " + requestedDocumentName + " request being processed");
 		String mostRecentFile = "./" + Server.savedFileList.getOldSave(requestedDocumentName, summary);
@@ -491,6 +505,54 @@ class DocumentHandler extends Thread {
 			output.writeObject(response);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+}
+
+class ChatHandler extends Thread {
+	private ObjectInputStream ois;
+	private ObjectOutputStream oos;
+	private String username;
+	private boolean isRunning;
+
+	public ChatHandler(ObjectInputStream ois, ObjectOutputStream oos, String username) {
+		this.ois = ois;
+		this.oos = oos;
+		Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).setChatObjectOutputStream(this.oos);
+		this.username = username;
+		isRunning = true;
+	}
+
+	@Override
+	public void run() {
+		while (isRunning) {
+			try {
+				Request request = (Request) ois.readObject();
+				if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
+					sendMessageToClients(request.getMessage());
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				isRunning = false;
+			}
+		}
+	}
+
+	private void sendMessageToClients(String message) {
+		synchronized (Server.getNetworkAccounts()) {
+			Response response = new Response(ResponseCode.NEW_MESSAGE);
+			response.setMessage(message);
+			response.setUsername(username);
+			for (UserStreamModel user : Server.getNetworkAccounts()) {
+				try {
+					if (user.isOnline()) {
+						user.getChatOuputStream().writeObject(response);
+					}
+				} catch (IOException e) {
+					System.out.println("Error: Message failed to send.");
+					e.printStackTrace();
+				}
+			}
+
 		}
 	}
 }

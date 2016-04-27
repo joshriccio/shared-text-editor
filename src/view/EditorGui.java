@@ -17,7 +17,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -102,6 +101,8 @@ public class EditorGui extends JFrame {
 		// initialize the text area
 		setTextArea("");
 		this.summary = new SummaryCollector(user.getUsername());
+		// initialize the chatTab
+		setupChatTab();
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -113,7 +114,7 @@ public class EditorGui extends JFrame {
 			documentOutput = new ObjectOutputStream(socket.getOutputStream());
 			documentOutput.writeObject(r);
 		} catch (IOException e1) {
-			System.out.println("Couldn't start stream");
+			System.out.println("Error: Couldn't start stream");
 			e1.printStackTrace();
 		}
 
@@ -126,7 +127,7 @@ public class EditorGui extends JFrame {
 	 * Constructor for when previous document is loaded
 	 */
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
 		this.oos = oos;
 		this.ois = ois;
@@ -154,6 +155,8 @@ public class EditorGui extends JFrame {
 		}
 		// initialize the file menu
 		setupMenuBar();
+		// initialize the chatTab
+		setupChatTab();
 		// initialize the JToolbar
 		setJToolBar();
 		// add listeners to buttons and drop boxes
@@ -182,6 +185,11 @@ public class EditorGui extends JFrame {
 		});
 		this.add(tabbedpane);
 	}
+	
+	public void setupChatTab(){
+		ChatTab chat = new ChatTab(user.getUsername());
+		tabbedpane.addTab("Chat", chat);
+	}
 
 	/**
 	 * This method sets up the tool bar.
@@ -202,7 +210,7 @@ public class EditorGui extends JFrame {
 			bulletImage = ImageIO.read(new File("./images/bulletImage.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Couldn't load an image on the toolbar");
+			System.out.println("Error: Couldn't load an image on the toolbar");
 		}
 		// set buttons with icons in them
 		boldFontButton = new JButton(new ImageIcon(boldImage));
@@ -276,7 +284,7 @@ public class EditorGui extends JFrame {
 				int response = JOptionPane.showConfirmDialog(null, forgotPasswordFields, "Change Password",
 						JOptionPane.YES_NO_OPTION);
 				if (response == JOptionPane.YES_OPTION) {
-					System.out.println("OPTION YES from " + user.getUsername());
+					System.out.println("Client: OPTION YES from " + user.getUsername());
 					String clientUsername = user.getUsername();
 					String clientPassword = String.valueOf(newPasswordField.getPassword());
 					try {
@@ -304,7 +312,7 @@ public class EditorGui extends JFrame {
 	
 	private void setUsersWindow() {
 		DefaultListModel<String> listmodel = new DefaultListModel<String>();
-		JList<String> list = new JList<String>(listmodel);
+		final JList<String> list = new JList<String>(listmodel);
 		JPopupMenu menu = new JPopupMenu();
 		JMenuItem editorItem = new JMenuItem("Add as Editor");
 		menu.add(editorItem);
@@ -334,9 +342,9 @@ public class EditorGui extends JFrame {
 						documentOutput.writeObject(request);
 						Response response = (Response) documentInput.readObject();
 						if(response.getResponseID() == ResponseCode.USER_ADDED){
-							System.out.println(list.getSelectedValue() + " successfully added as editor");
+							System.out.println("Client: " + list.getSelectedValue() + " successfully added as editor");
 						}else{
-							System.out.println(list.getSelectedValue() + " failed to be added as editor");
+							System.out.println("Client: " + list.getSelectedValue() + " failed to be added as editor");
 						}
 						socket.close();
 					} catch (IOException | ClassNotFoundException e) {
@@ -363,21 +371,23 @@ public class EditorGui extends JFrame {
 				documentOutput = new ObjectOutputStream(socket.getOutputStream());
 				documentOutput.writeObject(r);
 			} catch (IOException e1) {
-				System.out.println("Couldn't start stream");
+				System.out.println("Error: Couldn't start stream");
 				e1.printStackTrace();
 			}
-			Request r = new Request(RequestCode.DOCUMENT_SENT);
-			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
-					tabbedpane.getName());
-			currentDoc.setSummary(summary.getSummary());
-			r.setDocument(currentDoc);
-			try {
-				documentOutput.writeObject(r);
-				documentOutput.flush();
-				documentOutput.close();
-			} catch (IOException e1) {
-				System.out.println("Couldn't send document to server");
-				e1.printStackTrace();
+			if(tabbedpane.getCurrentTextPane() != null && !tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()).equals("Chat")){
+				Request r = new Request(RequestCode.DOCUMENT_SENT);
+				EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
+						tabbedpane.getName());
+				currentDoc.setSummary(summary.getSummary());
+				r.setDocument(currentDoc);
+				try {
+					documentOutput.writeObject(r);
+					documentOutput.flush();
+					documentOutput.close();
+				} catch (IOException e1) {
+					System.out.println("Error: Couldn't send document to server");
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
