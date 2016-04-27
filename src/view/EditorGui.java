@@ -184,6 +184,12 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
+		
+		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+		StyleConstants.setLeftIndent(style, 30);
+		StyleConstants.setRightIndent(style, 100);
+		doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
 	
 	public void setupChatTab(){
