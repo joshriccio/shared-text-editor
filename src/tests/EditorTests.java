@@ -9,7 +9,7 @@ import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import org.junit.Test;
 import model.EditableDocument;
-import model.LinkedListForSaves;
+import network.LinkedListForSaves;
 import model.User;
 
 /**

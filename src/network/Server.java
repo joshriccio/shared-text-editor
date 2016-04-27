@@ -411,7 +411,9 @@ class DocumentHandler extends Thread {
 					processDocumentListRequest(clientRequest.getUsername());
 				} else if (clientRequest.getRequestType() == RequestCode.ADD_USER_AS_EDITOR) {
 					processAddUserAsEditor(clientRequest);
-				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
+				} else if (clientRequest.getRequestType() == RequestCode.CHANGE_OWNER) {
+					processChangeOwner(clientRequest);
+				}	else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
 					processDocument(clientRequest.getDocumentName(), clientRequest.getSummary());
 				} else if (clientRequest.getRequestType() == RequestCode.GET_REVISION_HISTORY) {
 					processVersionHistory(clientRequest.getDocumentName());
@@ -455,6 +457,27 @@ class DocumentHandler extends Thread {
 	private void processAddUserAsEditor(Request clientRequest) {
 		Response response;
 		if (Server.savedFileList.addUserAsEditor(clientRequest.getUsername(), clientRequest.getDocumentName())) {
+			response = new Response(ResponseCode.USER_ADDED);
+			try {
+				this.output.writeObject(response);
+				this.output.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			response = new Response(ResponseCode.USER_NOT_ADDED);
+			try {
+				this.output.writeObject(response);
+				this.output.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void processChangeOwner(Request clientRequest) {
+		Response response;
+		if (Server.savedFileList.addUserAsOwner(clientRequest.getUsername(), clientRequest.getDocumentName())) {
 			response = new Response(ResponseCode.USER_ADDED);
 			try {
 				this.output.writeObject(response);
