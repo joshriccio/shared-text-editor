@@ -16,9 +16,6 @@ import model.User;
  */
 public class Response implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6676768090079836369L;
 	private ResponseCode responseCode;
 	private EditableDocument doc;
@@ -32,10 +29,8 @@ public class Response implements Serializable {
 	/**
 	 * Constructor
 	 * 
-	 * @param responseCode
-	 *            the code specifying specific response
-	 * @param message
-	 * @param username
+	 * @param responseCode the code specifying specific response @param
+	 * message @param username
 	 */
 	public Response(ResponseCode responseCode) {
 		this.responseCode = responseCode;
@@ -44,10 +39,8 @@ public class Response implements Serializable {
 	/**
 	 * Constructor with ability to store document
 	 * 
-	 * @param responseCode
-	 *            the code specifying specific response
-	 * @param doc
-	 *            the document to send
+	 * @param responseCode the code specifying specific response @param doc the
+	 * document to send
 	 */
 	public Response(ResponseCode responseCode, EditableDocument doc) {
 		this.responseCode = responseCode;
@@ -55,95 +48,85 @@ public class Response implements Serializable {
 	}
 
 	/**
-	 * @return returns the response ID
+	 * Gets the response ID @return returns the response ID
 	 */
 	public ResponseCode getResponseID() {
 		return responseCode;
 	}
 
 	/**
-	 * @return returns the document
+	 * Gets the editable document @return returns the document
 	 */
 	public EditableDocument getEditableDocument() {
 		return doc;
 	}
 
 	/**
-	 * @return returns the styled document
+	 * Gets the styled document @return returns the styled document
 	 */
 	public StyledDocument getStyledDocument() {
 		return doc.getDocument();
 	}
 
 	/**
-	 * 
-	 * @param userlist
-	 *            sets the list of users in system
+	 * Sets the user list @param userlist sets the list of users in system
 	 */
 	public void setUserList(String[] userlist) {
 		this.userlist = userlist;
 	}
 
 	/**
-	 * 
-	 * @param userlist
-	 *            sets the list of users in system
+	 * Gets the user list @param userlist gets the list of users in system
 	 */
 	public String[] getUserList() {
 		return this.userlist;
 	}
 
 	/**
-	 * 
-	 * @param user
-	 * @return
+	 * Gets the user @param user the user @return the user
 	 */
 	public User getUser() {
 		return this.user;
 	}
 
 	/**
-	 * 
-	 * @param user
+	 * Sets the user @param user the user
 	 */
 	public void setUser(User user) {
 		this.user = user;
 	}
 
 	/**
-	 * 
-	 * @param editorlist
-	 *            sets the document list
+	 * Sets the editorlist @param editorlist sets the document list
 	 */
 	public void setEditorList(String[] editorlist) {
 		this.editorList = editorlist;
 	}
 
 	/**
-	 * 
-	 * Gets the list of documents
+	 * Gets the editor list Gets the list of documents
 	 */
 	public String[] getEditorList() {
 		return this.editorList;
 	}
 
 	/**
-	 * 
-	 * @param ownerList
-	 *            sets the document list
+	 * Sets the owner list @param ownerList sets the document list
 	 */
 	public void setOwnerList(String[] ownerList) {
 		this.ownerList = ownerList;
 	}
 
 	/**
-	 * 
-	 * Gets the list of documents
+	 * Gets the owner list Gets the list of documents
 	 */
 	public String[] getOwnerList() {
 		return this.ownerList;
 	}
 
+	/**
+	 * Sets the message @param message the message to be sent
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 
@@ -158,14 +141,17 @@ public class Response implements Serializable {
 		return this.message;
 	}
 
+	/**
+	 * Sets the username @param username the users name
+	 */
 	public void setUsername(String username) {
 		this.username = username;
-		
-	}
-	
-	public String getUsername() {
-		return this.username;
-		
 	}
 
+	/**
+	 * Gets the user name @return the username
+	 */
+	public String getUsername() {
+		return this.username;
+	}
 }

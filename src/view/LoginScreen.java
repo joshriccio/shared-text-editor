@@ -32,10 +32,8 @@ public class LoginScreen extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JTextField loginTextField = new JTextField(15);
 	private JPasswordField passwordField = new JPasswordField(15);
-	public static boolean loginButtonState = false; // Means button has not been
-													// pressed
-	public static boolean createAccountButtonState = false; // Means button has
-															// not been pressed
+	public static boolean loginButtonState = false;
+	public static boolean createAccountButtonState = false;
 	private Socket socket = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
@@ -44,7 +42,7 @@ public class LoginScreen extends JFrame {
 	private String clientPassword;
 
 	/**
-	 * Constructor
+	 * Builds a new login screen JFrame
 	 */
 	public LoginScreen() {
 		setupWindow();
@@ -127,10 +125,10 @@ public class LoginScreen extends JFrame {
 				JLabel createPassword = new JLabel("Password:");
 				final JPasswordField createPasswordField = new JPasswordField();
 				Object[] createAccountFields = { createUsername, createUsernameField, createPassword,
-						createPasswordField };		
+						createPasswordField };
 				int response = JOptionPane.showConfirmDialog(null, createAccountFields, "Create Account",
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);	
-				
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
 				if (response == JOptionPane.OK_OPTION) {
 					createAccountButtonState = true;
 					clientUsername = createUsernameField.getText();
@@ -161,8 +159,6 @@ public class LoginScreen extends JFrame {
 
 	/**
 	 * Opens a new connection between server and client
-	 * 
-	 * @author cdeeran11 (cdeeran11@email.arizona.edu)
 	 */
 	private void openConnection(RequestCode requestCode) {
 		try {

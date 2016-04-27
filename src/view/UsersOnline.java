@@ -37,7 +37,8 @@ public class UsersOnline extends JPanel {
 	 * 
 	 * @param oos
 	 */
-	public UsersOnline(ObjectOutputStream oos, DefaultListModel<String> listmodel, JList<String> list, JPopupMenu menu) {
+	public UsersOnline(ObjectOutputStream oos, DefaultListModel<String> listmodel, JList<String> list,
+			JPopupMenu menu) {
 		this.listmodel = listmodel;
 		this.list = list;
 		this.menu = menu;
@@ -91,8 +92,7 @@ public class UsersOnline extends JPanel {
 	/**
 	 * Updates the panel with the users who connected/ disconnected
 	 * 
-	 * @param userlist
-	 *            the most up to date userlist
+	 * @param userlist the most up to date userlist
 	 */
 	public void updateUsers(String[] userlist) {
 		for (int i = 0; i < userlist.length; i++) {
@@ -105,5 +105,4 @@ public class UsersOnline extends JPanel {
 			}
 		}
 	}
-
 }

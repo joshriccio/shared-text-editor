@@ -25,9 +25,6 @@ import javax.swing.border.Border;
  */
 public class TabbedPane extends JTabbedPane {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private HashMap<String, JTextPane> textpanemap;
 	private JPopupMenu menu;
@@ -35,8 +32,7 @@ public class TabbedPane extends JTabbedPane {
 	/**
 	 * The constructor takes in the name of the new document
 	 * 
-	 * @param docName
-	 *            the name of the new document
+	 * @param docName the name of the new document
 	 */
 	public TabbedPane(String docName) {
 		textpanemap = new HashMap<>();
@@ -95,8 +91,7 @@ public class TabbedPane extends JTabbedPane {
 	/**
 	 * Adds a new tab with the new document name
 	 * 
-	 * @param docName
-	 *            the name of the new document
+	 * @param docName the name of the new document
 	 */
 	public void addNewTab(String docName) {
 		JTextPane textpane = new JTextPane();
@@ -115,7 +110,7 @@ public class TabbedPane extends JTabbedPane {
 	 * @return returns the textpane of the currently viewed tab
 	 */
 	public JTextPane getCurrentTextPane() {
-		if(this.getSelectedIndex() == -1 || this.getTitleAt(this.getSelectedIndex()).equals("Chat"))
+		if (this.getSelectedIndex() == -1 || this.getTitleAt(this.getSelectedIndex()).equals("Chat"))
 			return null;
 		return textpanemap.get(this.getTitleAt(this.getSelectedIndex()));
 	}

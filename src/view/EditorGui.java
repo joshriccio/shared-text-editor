@@ -2,7 +2,6 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
@@ -184,15 +183,18 @@ public class EditorGui extends JFrame {
 
 		});
 		this.add(tabbedpane);
-		
+
 		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
 		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
 		StyleConstants.setLeftIndent(style, 30);
 		StyleConstants.setRightIndent(style, 100);
 		doc.setParagraphAttributes(0, doc.getLength(), style, false);
 	}
-	
-	public void setupChatTab(){
+
+	/**
+	 * Sets up the new chat tab for the client
+	 */
+	public void setupChatTab() {
 		ChatTab chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
 	}
@@ -315,7 +317,7 @@ public class EditorGui extends JFrame {
 
 		}
 	}
-	
+
 	private void setUsersWindow() {
 		DefaultListModel<String> listmodel = new DefaultListModel<String>();
 		final JList<String> list = new JList<String>(listmodel);
@@ -326,42 +328,42 @@ public class EditorGui extends JFrame {
 		menu.add(ownerItem);
 		JMenuItem messageItem = new JMenuItem("Send private message");
 		menu.add(messageItem);
-		
-		editorItem.addActionListener(new ActionListener(){
+
+		editorItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-					ObjectOutputStream documentOutput = null;
-					ObjectInputStream documentInput = null;
-					Socket socket = null;
-					try {
-						Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-						socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
-						documentOutput = new ObjectOutputStream(socket.getOutputStream());
-						documentInput = new ObjectInputStream(socket.getInputStream());
-						documentOutput.writeObject(r);
-					} catch (IOException e1) {
-						System.out.println("Error: Couldn't start stream");
-						e1.printStackTrace();
+				ObjectOutputStream documentOutput = null;
+				ObjectInputStream documentInput = null;
+				Socket socket = null;
+				try {
+					Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+					socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+					documentOutput = new ObjectOutputStream(socket.getOutputStream());
+					documentInput = new ObjectInputStream(socket.getInputStream());
+					documentOutput.writeObject(r);
+				} catch (IOException e1) {
+					System.out.println("Error: Couldn't start stream");
+					e1.printStackTrace();
+				}
+				Request request = new Request(RequestCode.ADD_USER_AS_EDITOR);
+				request.setUsername(list.getSelectedValue());
+				request.setDocumentName(tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()));
+				try {
+					documentOutput.writeObject(request);
+					Response response = (Response) documentInput.readObject();
+					if (response.getResponseID() == ResponseCode.USER_ADDED) {
+						System.out.println("Client: " + list.getSelectedValue() + " successfully added as editor");
+					} else {
+						System.out.println("Client: " + list.getSelectedValue() + " failed to be added as editor");
 					}
-					Request request = new Request(RequestCode.ADD_USER_AS_EDITOR);
-					request.setUsername(list.getSelectedValue());
-					request.setDocumentName(tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()));
-					try {
-						documentOutput.writeObject(request);
-						Response response = (Response) documentInput.readObject();
-						if(response.getResponseID() == ResponseCode.USER_ADDED){
-							System.out.println("Client: " + list.getSelectedValue() + " successfully added as editor");
-						}else{
-							System.out.println("Client: " + list.getSelectedValue() + " failed to be added as editor");
-						}
-						socket.close();
-					} catch (IOException | ClassNotFoundException e) {
-						e.printStackTrace();
-					}
+					socket.close();
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 			}
 		});
-		
-		ownerItem.addActionListener(new ActionListener(){
+
+		ownerItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -378,25 +380,25 @@ public class EditorGui extends JFrame {
 					System.out.println("Error: Couldn't start stream");
 					e1.printStackTrace();
 				}
-				
+
 				Request request = new Request(RequestCode.CHANGE_OWNER);
 				request.setUsername(list.getSelectedValue());
 				request.setDocumentName(tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()));
 				try {
 					documentOutput.writeObject(request);
 					Response response = (Response) documentInput.readObject();
-					if(response.getResponseID() == ResponseCode.USER_ADDED){
+					if (response.getResponseID() == ResponseCode.USER_ADDED) {
 						System.out.println(list.getSelectedValue() + " successfully added as owner");
-					}else{
+					} else {
 						System.out.println(list.getSelectedValue() + " failed to be added as owner");
 					}
 					socket.close();
 				} catch (IOException | ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-		}	
+			}
 		});
-		
+
 		userslist = new UsersOnline(oos, listmodel, list, menu);
 		userslist.init();
 		JTabbedPane sidebar = new JTabbedPane();
@@ -418,10 +420,11 @@ public class EditorGui extends JFrame {
 				System.out.println("Error: Couldn't start stream");
 				e1.printStackTrace();
 			}
-			if(tabbedpane.getCurrentTextPane() != null && !tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()).equals("Chat")){
+			if (tabbedpane.getCurrentTextPane() != null
+					&& !tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()).equals("Chat")) {
 				Request r = new Request(RequestCode.DOCUMENT_SENT);
-				EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(), user,
-						tabbedpane.getName());
+				EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
+						user, tabbedpane.getName());
 				currentDoc.setSummary(summary.getSummary());
 				r.setDocument(currentDoc);
 				try {
