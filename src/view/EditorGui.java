@@ -322,6 +322,8 @@ public class EditorGui extends JFrame {
 		JPopupMenu menu = new JPopupMenu();
 		JMenuItem editorItem = new JMenuItem("Add as Editor");
 		menu.add(editorItem);
+		JMenuItem ownerItem = new JMenuItem("Make Owner");
+		menu.add(ownerItem);
 		JMenuItem messageItem = new JMenuItem("Send private message");
 		menu.add(messageItem);
 		
@@ -357,6 +359,42 @@ public class EditorGui extends JFrame {
 						e.printStackTrace();
 					}
 			}
+		});
+		
+		ownerItem.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				ObjectOutputStream documentOutput = null;
+				ObjectInputStream documentInput = null;
+				Socket socket = null;
+				try {
+					Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+					socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+					documentOutput = new ObjectOutputStream(socket.getOutputStream());
+					documentInput = new ObjectInputStream(socket.getInputStream());
+					documentOutput.writeObject(r);
+				} catch (IOException e1) {
+					System.out.println("Error: Couldn't start stream");
+					e1.printStackTrace();
+				}
+				
+				Request request = new Request(RequestCode.CHANGE_OWNER);
+				request.setUsername(list.getSelectedValue());
+				request.setDocumentName(tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()));
+				try {
+					documentOutput.writeObject(request);
+					Response response = (Response) documentInput.readObject();
+					if(response.getResponseID() == ResponseCode.USER_ADDED){
+						System.out.println(list.getSelectedValue() + " successfully added as owner");
+					}else{
+						System.out.println(list.getSelectedValue() + " failed to be added as owner");
+					}
+					socket.close();
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+		}	
 		});
 		
 		userslist = new UsersOnline(oos, listmodel, list, menu);

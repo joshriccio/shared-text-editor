@@ -177,6 +177,20 @@ public class LinkedListForSaves implements Serializable{
 		return false;
 	}
 	
+	public boolean addUserAsOwner(String username, String documentname){
+		SpineNode node = this.headOfList;
+		while(node != null){
+			if(node.documentName.equals(documentname)){
+				//remove owner on list and add the new owner
+				node.owners.remove(0);
+				node.owners.add(username);
+				return true;
+			}
+			node = node.nextDocumentNode;
+		}
+		return false;
+	}
+	
 	public ArrayList<String> getRevisionHistroy(String documentname){
 		SpineNode node = this.headOfList;
 		EdgeNode version = null;
