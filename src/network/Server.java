@@ -568,7 +568,7 @@ class ChatHandler extends Thread {
 		synchronized (Server.getNetworkAccounts()) {
 			Response response = new Response(ResponseCode.NEW_PRIVATE_MESSAGE);
 			response.setMessage(message);
-			response.setUsername(username);
+			response.setUsername(this.username);
 			try {
 				if (Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).isOnline()) {
 					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).getChatOuputStream().writeObject(response);

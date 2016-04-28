@@ -43,3 +43,4 @@ public class ChatMessages extends JPanel {
 		return this.messages;
 	}
 }
+
