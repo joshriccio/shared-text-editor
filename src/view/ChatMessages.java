@@ -10,34 +10,32 @@ import javax.swing.JTextPane;
 import javax.swing.text.DefaultCaret;
 
 public class ChatMessages extends JPanel {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    JTextPane messages;
-    JScrollPane scrollpane;
 
-    /**
-     * The constructor for the messages window
-     */
-    public ChatMessages() {
-            this.messages = new JTextPane();
-            this.messages.setEditable(false);
-            this.messages.setBackground(Color.white);
-            this.messages.setPreferredSize(new Dimension(1000, 350));
-            this.scrollpane = new JScrollPane(this.messages, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            this.add(this.scrollpane, BorderLayout.CENTER);         
-            DefaultCaret caret = (DefaultCaret)messages.getCaret();
-            caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-    }
+	private static final long serialVersionUID = 1L;
+	JTextPane messages;
+	JScrollPane scrollpane;
 
-    /**
-     * Sets the text for the message window
-     * 
-     * @param text
-     *            the text to be added to the window
-     */
-    public void setText(String text) {
-        this.messages.setText(text);
-    }
+	/**
+	 * The constructor for the messages window
+	 */
+	public ChatMessages() {
+		this.messages = new JTextPane();
+		this.messages.setEditable(false);
+		this.messages.setBackground(Color.white);
+		this.messages.setPreferredSize(new Dimension(1000, 350));
+		this.scrollpane = new JScrollPane(this.messages, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		this.add(this.scrollpane, BorderLayout.CENTER);
+		DefaultCaret caret = (DefaultCaret) messages.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+	}
+
+	/**
+	 * Sets the text for the message window
+	 * 
+	 * @param text the text to be added to the window
+	 */
+	public void setText(String text) {
+		this.messages.setText(text);
+	}
 }

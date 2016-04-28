@@ -53,9 +53,8 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args
-	 *            Never used @throws Exception @throws
-	 *            NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args Never used @throws Exception @throws
+	 * NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -84,7 +83,6 @@ public class Server {
 				} else if (clientRequest.getRequestType() == RequestCode.START_DOCUMENT_STREAM) {
 					processNewDocumentStream(ois, oos);
 				} else if (clientRequest.getRequestType() == RequestCode.START_CHAT_HANDLER) {
-					System.out.println(clientRequest.getUsername());
 					processChatHandler(ois, oos, clientRequest.getUsername());
 
 				}
@@ -255,7 +253,7 @@ public class Server {
  * ClientHandler generates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
- *         (cdeeran11@email.arizona.edu)
+ * (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -267,9 +265,8 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input
-	 *            the object input stream @param networkAccounts the list of
-	 *            uses connected
+	 * @param input the object input stream @param networkAccounts the list of
+	 * uses connected
 	 */
 	public ClientHandler(ObjectInputStream input, String username) {
 		this.input = input;
@@ -391,8 +388,7 @@ class DocumentHandler extends Thread {
 	/**
 	 * Builds a new DocumentHandler
 	 * 
-	 * @param ois
-	 *            ObjectInputStream @param oos ObjectOutputStream
+	 * @param ois ObjectInputStream @param oos ObjectOutputStream
 	 */
 	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos) {
 		this.input = ois;
@@ -413,7 +409,7 @@ class DocumentHandler extends Thread {
 					processAddUserAsEditor(clientRequest);
 				} else if (clientRequest.getRequestType() == RequestCode.CHANGE_OWNER) {
 					processChangeOwner(clientRequest);
-				}	else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
+				} else if (clientRequest.getRequestType() == RequestCode.REQUEST_DOCUMENT) {
 					processDocument(clientRequest.getDocumentName(), clientRequest.getSummary());
 				} else if (clientRequest.getRequestType() == RequestCode.GET_REVISION_HISTORY) {
 					processVersionHistory(clientRequest.getDocumentName());
@@ -474,7 +470,7 @@ class DocumentHandler extends Thread {
 			}
 		}
 	}
-	
+
 	private void processChangeOwner(Request clientRequest) {
 		Response response;
 		if (Server.savedFileList.addUserAsOwner(clientRequest.getUsername(), clientRequest.getDocumentName())) {
@@ -541,9 +537,13 @@ class ChatHandler extends Thread {
 	public ChatHandler(ObjectInputStream ois, ObjectOutputStream oos, String username) {
 		this.ois = ois;
 		this.oos = oos;
-		Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).setChatObjectOutputStream(this.oos);
+		setChatOutputStream(username);
 		this.username = username;
 		isRunning = true;
+	}
+
+	private void setChatOutputStream(String username) {
+		Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).setChatObjectOutputStream(this.oos);
 	}
 
 	@Override

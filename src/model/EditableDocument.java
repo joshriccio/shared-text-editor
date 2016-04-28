@@ -28,10 +28,8 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	/**
 	 * Constructor
 	 * 
-	 * @param doc
-	 *            document to be added to wrapper
-	 * @param ownr
-	 *            owner of the document
+	 * @param doc document to be added to wrapper @param ownr owner of the
+	 * document
 	 */
 	public EditableDocument(StyledDocument doc, User ownr, String name) {
 		document = doc;
@@ -44,20 +42,17 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	/**
 	 * Constructor used for testing
 	 * 
-	 * @param doc
-	 *            document to be changed in the wrapper
+	 * @param doc document to be changed in the wrapper
 	 */
 	public EditableDocument(StyledDocument doc, String name) {
 		document = doc;
 		this.name = name;
 		this.summary = this.name + " changes made recently";
 	}
-	
-	
+
 	/**
-	 * This method is used to get the String value of the name of the EditableDocument
-	 * @return
-	 * 		String EditableDocument.name
+	 * This method is used to get the String value of the name of the
+	 * EditableDocument @return String EditableDocument.name
 	 */
 	public String getName() {
 		return name;
@@ -66,8 +61,7 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	/**
 	 * Receive changed data from GUI, update.
 	 * 
-	 * @param newDoc
-	 *            sets a new document
+	 * @param newDoc sets a new document
 	 */
 	public void setDocumentContent(StyledDocument newDoc) {
 		document = newDoc;
@@ -113,74 +107,80 @@ public class EditableDocument implements Serializable, Comparable<Timestamp> {
 	public int compareTo(Timestamp other) {
 		return timestamp.compareTo(other);
 	}
-	
+
 	/**
 	 * This method returns a vector of owners of the document
 	 * 
 	 * @return vector of owners
 	 */
-	public Vector<User> getOwners(){
+	public Vector<User> getOwners() {
 		return this.owners;
 	}
-	
+
 	/**
 	 * This method adds a user to the owners vector
 	 * 
-	 * @param user
-	 * 		user who is an owner
+	 * @param user user who is an owner
 	 */
-	public void addOwner(User user){
+	public void addOwner(User user) {
 		owners.add(user);
 	}
-	
+
 	/**
 	 * This method removes a user from the owners vector
 	 * 
-	 * @param user
-	 * 			user to be removed
+	 * @param user user to be removed
 	 */
-	public void removeOwner(User user){
+	public void removeOwner(User user) {
 		owners.remove(user);
 	}
-	
+
 	/**
 	 * This method returns the vector of editors
 	 * 
 	 * @return vector of editors
 	 */
-	public Vector<User> getEditors(){
+	public Vector<User> getEditors() {
 		return this.editors;
 	}
-	
+
 	/**
 	 * This method adds a user to the editor vector
 	 * 
-	 * @param user
-	 * 			user to be added as an editor
+	 * @param user user to be added as an editor
 	 */
-	public void addEditor(User user){
+	public void addEditor(User user) {
 		editors.add(user);
 	}
-	
+
 	/**
 	 * This method removes a user from the editor vector
 	 * 
-	 * @param user
-	 * 			user to be removed as an editor
+	 * @param user user to be removed as an editor
 	 */
-	public void removeEditor(User user){
+	public void removeEditor(User user) {
 		editors.remove(user);
 	}
-	
-	public void changeSummary(String summary){
+
+	/**
+	 * Updates the summary of a document to this summary @param summary the
+	 * summary to insert
+	 */
+	public void changeSummary(String summary) {
 		this.summary = summary;
 	}
-	
-	public String getSummary(){
+
+	/**
+	 * Gets the summary of this document @return the summary
+	 */
+	public String getSummary() {
 		return this.summary;
 	}
-	
-	public void setSummary(String summary){
+
+	/**
+	 * Sets a new summary with timestamp @param summary the summary to set
+	 */
+	public void setSummary(String summary) {
 		this.summary = summary + " on " + timestamp.toString();
 	}
 

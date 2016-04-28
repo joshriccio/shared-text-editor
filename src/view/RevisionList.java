@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,20 +29,29 @@ import network.Response;
 import network.ResponseCode;
 import network.Server;
 
+/**
+ * This is the panel that the revision history will generate in. @author Joshua
+ * Riccio
+ *
+ */
 public class RevisionList extends JPanel {
 
 	private static final long serialVersionUID = 1651418921573666127L;
 	private DefaultListModel<String> listmodel;
 	private JList<String> list;
 	private JScrollPane scrollpane;
-    private Socket socket = null;
-    private ObjectOutputStream oos = null;
-    private ObjectInputStream ois = null;
-    private User user;
+	private Socket socket = null;
+	private ObjectOutputStream oos = null;
+	private ObjectInputStream ois = null;
+	private User user;
 	private JPopupMenu menu;
 	private TabbedPane tabs;
 	private JButton refreshButton;
-	
+
+	/**
+	 * The constructor for the revision list @param user the client user @param
+	 * tabs the tabs in the editor gui
+	 */
 	public RevisionList(User user, TabbedPane tabs) {
 		this.user = user;
 		this.tabs = tabs;
@@ -54,13 +62,12 @@ public class RevisionList extends JPanel {
 		menu.add(editorItem);
 		JMenuItem messageItem = new JMenuItem("Delete Document");
 		menu.add(messageItem);
-		
+
 		this.scrollpane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
+
 		this.scrollpane.setPreferredSize(new Dimension(200, 1000));
 
-		
 		refreshButton = new JButton("Refresh");
 		setListeners();
 		setLayout(new BorderLayout());
@@ -69,11 +76,11 @@ public class RevisionList extends JPanel {
 		connect();
 		makeRequest();
 	}
-	
+
 	private void setListeners() {
 		refreshButton.addActionListener(new refreshButtonListener());
-	
-		this.list.addMouseListener(new MouseListener(){
+
+		this.list.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
@@ -87,31 +94,31 @@ public class RevisionList extends JPanel {
 			}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) {	
+			public void mouseExited(MouseEvent arg0) {
 			}
 
 			@Override
-			public void mousePressed(MouseEvent arg0) {	
+			public void mousePressed(MouseEvent arg0) {
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent arg0) {	
+			public void mouseReleased(MouseEvent arg0) {
 			}
 		});
-		
-		tabs.addChangeListener(new ChangeListener(){
+
+		tabs.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				if(!tabs.getTitleAt(tabs.getSelectedIndex()).equals("Chat")){
+				if (!tabs.getTitleAt(tabs.getSelectedIndex()).equals("Chat")) {
 					listmodel.clear();
 					makeRequest();
 				}
 			}
-			
+
 		});
 	}
-	
+
 	private void launchDocument(String documentname, String summary) {
 		try {
 			Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
@@ -124,20 +131,20 @@ public class RevisionList extends JPanel {
 	}
 
 	private void connect() {
-        try {
+		try {
 			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
-	        this.oos = new ObjectOutputStream(socket.getOutputStream());
-	        this.ois = new ObjectInputStream(socket.getInputStream());
-	        ServerListener serverlistener = new ServerListener();
-	        serverlistener.start();
-	        Request request = new Request(RequestCode.START_DOCUMENT_STREAM);
-	        request.setUsername(user.getUsername());
-	        oos.writeObject(request);
+			this.oos = new ObjectOutputStream(socket.getOutputStream());
+			this.ois = new ObjectInputStream(socket.getInputStream());
+			ServerListener serverlistener = new ServerListener();
+			serverlistener.start();
+			Request request = new Request(RequestCode.START_DOCUMENT_STREAM);
+			request.setUsername(user.getUsername());
+			oos.writeObject(request);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void makeRequest() {
 		Request request = new Request(RequestCode.GET_REVISION_HISTORY);
 		request.setDocumentName(tabs.getTitleAt(tabs.getSelectedIndex()));
@@ -147,16 +154,16 @@ public class RevisionList extends JPanel {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	private class ServerListener extends Thread {
 		@Override
 		public void run() {
 			while (true) {
 				try {
 					Response response = (Response) ois.readObject();
-					if(response.getResponseID() == ResponseCode.DOCUMENT_LISTS_SENT){
+					if (response.getResponseID() == ResponseCode.DOCUMENT_LISTS_SENT) {
 						updateDocumentList(response);
-					}else if(response.getResponseID() == ResponseCode.DOCUMENT_SENT){
+					} else if (response.getResponseID() == ResponseCode.DOCUMENT_SENT) {
 						openDocumentInTab(response.getEditableDocument());
 					}
 				} catch (ClassNotFoundException e) {
@@ -172,22 +179,20 @@ public class RevisionList extends JPanel {
 		}
 
 		private void updateDocumentList(Response response) {
-			for(String doc : response.getEditorList()){
-				if(!RevisionList.this.listmodel.contains(doc))
+			for (String doc : response.getEditorList()) {
+				if (!RevisionList.this.listmodel.contains(doc))
 					RevisionList.this.listmodel.addElement(doc);
 			}
 		}
 	}
 
-	private class refreshButtonListener implements ActionListener{
-
+	private class refreshButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(!tabs.getTitleAt(tabs.getSelectedIndex()).equals("Chat")){
+			if (!tabs.getTitleAt(tabs.getSelectedIndex()).equals("Chat")) {
 				listmodel.clear();
 				makeRequest();
 			}
 		}
-		
 	}
 }

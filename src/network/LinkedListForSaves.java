@@ -12,7 +12,7 @@ import model.User;
  * LinkedList to store saved documents
  *
  */
-public class LinkedListForSaves implements Serializable{
+public class LinkedListForSaves implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private SpineNode headOfList;
@@ -21,10 +21,8 @@ public class LinkedListForSaves implements Serializable{
 	 * Nodes to store the documentName and the users who can edit it
 	 *
 	 */
-	private class SpineNode implements Serializable{
-		/**
-		 * 
-		 */
+	private class SpineNode implements Serializable {
+
 		private static final long serialVersionUID = 1L;
 		private String documentName;
 		private List<String> editors;
@@ -37,15 +35,14 @@ public class LinkedListForSaves implements Serializable{
 			editors = new ArrayList<String>();
 			owners = new ArrayList<String>();
 		}
-		
-		private void addNewEditor(String user){
+
+		private void addNewEditor(String user) {
 			editors.add(user);
 		}
-		
-		private void addnewOwner(String user){
+
+		private void addnewOwner(String user) {
 			owners.add(user);
 		}
-
 
 	}
 
@@ -53,7 +50,7 @@ public class LinkedListForSaves implements Serializable{
 	 * Nodes which store the documents themselves
 	 *
 	 */
-	private class EdgeNode implements Serializable{
+	private class EdgeNode implements Serializable {
 
 		private static final long serialVersionUID = -3279145660210051848L;
 		private String fileName;
@@ -78,8 +75,7 @@ public class LinkedListForSaves implements Serializable{
 	 * This will be the function call from the server to create a new save, pass
 	 * in the documentName and the fileName
 	 * 
-	 * @param document
-	 * @param fileName
+	 * @param document @param fileName
 	 */
 	public void createSave(EditableDocument document, String fileName, User user) {
 		SpineNode temp = headOfList;
@@ -113,8 +109,7 @@ public class LinkedListForSaves implements Serializable{
 	/**
 	 * Access the fileName of the most recent save
 	 * 
-	 * @param documentName
-	 * @return
+	 * @param documentName @return
 	 */
 	public String getMostRecentSave(String documentName) {
 		SpineNode temp = headOfList;
@@ -126,17 +121,16 @@ public class LinkedListForSaves implements Serializable{
 		}
 		return "Document Not Found";
 	}
-	
+
 	/**
 	 * 
-	 * @param editor
-	 * @return
+	 * @param editor @return
 	 */
-	public String[] getDocumentsByEditor(String editor){
+	public String[] getDocumentsByEditor(String editor) {
 		ArrayList<String> docs = new ArrayList<>();
 		SpineNode node = this.headOfList;
-		while(node != null){
-			if(node.editors.contains(editor)){
+		while (node != null) {
+			if (node.editors.contains(editor)) {
 				docs.add(node.documentName);
 			}
 			node = node.nextDocumentNode;
@@ -145,17 +139,16 @@ public class LinkedListForSaves implements Serializable{
 		String[] doclist = new String[docs.size()];
 		return docs.toArray(doclist);
 	}
-	
+
 	/**
 	 * 
-	 * @param owner
-	 * @return
+	 * @param owner @return
 	 */
-	public String[] getDocumentsByOwner(String owner){
+	public String[] getDocumentsByOwner(String owner) {
 		ArrayList<String> docs = new ArrayList<>();
 		SpineNode node = this.headOfList;
-		while(node != null){
-			if(node.owners.contains(owner)){
+		while (node != null) {
+			if (node.owners.contains(owner)) {
 				docs.add(node.documentName);
 			}
 			node = node.nextDocumentNode;
@@ -164,11 +157,16 @@ public class LinkedListForSaves implements Serializable{
 		String[] doclist = new String[docs.size()];
 		return docs.toArray(doclist);
 	}
-	
-	public boolean addUserAsEditor(String username, String documentname){
+
+	/**
+	 * Adds a user as an editor for the specified document @param username the
+	 * user name to add as an editor @param documentname the document name to be
+	 * updates @return true if successful
+	 */
+	public boolean addUserAsEditor(String username, String documentname) {
 		SpineNode node = this.headOfList;
-		while(node != null){
-			if(node.documentName.equals(documentname)){
+		while (node != null) {
+			if (node.documentName.equals(documentname)) {
 				node.editors.add(username);
 				return true;
 			}
@@ -176,12 +174,17 @@ public class LinkedListForSaves implements Serializable{
 		}
 		return false;
 	}
-	
-	public boolean addUserAsOwner(String username, String documentname){
+
+	/**
+	 * Adds a user as the owner of the named document, replaces previous
+	 * owner @param username the user name to add @param documentname the name
+	 * of the document @return true if succesful, false if failed
+	 */
+	public boolean addUserAsOwner(String username, String documentname) {
 		SpineNode node = this.headOfList;
-		while(node != null){
-			if(node.documentName.equals(documentname)){
-				//remove owner on list and add the new owner
+		while (node != null) {
+			if (node.documentName.equals(documentname)) {
+				// remove owner on list and add the new owner
 				node.owners.remove(0);
 				node.owners.add(username);
 				return true;
@@ -190,37 +193,46 @@ public class LinkedListForSaves implements Serializable{
 		}
 		return false;
 	}
-	
-	public ArrayList<String> getRevisionHistroy(String documentname){
+
+	/**
+	 * Gets the revision history for the named document @param documentname the
+	 * name of the document @return the revision history
+	 */
+	public ArrayList<String> getRevisionHistroy(String documentname) {
 		SpineNode node = this.headOfList;
 		EdgeNode version = null;
 		ArrayList<String> history = new ArrayList<String>();
-		while(node != null){
-			if(node.documentName.equals(documentname)){
+		while (node != null) {
+			if (node.documentName.equals(documentname)) {
 				version = node.mostRecentSave;
 				break;
 			}
 			node = node.nextDocumentNode;
 		}
-		if(node == null)
+		if (node == null)
 			return null;
-		else{
-			while(version != null){
+		else {
+			while (version != null) {
 				history.add(version.summary);
 				version = version.nextOlderSave;
 			}
 			return history;
 		}
 	}
-	
+
+	/**
+	 * Gets the previous saved document @param documentName the name of the
+	 * document @param summary the summary to use for searching @return the
+	 * document as string
+	 */
 	public String getOldSave(String documentName, String summary) {
 		SpineNode spinenode = headOfList;
 		EdgeNode edgenode = null;
 		while (spinenode != null) {
 			if (spinenode.documentName.equals(documentName)) {
 				edgenode = spinenode.mostRecentSave;
-				while(edgenode != null){
-					if(edgenode.summary.equals(summary)){
+				while (edgenode != null) {
+					if (edgenode.summary.equals(summary)) {
 						return edgenode.fileName;
 					}
 					edgenode = edgenode.nextOlderSave;

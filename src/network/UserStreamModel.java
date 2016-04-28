@@ -5,8 +5,8 @@ import java.io.ObjectOutputStream;
 import model.User;
 
 /**
- * Wraps the user to their objectOutputStream with their current online status.
- * @author Joshua Riccio
+ * Wraps the user to their objectOutputStream with their current online
+ * status. @author Joshua Riccio
  *
  */
 public class UserStreamModel {
@@ -15,66 +15,64 @@ public class UserStreamModel {
 	private ObjectOutputStream oos;
 	private ObjectOutputStream chatoos;
 	private boolean online;
-	
+
 	/**
-	 * Constructor
-	 * @param user the current user
-	 * @param oos the users ObjectOutputStream
+	 * Constructor @param user the current user @param oos the users
+	 * ObjectOutputStream
 	 */
 	public UserStreamModel(User user, ObjectOutputStream oos) {
 		this.user = user;
 		this.oos = oos;
 		online = false;
 	}
-	
+
 	/**
-	 * Gets the user
-	 * @return returns the user
+	 * Gets the user @return returns the user
 	 */
-	public User getUser(){
+	public User getUser() {
 		return user;
 	}
-	
+
 	/**
-	 * Gets the oos
-	 * @return returns the users oos
+	 * Gets the oos @return returns the users oos
 	 */
-	public ObjectOutputStream getOuputStream(){
+	public ObjectOutputStream getOuputStream() {
 		return oos;
 	}
-	
+
 	/**
-	 * Updates the users oos
-	 * @param oos the objectOutputStream
+	 * Updates the users oos @param oos the objectOutputStream
 	 */
-	public void setOutputStream(ObjectOutputStream oos){
+	public void setOutputStream(ObjectOutputStream oos) {
 		this.oos = oos;
 	}
-	
+
 	/**
 	 * Toggles user online status
 	 */
-	public void toggleOnline(){
+	public void toggleOnline() {
 		this.online = !this.online;
 	}
-	
+
 	/**
-	 * Returns the users online status
-	 * @return returns the users online status
+	 * Returns the users online status @return returns the users online status
 	 */
-	public boolean isOnline(){
+	public boolean isOnline() {
 		return this.online;
 	}
-	
-	public void setChatObjectOutputStream(ObjectOutputStream oos){
+
+	/**
+	 * Sets the users chat stream @param oos the output stream for the users
+	 * chat connection
+	 */
+	public void setChatObjectOutputStream(ObjectOutputStream oos) {
 		this.chatoos = oos;
 	}
-	
+
 	/**
-	 * Gets the chatoos
-	 * @return returns the users chatoos
+	 * Gets the chatoos @return returns the users chatoos
 	 */
-	public ObjectOutputStream getChatOuputStream(){
+	public ObjectOutputStream getChatOuputStream() {
 		return chatoos;
 	}
 
