@@ -51,8 +51,7 @@ public class TabbedPane extends JTabbedPane {
 			public void mouseClicked(MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e) && !TabbedPane.this.getName().equals("Chat")) {
 					TabbedPane.this.menu.show(e.getComponent(), e.getX(), e.getY());
-				}
-
+				} 
 			}
 
 			@Override

@@ -145,6 +145,10 @@ public class ChatTab extends JPanel {
 			pcw.setVisible(true);
 		}
 	}
+	
+	public ChatMessages getMessageWindow(){
+		return this.messages;
+	}
 
 	private class ChatServerListener extends Thread {
 		@Override

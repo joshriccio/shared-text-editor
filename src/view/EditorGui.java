@@ -34,6 +34,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
@@ -198,6 +200,20 @@ public class EditorGui extends JFrame {
 	public void setupChatTab() {
 		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
+		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!");
+		chat.getMessageWindow().gettextpane().addCaretListener(new CaretListener(){
+			@Override
+			public void caretUpdate(CaretEvent event) {
+				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.CYAN);
+			}
+		});
+		
+		tabbedpane.addChangeListener(new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.WHITE);	
+			}
+		});
 	}
 
 	/**

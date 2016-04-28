@@ -30,8 +30,8 @@ import network.Server;
  * @author Joshua Riccio
  */
 public class Server {
-//	public static final String ADDRESS = "localhost";
-	public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production
+	public static final String ADDRESS = "localhost";
+	//public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production
 	// server
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
