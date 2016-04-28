@@ -53,8 +53,9 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args Never used @throws Exception @throws
-	 * NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args
+	 *            Never used @throws Exception @throws
+	 *            NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -84,7 +85,6 @@ public class Server {
 					processNewDocumentStream(ois, oos);
 				} else if (clientRequest.getRequestType() == RequestCode.START_CHAT_HANDLER) {
 					processChatHandler(ois, oos, clientRequest.getUsername());
-
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
@@ -92,8 +92,8 @@ public class Server {
 		}
 	}
 
-	private static void processChatHandler(ObjectInputStream ois2, ObjectOutputStream oos2, String username) {
-		ChatHandler ch = new ChatHandler(ois2, oos2, username);
+	private static void processChatHandler(ObjectInputStream ois, ObjectOutputStream oos, String username) {
+		ChatHandler ch = new ChatHandler(ois, oos, username);
 		ch.start();
 
 	}
@@ -253,7 +253,7 @@ public class Server {
  * ClientHandler generates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
- * (cdeeran11@email.arizona.edu)
+ *         (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -265,8 +265,9 @@ class ClientHandler extends Thread {
 	/**
 	 * Constructor
 	 * 
-	 * @param input the object input stream @param networkAccounts the list of
-	 * uses connected
+	 * @param input
+	 *            the object input stream @param networkAccounts the list of
+	 *            uses connected
 	 */
 	public ClientHandler(ObjectInputStream input, String username) {
 		this.input = input;
@@ -388,7 +389,8 @@ class DocumentHandler extends Thread {
 	/**
 	 * Builds a new DocumentHandler
 	 * 
-	 * @param ois ObjectInputStream @param oos ObjectOutputStream
+	 * @param ois
+	 *            ObjectInputStream @param oos ObjectOutputStream
 	 */
 	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos) {
 		this.input = ois;
@@ -553,6 +555,8 @@ class ChatHandler extends Thread {
 				Request request = (Request) ois.readObject();
 				if (request.getRequestType() == RequestCode.SEND_MESSAGE) {
 					sendMessageToClients(request.getMessage());
+				} else if (request.getRequestType() == RequestCode.SEND_PRIVATE_MESSAGE) {
+					sendPrivateMessageToClients(request.getMessage(), request.getUsername());
 				}
 			} catch (ClassNotFoundException | IOException e) {
 				isRunning = false;
@@ -560,6 +564,22 @@ class ChatHandler extends Thread {
 		}
 	}
 
+	private void sendPrivateMessageToClients(String message, String username) {
+		synchronized (Server.getNetworkAccounts()) {
+			Response response = new Response(ResponseCode.NEW_PRIVATE_MESSAGE);
+			response.setMessage(message);
+			response.setUsername(username);
+			try {
+				if (Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).isOnline()) {
+					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).getChatOuputStream().writeObject(response);
+				}
+			} catch (IOException e) {
+				System.out.println("Error: Message failed to send.");
+				e.printStackTrace();
+			}
+		}
+
+	}
 	private void sendMessageToClients(String message) {
 		synchronized (Server.getNetworkAccounts()) {
 			Response response = new Response(ResponseCode.NEW_MESSAGE);

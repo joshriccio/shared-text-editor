@@ -73,6 +73,7 @@ public class EditorGui extends JFrame {
 	private String docName;
 	private UsersOnline userslist;
 	private TabbedPane tabbedpane;
+	private ChatTab chat;
 	private SummaryCollector summary;
 
 	/**
@@ -195,7 +196,7 @@ public class EditorGui extends JFrame {
 	 * Sets up the new chat tab for the client
 	 */
 	public void setupChatTab() {
-		ChatTab chat = new ChatTab(user.getUsername());
+		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
 	}
 
@@ -399,6 +400,14 @@ public class EditorGui extends JFrame {
 			}
 		});
 
+		messageItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				chat.sendPrivateMessage(user.getUsername(), list.getSelectedValue());
+			}
+			
+		});
+		
 		userslist = new UsersOnline(oos, listmodel, list, menu);
 		userslist.init();
 		JTabbedPane sidebar = new JTabbedPane();
