@@ -38,4 +38,8 @@ public class ChatMessages extends JPanel {
 	public void setText(String text) {
 		this.messages.setText(text);
 	}
+	
+	public JTextPane gettextpane(){
+		return this.messages;
+	}
 }

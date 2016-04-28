@@ -31,7 +31,7 @@ public class ChatTab extends JPanel {
 	private JTextPane chatpane;
 	private String conversation;
 	private ArrayList<PrivateChatWindow> privateChatList;
-	private String name;
+	static String name;
 	private Socket socket;
 
 	/**
@@ -116,15 +116,17 @@ public class ChatTab extends JPanel {
 		boolean windowExist = false;
 		for(PrivateChatWindow pcw : privateChatList){
 			if(pcw.getPrivateChatUsername().equals(sendersUsername)){
-				pcw.getMessageWindow().setText(pcw.getPrivateConversation() + pcw.getPrivateChatUsername() + ": " + message + "\n");
+				pcw.updatePrivateConversation(pcw.getPrivateChatUsername() + ": " + message + "\n");
 				windowExist = true;
+				pcw.setVisible(true);
 			}
 		}
 		
 		if(!windowExist){
 			PrivateChatWindow pcw = new PrivateChatWindow(sendersUsername);
 			privateChatList.add(pcw);
-			pcw.isVisible();
+			pcw.updatePrivateConversation(pcw.getPrivateChatUsername() + ": " + message + "\n");
+			pcw.setVisible(true);
 		}
 	}
 
@@ -177,6 +179,7 @@ class PrivateChatWindow extends JFrame {
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.messageWindow = new ChatMessages();
+		this.messageWindow.gettextpane().setPreferredSize(new Dimension(560, 250));
 		this.textpane = new JTextPane();
 		setListeners();
 		this.textarea = new ChatTextArea(textpane);
@@ -201,7 +204,7 @@ class PrivateChatWindow extends JFrame {
 						Request request = new Request(RequestCode.SEND_PRIVATE_MESSAGE);
 						request.setUsername(name);
 						request.setMessage(message);
-						privateConversation = privateConversation + name + ": " + message + "\n";
+						privateConversation = privateConversation + ChatTab.name + ": " + message + "\n";
 						messageWindow.setText(privateConversation);
 						textarea.clearText();
 						ChatTab.oos.writeObject(request);
@@ -215,6 +218,11 @@ class PrivateChatWindow extends JFrame {
 			public void keyTyped(KeyEvent event) {
 			}
 		});
+	}
+	
+	public void updatePrivateConversation(String conversation){
+		this.privateConversation = this.privateConversation + conversation;
+		this.messageWindow.setText(this.privateConversation);
 	}
 	
 	public ChatMessages getMessageWindow(){
