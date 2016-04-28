@@ -10,17 +10,23 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-
 import network.Request;
 import network.RequestCode;
 import network.Response;
 import network.ResponseCode;
 import network.Server;
 
+/**
+ * This is class launches the chat application for 
+ * global and private chats
+ * 
+ * @author Josh Riccio
+ * @author Cody Deeran
+ *
+ */
 public class ChatTab extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -66,6 +72,13 @@ public class ChatTab extends JPanel {
 
 	}
 
+	/**
+	 * Starts up the private chat windows for communications between two users
+	 * @param sendersUsername
+	 * 				The user who started the chat
+	 * @param receiversUsername
+	 * 				The user who the one who started the chat wants to chat with
+	 */
 	public void sendPrivateMessage(String sendersUsername, String receiversUsername) {
 		PrivateChatWindow pcw = new PrivateChatWindow(receiversUsername);
 		privateChatList.add(pcw);
@@ -104,8 +117,11 @@ public class ChatTab extends JPanel {
 	}
 
 	/**
-	 * Updates the conversation with the latest message @param name the message
-	 * senders name @param message the message that was sent
+	 * Updates the global chat
+	 * @param sendersUsername
+	 * 			the username of the sender to be appended with the message
+	 * @param message
+	 * 			the message the sender whats to send
 	 */
 	public void updateConversation(String sendersUsername, String message) {
 		conversation = conversation + sendersUsername + ": " + message + "\n";
@@ -169,12 +185,11 @@ class PrivateChatWindow extends JFrame {
 	 * The chat window's constructor
 	 * 
 	 * @param username
-	 * @param conversation
-	 * @param messageWindow
+	 * 			the person who the user would like to chat with
 	 */
 	public PrivateChatWindow(String username) {
 		this.name = username;
-		this.setTitle("Private Chatting" + name);
+		this.setTitle("Private Chatting: " + this.name);
 		this.setSize(600, 400);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
@@ -220,17 +235,38 @@ class PrivateChatWindow extends JFrame {
 		});
 	}
 	
+	/**
+	 * Updates the private conversation between users
+	 * @param conversation
+	 * 		The message to be appended to the overall conversation on screen
+	 */
 	public void updatePrivateConversation(String conversation){
 		this.privateConversation = this.privateConversation + conversation;
 		this.messageWindow.setText(this.privateConversation);
 	}
 	
+	/**
+	 * Get the messageWindow of the user who is to receive the message
+	 * @return
+	 *  the messageWindow of the user who is to receive the message
+	 * 	
+	 */
 	public ChatMessages getMessageWindow(){
 		return this.messageWindow;
 	}
+	/**
+	 * Get the overall conversation of the private message between users
+	 * @return
+	 * 		the overall conversation of the private message between users
+	 */
 	public String getPrivateConversation(){
 		return this.privateConversation;
 	}
+	/**
+	 * Get the username of the user to receive message
+	 * @return
+	 * 		the username of the user to receive message
+	 */
 	public String getPrivateChatUsername(){
 		return this.name;
 	}
