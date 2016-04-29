@@ -34,6 +34,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
@@ -73,6 +75,7 @@ public class EditorGui extends JFrame {
 	private String docName;
 	private UsersOnline userslist;
 	private TabbedPane tabbedpane;
+	private ChatTab chat;
 	private SummaryCollector summary;
 
 	/**
@@ -195,8 +198,22 @@ public class EditorGui extends JFrame {
 	 * Sets up the new chat tab for the client
 	 */
 	public void setupChatTab() {
-		ChatTab chat = new ChatTab(user.getUsername());
+		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
+		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!");
+		chat.getMessageWindow().gettextpane().addCaretListener(new CaretListener(){
+			@Override
+			public void caretUpdate(CaretEvent event) {
+				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.CYAN);
+			}
+		});
+		
+		tabbedpane.addChangeListener(new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.WHITE);	
+			}
+		});
 	}
 
 	/**
@@ -399,6 +416,14 @@ public class EditorGui extends JFrame {
 			}
 		});
 
+		messageItem.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				chat.sendPrivateMessage(user.getUsername(), list.getSelectedValue());
+			}
+			
+		});
+		
 		userslist = new UsersOnline(oos, listmodel, list, menu);
 		userslist.init();
 		JTabbedPane sidebar = new JTabbedPane();
