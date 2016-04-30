@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Timer;
-import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -77,6 +75,7 @@ public class EditorGui extends JFrame {
 	private TabbedPane tabbedpane;
 	private ChatTab chat;
 	private SummaryCollector summary;
+	private int saveFrequency = 0;
 
 	/**
 	 * Constructor for when New Document is begun
@@ -120,8 +119,8 @@ public class EditorGui extends JFrame {
 			e1.printStackTrace();
 		}
 
-		Timer timer = new Timer();
-		timer.schedule(new BackupDocument(), 0, 5000);
+//		Timer timer = new Timer();
+//		timer.schedule(new BackupDocument(), 0, 5000);
 		setUsersWindow();
 	}
 
@@ -164,8 +163,9 @@ public class EditorGui extends JFrame {
 		// add listeners to buttons and drop boxes
 		setButtonListeners();
 		// Add Timer for saving every period: 5s
-		Timer timer = new Timer();
-		timer.schedule(new BackupDocument(), 0, 5000);
+//		Timer timer = new Timer();
+//		timer.schedule(new BackupDocument(), 0, 5000);
+
 		setUsersWindow();
 	}
 
@@ -192,6 +192,29 @@ public class EditorGui extends JFrame {
 		StyleConstants.setLeftIndent(style, 30);
 		StyleConstants.setRightIndent(style, 100);
 		doc.setParagraphAttributes(0, doc.getLength(), style, false);
+		tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener(){
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				saveFrequency++;
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				if(saveFrequency > 10){
+					backupDocument();
+					saveFrequency = 0;
+				}
+				
+			}
+
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+
+				
+			}
+			
+		});
 	}
 
 	/**
@@ -201,17 +224,17 @@ public class EditorGui extends JFrame {
 		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
 		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!");
-		chat.getMessageWindow().gettextpane().addCaretListener(new CaretListener(){
+		chat.getMessageWindow().gettextpane().addCaretListener(new CaretListener() {
 			@Override
 			public void caretUpdate(CaretEvent event) {
 				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.CYAN);
 			}
 		});
-		
-		tabbedpane.addChangeListener(new ChangeListener(){
+
+		tabbedpane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.WHITE);	
+				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.WHITE);
 			}
 		});
 	}
@@ -416,14 +439,14 @@ public class EditorGui extends JFrame {
 			}
 		});
 
-		messageItem.addActionListener(new ActionListener(){
+		messageItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				chat.sendPrivateMessage(user.getUsername(), list.getSelectedValue());
 			}
-			
+
 		});
-		
+
 		userslist = new UsersOnline(oos, listmodel, list, menu);
 		userslist.init();
 		JTabbedPane sidebar = new JTabbedPane();
@@ -433,24 +456,26 @@ public class EditorGui extends JFrame {
 		this.add(sidebar, BorderLayout.EAST);
 		this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
 	}
+	
+	private void backupDocument(){
 
-	private class BackupDocument extends TimerTask {
-		public void run() {
-			try {
-				Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-				socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
-				documentOutput = new ObjectOutputStream(socket.getOutputStream());
-				documentOutput.writeObject(r);
-			} catch (IOException e1) {
-				System.out.println("Error: Couldn't start stream");
-				e1.printStackTrace();
-			}
-			if (tabbedpane.getCurrentTextPane() != null
-					&& !tabbedpane.getTitleAt(tabbedpane.getSelectedIndex()).equals("Chat")) {
+			if (!EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex()).equals("Chat")
+					&& EditorGui.this.tabbedpane.getCurrentTextPane() != null) {
+				try {
+					Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+					socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+					documentOutput = new ObjectOutputStream(socket.getOutputStream());
+					documentOutput.writeObject(r);
+				} catch (IOException e1) {
+					System.out.println("Error: Couldn't start stream");
+					e1.printStackTrace();
+				}
+
 				Request r = new Request(RequestCode.DOCUMENT_SENT);
 				EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
 						user, tabbedpane.getName());
-				currentDoc.setSummary(summary.getSummary());
+				if(currentDoc != null && summary != null)
+					currentDoc.setSummary(summary.getSummary());
 				r.setDocument(currentDoc);
 				try {
 					documentOutput.writeObject(r);
@@ -461,8 +486,40 @@ public class EditorGui extends JFrame {
 					e1.printStackTrace();
 				}
 			}
-		}
+		
 	}
+
+//	private class BackupDocument extends TimerTask {
+//		public void run() {
+//			if (!EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex()).equals("Chat")
+//					&& EditorGui.this.tabbedpane.getCurrentTextPane() != null) {
+//				try {
+//					Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+//					socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+//					documentOutput = new ObjectOutputStream(socket.getOutputStream());
+//					documentOutput.writeObject(r);
+//				} catch (IOException e1) {
+//					System.out.println("Error: Couldn't start stream");
+//					e1.printStackTrace();
+//				}
+//
+//				Request r = new Request(RequestCode.DOCUMENT_SENT);
+//				EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
+//						user, tabbedpane.getName());
+//				if(currentDoc != null && summary != null)
+//					currentDoc.setSummary(summary.getSummary());
+//				r.setDocument(currentDoc);
+//				try {
+//					documentOutput.writeObject(r);
+//					documentOutput.flush();
+//					documentOutput.close();
+//				} catch (IOException e1) {
+//					System.out.println("Error: Couldn't send document to server");
+//					e1.printStackTrace();
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * This method adds listeners to the buttons and drop down boxes on the tool
@@ -654,6 +711,9 @@ public class EditorGui extends JFrame {
 					if (response.getResponseID() == ResponseCode.USER_LIST_SENT) {
 						EditorGui.this.userslist.updateUsers(response.getUserList());
 					}
+					if (response.getResponseID() == ResponseCode.DOCUMENT_REFRESH) {
+						openDocumentInCurrentTab(response.getEditableDocument());
+					}
 					if (response.getResponseID() == ResponseCode.ACCOUNT_RESET_PASSWORD_SUCCESSFUL) {
 						JOptionPane.showConfirmDialog(null,
 								"Your password has been successfully resest. Please sign outand back in for changes to take place.",
@@ -668,6 +728,16 @@ public class EditorGui extends JFrame {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		private void openDocumentInCurrentTab(EditableDocument doc) {
+			if (EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex())
+					.equals(doc.getName())) {
+				EditorGui.this.tabbedpane.getCurrentTextPane().setStyledDocument(doc.getDocument());
+				EditorGui.this.tabbedpane.getCurrentTextPane()
+						.setCaretPosition(doc.getDocument().getLength());
+			}
+
 		}
 	}
 }

@@ -30,14 +30,14 @@ import network.Server;
 public class ChatTab extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	static ObjectOutputStream oos;
+	ObjectOutputStream oos;
 	private ObjectInputStream ois;
 	private ChatMessages messages;
 	private ChatTextArea chatArea;
 	private JTextPane chatpane;
 	private String conversation;
 	private ArrayList<PrivateChatWindow> privateChatList;
-	static String name;
+	String name;
 	private Socket socket;
 
 	/**
@@ -80,7 +80,7 @@ public class ChatTab extends JPanel {
 	 * 				The user who the one who started the chat wants to chat with
 	 */
 	public void sendPrivateMessage(String sendersUsername, String receiversUsername) {
-		PrivateChatWindow pcw = new PrivateChatWindow(receiversUsername);
+		PrivateChatWindow pcw = new PrivateChatWindow(receiversUsername, oos);
 		privateChatList.add(pcw);
 		pcw.setVisible(true);
 	}
@@ -139,7 +139,7 @@ public class ChatTab extends JPanel {
 		}
 		
 		if(!windowExist){
-			PrivateChatWindow pcw = new PrivateChatWindow(sendersUsername);
+			PrivateChatWindow pcw = new PrivateChatWindow(sendersUsername, oos);
 			privateChatList.add(pcw);
 			pcw.updatePrivateConversation(pcw.getPrivateChatUsername() + ": " + message + "\n");
 			pcw.setVisible(true);
@@ -184,6 +184,7 @@ class PrivateChatWindow extends JFrame {
 	private JTextPane textpane;
 	private String name;
 	private String privateConversation = "";
+	private ObjectOutputStream oos;
 
 	/**
 	 * The chat window's constructor
@@ -191,7 +192,7 @@ class PrivateChatWindow extends JFrame {
 	 * @param username
 	 * 			the person who the user would like to chat with
 	 */
-	public PrivateChatWindow(String username) {
+	public PrivateChatWindow(String username, ObjectOutputStream oos) {
 		this.name = username;
 		this.setTitle("Private Chatting: " + this.name);
 		this.setSize(600, 400);
@@ -204,6 +205,7 @@ class PrivateChatWindow extends JFrame {
 		this.textarea = new ChatTextArea(textpane);
 		this.add(messageWindow, BorderLayout.CENTER);
 		this.add(textarea, BorderLayout.SOUTH);
+		this.oos = oos;
 	}
 
 	private void setListeners() {
@@ -223,10 +225,10 @@ class PrivateChatWindow extends JFrame {
 						Request request = new Request(RequestCode.SEND_PRIVATE_MESSAGE);
 						request.setUsername(name);
 						request.setMessage(message);
-						privateConversation = privateConversation + ChatTab.name + ": " + message + "\n";
+						privateConversation = privateConversation + name + ": " + message + "\n";
 						messageWindow.setText(privateConversation);
 						textarea.clearText();
-						ChatTab.oos.writeObject(request);
+						oos.writeObject(request);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

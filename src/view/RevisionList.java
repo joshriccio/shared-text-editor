@@ -183,6 +183,7 @@ public class RevisionList extends JPanel {
 				if (!RevisionList.this.listmodel.contains(doc))
 					RevisionList.this.listmodel.addElement(doc);
 			}
+//			RevisionList.this.listmodel.getElementAt(RevisionList.this.listmodel.size()-1).;
 		}
 	}
 

@@ -507,6 +507,18 @@ class DocumentHandler extends Thread {
 				outFile.close();
 
 				Server.savedFileList.createSave(doc, newDocName, doc.getDocumentOwner());
+				
+				Response response = new Response(ResponseCode.DOCUMENT_REFRESH, doc);
+				for (UserStreamModel user : Server.getNetworkAccounts()) {
+					try {
+						if (user.isOnline()) {
+							user.getOuputStream().writeObject(response);
+						}
+					} catch (IOException e) {
+						System.out.println("Error: Document failed to send.");
+						e.printStackTrace();
+					}
+				}
 			} catch (IOException e) {
 				System.out.println("Error: Couldn't create a new save file");
 				e.printStackTrace();

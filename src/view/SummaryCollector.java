@@ -5,7 +5,7 @@ package view;
  * interactions @author Joshua Riccio
  *
  */
-public class SummaryCollector {
+public class SummaryCollector{
 
 	private String username;
 	private boolean boldEvent;
