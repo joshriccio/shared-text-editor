@@ -240,7 +240,7 @@ public class LinkedListForSaves implements Serializable {
 			}
 			spinenode = spinenode.nextDocumentNode;
 		}
-		return "Document Not Found";
+		return null;
 	}
 
 }

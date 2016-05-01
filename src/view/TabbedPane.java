@@ -16,6 +16,8 @@ import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
+import model.EditableDocument;
+
 /**
  * TabbedPane extends JTabbedPane to add additional functionality, including
  * getting context regarding with tab is currently open
@@ -92,8 +94,9 @@ public class TabbedPane extends JTabbedPane {
 	 * 
 	 * @param docName the name of the new document
 	 */
-	public void addNewTab(String docName) {
+	public void addNewTab(String docName, EditableDocument doc) {
 		JTextPane textpane = new JTextPane();
+		textpane.setStyledDocument(doc.getDocument());
 		textpanemap.put(docName, textpane);
 		textpane.setPreferredSize(new Dimension(100, 100));
 		textpane.setBackground(Color.WHITE);
@@ -101,6 +104,7 @@ public class TabbedPane extends JTabbedPane {
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
 		this.addTab(docName, scrollpane);
+		this.setSelectedComponent(scrollpane);
 	}
 
 	/**

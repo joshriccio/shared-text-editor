@@ -439,8 +439,13 @@ class DocumentHandler extends Thread {
 
 	private void processDocument(String requestedDocumentName, String summary) {
 		System.out.println("Server: " + requestedDocumentName + " request being processed");
-		String mostRecentFile = "./" + Server.savedFileList.getOldSave(requestedDocumentName, summary);
+		String mostRecentFile = "";
+		if(summary != null)
+			mostRecentFile = "./" + Server.savedFileList.getOldSave(requestedDocumentName, summary);
+		else
+			mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
 		try {
+			System.out.println("Server: Opening " + mostRecentFile);
 			FileInputStream inFile = new FileInputStream(mostRecentFile);
 			ObjectInputStream inputStream = new ObjectInputStream(inFile);
 			EditableDocument document = (EditableDocument) inputStream.readObject();
