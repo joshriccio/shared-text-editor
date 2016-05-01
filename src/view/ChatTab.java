@@ -97,7 +97,7 @@ public class ChatTab extends JPanel {
 				if (event.getKeyCode() == KeyEvent.VK_ENTER) {
 					String message = "";
 					if (chatArea.getMessage().length() > 1) {
-						message = chatArea.getMessage().substring(0, chatArea.getMessage().length() - 2);
+						message = chatArea.getMessage().substring(0, chatArea.getMessage().length() - 1);
 					}
 					try {
 						Request request = new Request(RequestCode.SEND_MESSAGE);
