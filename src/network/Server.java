@@ -448,6 +448,7 @@ class DocumentHandler extends Thread {
 			Response response = new Response(ResponseCode.DOCUMENT_SENT, document);
 			output.writeObject(response);
 		} catch (Exception e1) {
+			System.out.println("Error: Document not found.");
 			e1.printStackTrace();
 		}
 	}

@@ -84,7 +84,7 @@ public class RevisionList extends JPanel {
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
-				if (event.getClickCount() == 2) {
+				if (event.getClickCount() == 2 && list.getSelectedValue() != null && !list.getSelectedValue().equals("") && tabs.getSelectedIndex() != -1) {
 					launchDocument(tabs.getTitleAt(tabs.getSelectedIndex()), list.getSelectedValue());
 				}
 			}

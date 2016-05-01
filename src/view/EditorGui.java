@@ -75,7 +75,8 @@ public class EditorGui extends JFrame {
 	private TabbedPane tabbedpane;
 	private ChatTab chat;
 	private SummaryCollector summary;
-	private int saveFrequency = 0;
+	private int charCount = 0;
+	private final int SAVE_FREQUENCY = 20;
 
 	/**
 	 * Constructor for when New Document is begun
@@ -156,6 +157,7 @@ public class EditorGui extends JFrame {
 		}
 		// initialize the file menu
 		setupMenuBar();
+		this.summary = new SummaryCollector(user.getUsername());
 		// initialize the chatTab
 		setupChatTab();
 		// initialize the JToolbar
@@ -195,15 +197,15 @@ public class EditorGui extends JFrame {
 		tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener(){
 			@Override
 			public void keyPressed(KeyEvent arg0) {
-				saveFrequency++;
+				charCount++;
 				
 			}
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				if(saveFrequency > 10){
+				if(charCount > SAVE_FREQUENCY){
 					backupDocument();
-					saveFrequency = 0;
+					charCount = 0;
 				}
 				
 			}
