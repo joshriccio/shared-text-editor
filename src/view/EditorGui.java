@@ -107,7 +107,7 @@ public class EditorGui extends JFrame {
 		serverListener.start();
 
 		// Set Frame
-		this.setTitle("Collaborative Editing");
+		this.setTitle("Collaborative Editing:" + user.getUsername());
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
@@ -155,7 +155,7 @@ public class EditorGui extends JFrame {
 		serverListener.start();
 
 		// Set Frame
-		this.setTitle("Collaborative Editing");
+		this.setTitle("Collaborative Editing:" + user.getUsername());
 		this.setSize(1350, 700);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setFont(new Font("Courier New", Font.ITALIC, 12));
@@ -244,9 +244,8 @@ public class EditorGui extends JFrame {
 		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
 		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
-		Color alert = new Color(240, 128, 128);
+		Color alert = new Color(255, 1, 1);
 		tabbedpane.addMouseMotionListener(new MouseMotionListener(){
-
 			@Override
 			public void mouseDragged(MouseEvent arg0) {
 				// TODO Auto-generated method stub
@@ -261,15 +260,6 @@ public class EditorGui extends JFrame {
 			}
 			
 		});
-		// chat.getMessageWindow().gettextpane().addCaretListener(new
-		// CaretListener() {
-		// @Override
-		// public void caretUpdate(CaretEvent event) {
-		// tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"),
-		// Color.CYAN);
-		// }
-		// });
-
 		tabbedpane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {

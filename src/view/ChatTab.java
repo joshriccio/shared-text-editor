@@ -37,7 +37,7 @@ public class ChatTab extends JPanel {
 	private JTextPane chatpane;
 	private String conversation;
 	private ArrayList<PrivateChatWindow> privateChatList;
-	String name;
+	 static String name;
 	private Socket socket;
 	boolean newMessage = false;
 
@@ -81,6 +81,7 @@ public class ChatTab extends JPanel {
 	 * 				The user who the one who started the chat wants to chat with
 	 */
 	public void sendPrivateMessage(String sendersUsername, String receiversUsername) {
+
 		PrivateChatWindow pcw = new PrivateChatWindow(receiversUsername, oos);
 		privateChatList.add(pcw);
 		pcw.setVisible(true);
@@ -125,16 +126,18 @@ public class ChatTab extends JPanel {
 	 * 			the message the sender whats to send
 	 */
 	public void updateConversation(String sendersUsername, String message) {
+	    System.out.println("Sender: " + sendersUsername);
 		conversation = conversation + sendersUsername + ": " + message + "\n";
 		messages.setText(conversation);
 		newMessage = true;
 	}
 	
 	private void updatePrivateConversation(String sendersUsername, String message) {
+	        System.out.println("Sender: " + sendersUsername);
 		boolean windowExist = false;
 		for(PrivateChatWindow pcw : privateChatList){
 			if(pcw.getPrivateChatUsername().equals(sendersUsername)){
-				pcw.updatePrivateConversation(pcw.getPrivateChatUsername() + ": " + message + "\n");
+				pcw.updatePrivateConversation(sendersUsername + ": " + message + "\n");
 				windowExist = true;
 				pcw.setVisible(true);
 			}
@@ -184,7 +187,7 @@ class PrivateChatWindow extends JFrame {
 	private ChatMessages messageWindow;
 	private ChatTextArea textarea;
 	private JTextPane textpane;
-	private String name;
+	private String username;
 	private String privateConversation = "";
 	private ObjectOutputStream oos;
 
@@ -195,8 +198,8 @@ class PrivateChatWindow extends JFrame {
 	 * 			the person who the user would like to chat with
 	 */
 	public PrivateChatWindow(String username, ObjectOutputStream oos) {
-		this.name = username;
-		this.setTitle("Private Chatting: " + this.name);
+		this.username = username;
+		this.setTitle("Private Chatting: " + this.username);
 		this.setSize(600, 400);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
@@ -225,9 +228,9 @@ class PrivateChatWindow extends JFrame {
 					}
 					try {
 						Request request = new Request(RequestCode.SEND_PRIVATE_MESSAGE);
-						request.setUsername(name);
+						request.setUsername(username);
 						request.setMessage(message);
-						privateConversation = privateConversation + name + ": " + message + "\n";
+						privateConversation = privateConversation + ChatTab.name + ": " + message + "\n";
 						messageWindow.setText(privateConversation);
 						textarea.clearText();
 						oos.writeObject(request);
@@ -276,6 +279,6 @@ class PrivateChatWindow extends JFrame {
 	 * 		the username of the user to receive message
 	 */
 	public String getPrivateChatUsername(){
-		return this.name;
+		return this.username;
 	}
 }
