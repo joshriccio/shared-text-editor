@@ -226,12 +226,12 @@ public class EditorGui extends JFrame {
 		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
 		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!");
-		chat.getMessageWindow().gettextpane().addCaretListener(new CaretListener() {
-			@Override
-			public void caretUpdate(CaretEvent event) {
-				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.CYAN);
-			}
-		});
+//		chat.getMessageWindow().gettextpane().addCaretListener(new CaretListener() {
+//			@Override
+//			public void caretUpdate(CaretEvent event) {
+//				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.CYAN);
+//			}
+//		});
 
 		tabbedpane.addChangeListener(new ChangeListener() {
 			@Override
