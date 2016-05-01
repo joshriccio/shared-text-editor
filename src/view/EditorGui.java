@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -236,6 +237,23 @@ public class EditorGui extends JFrame {
 		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
 		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!");
+		Color alert = new Color(240, 128, 128);
+		tabbedpane.addMouseMotionListener(new MouseMotionListener(){
+
+			@Override
+			public void mouseDragged(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent arg0) {
+				if(chat.newMessage){
+					tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), alert);
+				}
+			}
+			
+		});
 		// chat.getMessageWindow().gettextpane().addCaretListener(new
 		// CaretListener() {
 		// @Override
@@ -249,6 +267,7 @@ public class EditorGui extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.WHITE);
+				chat.newMessage = false;
 			}
 		});
 	}

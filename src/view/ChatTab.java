@@ -39,6 +39,7 @@ public class ChatTab extends JPanel {
 	private ArrayList<PrivateChatWindow> privateChatList;
 	String name;
 	private Socket socket;
+	boolean newMessage = false;
 
 	/**
 	 * The constructor to build a new chat tab @param username the clients
@@ -126,6 +127,7 @@ public class ChatTab extends JPanel {
 	public void updateConversation(String sendersUsername, String message) {
 		conversation = conversation + sendersUsername + ": " + message + "\n";
 		messages.setText(conversation);
+		newMessage = true;
 	}
 	
 	private void updatePrivateConversation(String sendersUsername, String message) {
