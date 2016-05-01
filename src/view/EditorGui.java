@@ -15,11 +15,15 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -27,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -48,6 +53,8 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.html.HTMLEditorKit;
+
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
@@ -331,8 +338,16 @@ public class EditorGui extends JFrame {
 
 		});
 		file.add(loadDocument);
-		JMenuItem refreshDocument = new JMenuItem("Refresh Document");
-		file.add(refreshDocument);
+		JMenuItem export = new JMenuItem("Export as HTML");
+		export.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				export(tabbedpane.getCurrentTextPane().getStyledDocument());		
+			}
+			
+		});
+		file.add(export);
 
 		// Set up the options menu
 		JMenu options = new JMenu("Options");
@@ -351,7 +366,6 @@ public class EditorGui extends JFrame {
 		MenuItemListener menuListener = new MenuItemListener();
 		createNewDocument.addActionListener(menuListener);
 		loadDocument.addActionListener(menuListener);
-		refreshDocument.addActionListener(menuListener);
 
 		// Add the options menu listeners
 		changePassword.addActionListener(menuListener);
@@ -714,6 +728,25 @@ public class EditorGui extends JFrame {
 				Style style = tabbedpane.getCurrentTextPane().addStyle("FontColor", null);
 				StyleConstants.setForeground(style, newColor);
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
+			}
+		}
+	}
+	
+	public void export(StyledDocument doc) {
+		if (doc.getLength() > 0) {
+			JFileChooser chooser = new JFileChooser();
+			chooser.setMultiSelectionEnabled(false);
+			int option = chooser.showSaveDialog(this);
+			if (option == JFileChooser.APPROVE_OPTION) {
+				HTMLEditorKit kit = new HTMLEditorKit();
+				BufferedOutputStream out;
+				try {
+					out = new BufferedOutputStream(new FileOutputStream(chooser.getSelectedFile().getAbsoluteFile()));
+					kit.write(out, doc, doc.getStartPosition().getOffset(), doc.getLength());
+				} catch (FileNotFoundException e) {
+				} catch (IOException e) {
+				} catch (BadLocationException e) {
+				}
 			}
 		}
 	}
