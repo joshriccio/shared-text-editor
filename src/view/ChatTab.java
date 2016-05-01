@@ -51,8 +51,8 @@ public class ChatTab extends JPanel {
 			oos = new ObjectOutputStream(socket.getOutputStream());
 			this.ois = new ObjectInputStream(socket.getInputStream());
 			Request request = new Request(RequestCode.START_CHAT_HANDLER);
-			this.name = username;
-			request.setUsername(this.name);
+			ChatTab.name = username;
+			request.setUsername(ChatTab.name);
 			oos.writeObject(request);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
