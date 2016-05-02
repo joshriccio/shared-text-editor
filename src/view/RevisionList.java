@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -77,32 +78,19 @@ public class RevisionList extends JPanel {
 		makeRequest();
 	}
 
+	/**
+	 * Assign listeners to various fields
+	 */
 	private void setListeners() {
 		refreshButton.addActionListener(new refreshButtonListener());
 
-		this.list.addMouseListener(new MouseListener() {
+		this.list.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
-				if (event.getClickCount() == 2) {
+				if (event.getClickCount() == 2 && list.getSelectedValue() != null && !list.getSelectedValue().equals("") && tabs.getSelectedIndex() != -1) {
 					launchDocument(tabs.getTitleAt(tabs.getSelectedIndex()), list.getSelectedValue());
 				}
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
 			}
 		});
 
@@ -119,6 +107,13 @@ public class RevisionList extends JPanel {
 		});
 	}
 
+	/**
+	 * Launches the document in the revision history list
+	 * @param documentname
+	 * 			The name of the document to open
+	 * @param summary
+	 * 			The summary of the document changes
+	 */
 	private void launchDocument(String documentname, String summary) {
 		try {
 			Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
@@ -130,6 +125,9 @@ public class RevisionList extends JPanel {
 		}
 	}
 
+	/**
+	 * Establish connection with server
+	 */
 	private void connect() {
 		try {
 			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
@@ -145,6 +143,9 @@ public class RevisionList extends JPanel {
 		}
 	}
 
+	/**
+	 * Request the revision history from the server
+	 */
 	private void makeRequest() {
 		Request request = new Request(RequestCode.GET_REVISION_HISTORY);
 		request.setDocumentName(tabs.getTitleAt(tabs.getSelectedIndex()));
@@ -155,6 +156,11 @@ public class RevisionList extends JPanel {
 		}
 	}
 
+	/**
+	 * A private class for handling responses from the server
+	 * @author Stevo
+	 *
+	 */
 	private class ServerListener extends Thread {
 		@Override
 		public void run() {
@@ -174,10 +180,20 @@ public class RevisionList extends JPanel {
 			}
 		}
 
+		/**
+		 * Open the selected document revision in a new tab
+		 * @param doc
+		 * 			Document to open in a new tab
+		 */
 		private void openDocumentInTab(EditableDocument doc) {
 			tabs.getCurrentTextPane().setStyledDocument(doc.getDocument());
 		}
 
+		/**
+		 * Update the list of document editors
+		 * @param response
+		 * 			response must contain the list of users who can edit document
+		 */
 		private void updateDocumentList(Response response) {
 			for (String doc : response.getEditorList()) {
 				if (!RevisionList.this.listmodel.contains(doc))
@@ -186,6 +202,11 @@ public class RevisionList extends JPanel {
 		}
 	}
 
+	/**
+	 * Update the list of revisions upon button click
+	 * @author Stevo
+	 *
+	 */
 	private class refreshButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {

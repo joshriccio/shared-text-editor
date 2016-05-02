@@ -10,6 +10,9 @@ import model.User;
  * in one object. The commands are listed under the RequestCode Enum
  * 
  * @author Joshua Riccio
+ * @author Stephen Connolly
+ * @author Cody Deeran
+ * @author Brittany Paielli
  *
  */
 public class Request implements Serializable {
@@ -34,51 +37,49 @@ public class Request implements Serializable {
 	}
 
 	/**
-	 * @return returns the request type
+	 * Gets the request type @return returns the request type
 	 */
 	public RequestCode getRequestType() {
 		return requestCode;
 	}
 
 	/**
-	 * @return returns the user
+	 * Gets the users name @return returns the user
 	 */
 	public User getUser() {
 		return user;
 	}
 
 	/**
-	 * @param user sets the user
+	 * Sets the users name @param user sets the user
 	 */
 	public void setUser(User user) {
 		this.user = user;
 	}
 
 	/**
-	 * @param doc sets the document
+	 * sets the document @param doc sets the document
 	 */
 	public void setDocument(EditableDocument doc) {
 		this.doc = doc;
 	}
 
 	/**
-	 * 
-	 * @return returns the current EditableDocument
+	 * Gets the document @return returns the current EditableDocument
 	 */
 	public EditableDocument getDocument() {
 		return doc;
 	}
 
 	/**
-	 * @param String sets the name of the requestedDoc
+	 * Sets the document name @param String sets the name of the requestedDoc
 	 */
 	public void setRequestedName(String name) {
 		this.documentName = name;
 	}
 
 	/**
-	 * 
-	 * @return returns the name of the requestedDoc
+	 * Gets the document name @return returns the name of the requestedDoc
 	 */
 	public String getRequestedName() {
 		return documentName;

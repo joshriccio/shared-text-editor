@@ -9,7 +9,12 @@ import model.EditableDocument;
 import model.User;
 
 /**
- * LinkedList to store saved documents
+ * LinkedList to store saved documents. This data structure is used to organize all the saved
+ * data in an adjacency list so that all data can be accessed linearly. 
+ * 
+ * @author Stephen Connolly
+ * @author Cody Deeran
+ * @author Brittany Paielli
  *
  */
 public class LinkedListForSaves implements Serializable {
@@ -75,7 +80,7 @@ public class LinkedListForSaves implements Serializable {
 	 * This will be the function call from the server to create a new save, pass
 	 * in the documentName and the fileName
 	 * 
-	 * @param document @param fileName
+	 * @param document the document to save @param fileName the file name of the document
 	 */
 	public void createSave(EditableDocument document, String fileName, User user) {
 		SpineNode temp = headOfList;
@@ -109,7 +114,7 @@ public class LinkedListForSaves implements Serializable {
 	/**
 	 * Access the fileName of the most recent save
 	 * 
-	 * @param documentName @return
+	 * @param documentName @return returns the most recent save
 	 */
 	public String getMostRecentSave(String documentName) {
 		SpineNode temp = headOfList;
@@ -123,8 +128,8 @@ public class LinkedListForSaves implements Serializable {
 	}
 
 	/**
-	 * 
-	 * @param editor @return
+	 * Returns all documents editable by the editor @param editor the editor to
+	 * query @return The list of all documents editable by the user
 	 */
 	public String[] getDocumentsByEditor(String editor) {
 		ArrayList<String> docs = new ArrayList<>();
@@ -141,8 +146,8 @@ public class LinkedListForSaves implements Serializable {
 	}
 
 	/**
-	 * 
-	 * @param owner @return
+	 * Returns a list of documents owned by the user @param owner the owner of
+	 * the document @return the list of documents owned by the user
 	 */
 	public String[] getDocumentsByOwner(String owner) {
 		ArrayList<String> docs = new ArrayList<>();
@@ -177,8 +182,10 @@ public class LinkedListForSaves implements Serializable {
 
 	/**
 	 * Adds a user as the owner of the named document, replaces previous
-	 * owner @param username the user name to add @param documentname the name
-	 * of the document @return true if succesful, false if failed
+	 * owner 
+	 * @param username the user name to add 
+	 * @param documentname the name of the document 
+	 * @return true if succesful, false if failed
 	 */
 	public boolean addUserAsOwner(String username, String documentname) {
 		SpineNode node = this.headOfList;
@@ -240,7 +247,7 @@ public class LinkedListForSaves implements Serializable {
 			}
 			spinenode = spinenode.nextDocumentNode;
 		}
-		return "Document Not Found";
+		return null;
 	}
 
 }
