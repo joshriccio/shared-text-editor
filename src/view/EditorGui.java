@@ -14,7 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+//import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -379,7 +379,11 @@ public class EditorGui extends JFrame {
 				if (newDocumentName != null) {
 					tabbedpane.addNewTab(newDocumentName,
 							new EditableDocument(new DefaultStyledDocument(), newDocumentName));
-
+					StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+					       Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+					       StyleConstants.setLeftIndent(style, 30);
+					       StyleConstants.setRightIndent(style, 100);
+					       doc.setParagraphAttributes(0, doc.getLength(), style, false);
 					tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
 						@Override
 						public void keyPressed(KeyEvent arg0) {
