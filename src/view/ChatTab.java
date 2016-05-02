@@ -66,7 +66,6 @@ public class ChatTab extends JPanel {
 		this.conversation = new String();
 		this.chatpane = new JTextPane();
 		this.chatArea = new ChatTextArea(chatpane);
-		this.chatArea.setPreferredSize(new Dimension(1000, 350));
 		this.add(messages, BorderLayout.CENTER);
 		this.add(chatArea, BorderLayout.SOUTH);
 		setListeners();
@@ -124,7 +123,9 @@ public class ChatTab extends JPanel {
 	 * 			the message the sender whats to send
 	 */
 	public void updateConversation(String sendersUsername, String message) {
-	    System.out.println("Sender: " + sendersUsername);
+	        String notificationMessage = sendersUsername + ": " + message;
+	        DesktopNotification desktopNotification = new DesktopNotification(notificationMessage);
+	        desktopNotification.setVisible(true);
 		conversation = conversation + sendersUsername + ": " + message + "\n";
 		messages.setText(conversation);
 		newMessage = true;

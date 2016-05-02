@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -240,7 +239,6 @@ public class EditorGui extends JFrame {
         chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
         final Color alert = new Color(255, 1, 1);
         tabbedpane.addMouseMotionListener(new MouseMotionAdapter() {
-        	
             @Override
             public void mouseMoved(MouseEvent arg0) {
                 if (chat.newMessage) {
