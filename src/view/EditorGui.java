@@ -245,21 +245,21 @@ public class EditorGui extends JFrame {
 		tabbedpane.addTab("Chat", chat);
 		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!");
 		Color alert = new Color(240, 128, 128);
-		tabbedpane.addMouseMotionListener(new MouseMotionListener(){
+		tabbedpane.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
 			public void mouseDragged(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mouseMoved(MouseEvent arg0) {
-				if(chat.newMessage){
+				if (chat.newMessage) {
 					tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), alert);
 				}
 			}
-			
+
 		});
 		// chat.getMessageWindow().gettextpane().addCaretListener(new
 		// CaretListener() {
@@ -339,13 +339,13 @@ public class EditorGui extends JFrame {
 		});
 		file.add(loadDocument);
 		JMenuItem export = new JMenuItem("Export as HTML");
-		export.addActionListener(new ActionListener(){
+		export.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				export(tabbedpane.getCurrentTextPane().getStyledDocument());		
+				export(tabbedpane.getCurrentTextPane().getStyledDocument());
 			}
-			
+
 		});
 		file.add(export);
 
@@ -379,30 +379,32 @@ public class EditorGui extends JFrame {
 			String text = ((JMenuItem) e.getSource()).getText();
 			if (text.equals("New Document")) {
 				String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
-				tabbedpane.addNewTab(newDocumentName,
-						new EditableDocument(new DefaultStyledDocument(), newDocumentName));
-				tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
-					@Override
-					public void keyPressed(KeyEvent arg0) {
-						charCount++;
+				if (newDocumentName != null) {
+					tabbedpane.addNewTab(newDocumentName,
+							new EditableDocument(new DefaultStyledDocument(), newDocumentName));
+					tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
+						@Override
+						public void keyPressed(KeyEvent arg0) {
+							charCount++;
 
-					}
-
-					@Override
-					public void keyReleased(KeyEvent arg0) {
-						if (charCount > SAVE_FREQUENCY) {
-							backupDocument();
-							charCount = 0;
 						}
 
-					}
+						@Override
+						public void keyReleased(KeyEvent arg0) {
+							if (charCount > SAVE_FREQUENCY) {
+								backupDocument();
+								charCount = 0;
+							}
 
-					@Override
-					public void keyTyped(KeyEvent arg0) {
+						}
 
-					}
+						@Override
+						public void keyTyped(KeyEvent arg0) {
 
-				});
+						}
+
+					});
+				}
 			} else if (text.equals("Change Password")) {
 
 				JLabel newPassword = new JLabel("New Password:");
@@ -731,7 +733,7 @@ public class EditorGui extends JFrame {
 			}
 		}
 	}
-	
+
 	public void export(StyledDocument doc) {
 		if (doc.getLength() > 0) {
 			JFileChooser chooser = new JFileChooser();
