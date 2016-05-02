@@ -171,7 +171,15 @@ public class EditorGui extends JFrame {
         // add listeners to buttons and drop boxes
         setButtonListeners();
         // Add Timer for saving every period: 5s
-
+        try {
+            Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+            socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+            documentOutput = new ObjectOutputStream(socket.getOutputStream());
+            documentOutput.writeObject(r);
+        } catch (IOException e1) {
+            System.out.println("Error: Couldn't start stream");
+            e1.printStackTrace();
+        }
         setUsersWindow();
     }
 
