@@ -17,16 +17,27 @@ import com.lowagie.text.pdf.DefaultFontMapper;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfWriter;
 
+/**
+ * This class manages the exportation of documents in various formats
+ * @author Stephen Connolly
+ *
+ */
 public class DocumentExporter {
 
 	int inch = Toolkit.getDefaultToolkit().getScreenResolution();
-
 	float pixelToPoint = (float) 72 / (float) inch;
-
+	
+	/**
+	 * Empty consructor
+	 */
 	public DocumentExporter() {
-
 	}
 
+	/**
+	 * Exports document as a PDF
+	 * @param ta the text
+	 * @param pdfName the name of the doc
+	 */
 	public void printToPDF(JTextPane ta, String pdfName) {
 		try {
 			ta.setBounds(0, 0, (int) convertToPixels(612 - 58), (int) convertToPixels(792 - 60));
@@ -72,6 +83,11 @@ public class DocumentExporter {
 		}
 	}
 
+	/**
+	 * Exports document to RTF
+	 * @param tPane the text area
+	 * @param RtfName the document name
+	 */
 	public void printToRTF(JTextPane tPane, String RtfName) {
 
 		try {
@@ -95,14 +111,30 @@ public class DocumentExporter {
 
 	}
 
+	/**
+	 * Converts to float
+	 * @param pixels the number of pixels
+	 * @return the float
+	 */
 	public float convertToPoints(int pixels) {
 		return (float) (pixels * pixelToPoint);
 	}
 
+
+	/**
+	 * Converts to pixels
+	 * @param points the number of floats
+	 * @return the float
+	 */
 	public float convertToPixels(int points) {
 		return (float) (points / pixelToPoint);
 	}
 
+	/**
+	 * Gets the editor document
+	 * @param ta the textarea
+	 * @return the pdf document
+	 */
 	protected Rectangle getVisibleEditorRect(JTextPane ta) {
 		Rectangle alloc = ta.getBounds();
 		if ((alloc.width > 0) && (alloc.height > 0)) {
@@ -117,6 +149,11 @@ public class DocumentExporter {
 		return null;
 	}
 
+	/**
+	 * Converts the document to an HTML format
+	 * @param tPane the text pane
+	 * @param HtmlName the document name
+	 */
 	public void printToHTML(JTextPane tPane, String HtmlName) {
 		try {
 			HTMLEditorKit rtfKit = new HTMLEditorKit();
