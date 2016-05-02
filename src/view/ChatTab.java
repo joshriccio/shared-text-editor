@@ -126,7 +126,9 @@ public class ChatTab extends JPanel {
 	 * 			the message the sender whats to send
 	 */
 	public void updateConversation(String sendersUsername, String message) {
-	    System.out.println("Sender: " + sendersUsername);
+	        String notificationMessage = sendersUsername + ": " + message;
+	        DesktopNotification desktopNotification = new DesktopNotification(notificationMessage);
+	        desktopNotification.setVisible(true);
 		conversation = conversation + sendersUsername + ": " + message + "\n";
 		messages.setText(conversation);
 		newMessage = true;
