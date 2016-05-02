@@ -35,7 +35,7 @@ public class DesktopNotification extends JFrame{
      */
     public DesktopNotification(String message){
         this.message = message;
-        this.getContentPane().setBackground(Color.ORANGE);
+        this.getContentPane().setBackground(Color.GREEN);
         this.setUndecorated(true);
         this.setSize(300,125);
         this.setAlwaysOnTop(true);
