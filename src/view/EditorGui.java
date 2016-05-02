@@ -55,6 +55,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import controller.DocumentExporter;
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
@@ -93,6 +94,7 @@ public class EditorGui extends JFrame {
     private int charCount = 0;
     private final int SAVE_FREQUENCY = 20;
     LoadDoc subgui;
+	private DocumentExporter documentExporter = new DocumentExporter();
 
     /**
      * Constructor for when New Document is begun
@@ -328,16 +330,6 @@ public class EditorGui extends JFrame {
 
         });
         file.add(loadDocument);
-        JMenuItem export = new JMenuItem("Export as HTML");
-        export.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                export(tabbedpane.getCurrentTextPane().getStyledDocument());
-            }
-
-        });
-        file.add(export);
 
         // Set up the options menu
         JMenu options = new JMenu("Options");
@@ -360,6 +352,39 @@ public class EditorGui extends JFrame {
         // Add the options menu listeners
         changePassword.addActionListener(menuListener);
         signout.addActionListener(menuListener);
+        
+		JMenu exportMenu = new JMenu("Export Document");
+
+		JMenuItem exportToPDFMenuItem = new JMenuItem("Export as PDF");
+		exportToPDFMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				documentExporter.printToPDF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+			}
+		});
+		exportMenu.add(exportToPDFMenuItem);
+
+		JMenuItem exportToRTFMenuItem = new JMenuItem("Export as RTF");
+		exportToRTFMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				documentExporter.printToRTF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+			}
+		});
+		exportMenu.add(exportToRTFMenuItem);
+
+		JMenuItem exportToHTMLMenuItem = new JMenuItem("Export as HTML");
+		exportToHTMLMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				documentExporter.printToHTML(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+			}
+		});
+		exportMenu.add(exportToHTMLMenuItem);
+		file.add(exportMenu);
 
     }
 
