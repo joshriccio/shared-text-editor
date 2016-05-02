@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 //import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -42,6 +44,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
@@ -65,7 +68,7 @@ public class EditorGui extends JFrame {
 	private static final long serialVersionUID = 5134447391484363694L;
 	// set up JtoolBar with buttons and drop downs
 	private JToolBar javaToolBar = new JToolBar();
-	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton;
+	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton, imageButton;
 	private JToggleButton bulletListButton;
 	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
 	@SuppressWarnings("rawtypes")
@@ -279,12 +282,14 @@ public class EditorGui extends JFrame {
         italicFontButton = new JButton(new ImageIcon(italicImage));
         underlineFontButton = new JButton(new ImageIcon(underlineImage));
         colorButton = new JButton(new ImageIcon(colorImage));
+        imageButton = new JButton("Add Image");
         bulletListButton = new JToggleButton(new ImageIcon(bulletImage));
         // add buttons to the tool bar
         javaToolBar.add(boldFontButton);
         javaToolBar.add(italicFontButton);
         javaToolBar.add(underlineFontButton);
         javaToolBar.add(bulletListButton);
+        javaToolBar.add(imageButton);
         javaToolBar.add(colorButton);
         // add drop down menus to the tool bar
         javaToolBar.addSeparator();
@@ -582,6 +587,7 @@ public class EditorGui extends JFrame {
 		sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
 		fontDropDown.addActionListener(new fontDropDownListener());
 		bulletListButton.addActionListener(new listListener());
+		imageButton.addActionListener(new imageButtonListener());
 		colorButton.addActionListener(new colorListener());
 	}
 
@@ -766,7 +772,32 @@ public class EditorGui extends JFrame {
 			}
 		}
 	}
+	private class imageButtonListener implements ActionListener {
 
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			JFileChooser chooser = new JFileChooser();
+			chooser.setFileFilter(new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif"));
+
+			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				try {		
+					BufferedImage image = ImageIO.read(chooser.getSelectedFile());
+					StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+					Style style = doc.addStyle("image", null);
+					StyleConstants.setIcon(style, new ImageIcon(image));
+					doc.insertString(doc.getLength(), "ignored text", style);
+
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+			}
+
+		}
+		
+	}
 	/**
 	 * Handles incoming responses from the server to the client @author Stevo
 	 *
