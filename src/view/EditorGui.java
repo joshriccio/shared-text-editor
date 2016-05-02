@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -15,13 +14,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -32,8 +26,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -55,8 +47,6 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.html.HTMLEditorKit;
-
 import controller.DocumentExporter;
 import model.EditableDocument;
 import model.ToolBar;
@@ -112,7 +102,7 @@ public class EditorGui extends JFrame {
 
         // Set Frame
         this.setTitle("Collaborative Editing:" + user.getUsername());
-        this.setSize(650, 550);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);   
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setFont(new Font("Courier New", Font.ITALIC, 12));
 
@@ -157,7 +147,7 @@ public class EditorGui extends JFrame {
 
         // Set Frame
         this.setTitle("Collaborative Editing:" + user.getUsername());
-        this.setSize(650, 550);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setFont(new Font("Courier New", Font.ITALIC, 12));
         sizeFontDropDown = new JComboBox(fontSizes);

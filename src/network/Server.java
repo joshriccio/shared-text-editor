@@ -578,7 +578,6 @@ class ChatHandler extends Thread {
 					sendMessageToClients(request.getMessage());
 				} else if (request.getRequestType() == RequestCode.SEND_PRIVATE_MESSAGE) {
 					sendPrivateMessageToClients(request.getMessage(), request.getUsername());
-					System.out.println("Server request.getUsername: " + request.getUsername());
 				}
 			} catch (ClassNotFoundException | IOException e) {
 				isRunning = false;
@@ -591,7 +590,6 @@ class ChatHandler extends Thread {
 			Response response = new Response(ResponseCode.NEW_PRIVATE_MESSAGE);
 			response.setMessage(message);
 			response.setUsername(this.username);
-			System.out.println("Server response.setUsername: " + this.username);
 			try {
 				if (Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).isOnline()) {
 					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).getChatOuputStream()
