@@ -2,19 +2,16 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import javax.swing.*;
-
 import model.EditableDocument;
 import model.User;
 import network.Request;
@@ -39,7 +36,6 @@ public class SubGUI extends JFrame {
 	private JButton loadDocumentButton = new JButton("Refresh Document List");
 	private Socket socket = null;
 	private JTabbedPane openDocumentSelectorPane = new JTabbedPane();
-
 	private JList<String> editorlist = new JList<String>();
 	private JList<String> ownerlist = new JList<String>();
 	private DefaultListModel<String> olistmodel = new DefaultListModel<String>();
@@ -112,7 +108,7 @@ public class SubGUI extends JFrame {
 	 * Assemble the layout of the SubGUI
 	 */
 	private void organizeLayout() {
-		this.setTitle("Welcome");
+		this.setTitle("Welcome: " + user.getUsername());
 		this.setSize(400, 450);
 		// Add tabbedPane
 		JScrollPane escrollpane;
