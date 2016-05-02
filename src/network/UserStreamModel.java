@@ -6,7 +6,11 @@ import model.User;
 
 /**
  * Wraps the user to their objectOutputStream with their current online
- * status. @author Joshua Riccio
+ * status. 
+ * @author Joshua Riccio
+ * @author Stephen Connolly
+ * @author Cody Deeran
+ * @author Brittany Paielli
  *
  */
 public class UserStreamModel {
@@ -55,14 +59,16 @@ public class UserStreamModel {
 	}
 
 	/**
-	 * Returns the users online status @return returns the users online status
+	 * Returns the users online status 
+	 * @return returns the users online status
 	 */
 	public boolean isOnline() {
 		return this.online;
 	}
 
 	/**
-	 * Sets the users chat stream @param oos the output stream for the users
+	 * Sets the users chat stream 
+	 * @param oos the output stream for the users
 	 * chat connection
 	 */
 	public void setChatObjectOutputStream(ObjectOutputStream oos) {
@@ -70,7 +76,8 @@ public class UserStreamModel {
 	}
 
 	/**
-	 * Gets the chatoos @return returns the users chatoos
+	 * Gets the chat object output stream 
+	 * @return returns the users chatoos
 	 */
 	public ObjectOutputStream getChatOuputStream() {
 		return chatoos;

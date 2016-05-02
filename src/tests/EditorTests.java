@@ -86,6 +86,7 @@ public class EditorTests {
 		list.createSave(doc1, "doc12345", usr);
 		list.createSave(doc2, "doc12345", usr);
 		list.createSave(doc3, "doc12345", usr);
+		list.createSave(doc3, "doc123456", usr1);
 		assertTrue(list.getMostRecentSave(doc1.getName()).equals("doc12345"));
 		String[] editables = list.getDocumentsByEditor("Josh");
 		assertEquals(editables[0],"doc3");
