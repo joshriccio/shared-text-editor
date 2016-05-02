@@ -7,6 +7,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+/**
+ * 
+ * The default chat area
+ * @author Stevo
+ *
+ */
 public class ChatTextArea extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -16,7 +22,8 @@ public class ChatTextArea extends JPanel {
 	/**
 	 * The constructor for the TextArea object
 	 * 
-	 * @param chat the JTextPane chat object
+	 * @param chat
+	 *            the JTextPane chat object
 	 */
 	public ChatTextArea(JTextPane chat) {
 		this.chat = chat;

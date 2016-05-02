@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
@@ -48,33 +49,19 @@ public class TabbedPane extends JTabbedPane {
 		Border borderOutline = BorderFactory.createLineBorder(Color.GRAY);
 		textpane.setBorder(borderOutline);
 		this.addTab(docName, scrollpane);
-		this.addMouseListener(new MouseListener() {
+		this.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e) && !TabbedPane.this.getName().equals("Chat")) {
 					TabbedPane.this.menu.show(e.getComponent(), e.getX(), e.getY());
 				} 
 			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-			}
-
 		});
 	}
 
+	/**
+	 * Makes tab closable with right click
+	 */
 	private void setupMenu() {
 		JMenuItem item = new JMenuItem("Close Tab");
 		item.addActionListener(new ActionListener() {

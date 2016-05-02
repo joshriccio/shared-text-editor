@@ -9,6 +9,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.DefaultCaret;
 
+/**
+ * This class handles the data for the Chat Tab in the editorGUI
+ * 
+ * @author Stevo
+ *
+ */
 public class ChatMessages extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -18,6 +24,7 @@ public class ChatMessages extends JPanel {
 	/**
 	 * The constructor for the messages window
 	 */
+
 	public ChatMessages() {
 		this.messages = new JTextPane();
 		this.messages.setEditable(false);
@@ -39,7 +46,13 @@ public class ChatMessages extends JPanel {
 		this.messages.setText(text);
 	}
 	
-	public JTextPane gettextpane(){
+	
+	/**
+	 * Return the messages in the chatTab
+	 * 
+	 * @return	JTextPane that contains all messages in chatTab
+	 */
+	public JTextPane getTextPane(){
 		return this.messages;
 	}
 }

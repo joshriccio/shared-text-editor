@@ -15,6 +15,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -137,9 +139,6 @@ public class EditorGui extends JFrame {
             System.out.println("Error: Couldn't start stream");
             e1.printStackTrace();
         }
-
-        // Timer timer = new Timer();
-        // timer.schedule(new BackupDocument(), 0, 5000);
         setUsersWindow();
     }
 
@@ -183,8 +182,6 @@ public class EditorGui extends JFrame {
         // add listeners to buttons and drop boxes
         setButtonListeners();
         // Add Timer for saving every period: 5s
-        // Timer timer = new Timer();
-        // timer.schedule(new BackupDocument(), 0, 5000);
 
         setUsersWindow();
     }
@@ -215,7 +212,7 @@ public class EditorGui extends JFrame {
         StyleConstants.setLeftIndent(style, 30);
         StyleConstants.setRightIndent(style, 100);
         doc.setParagraphAttributes(0, doc.getLength(), style, false);
-        tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
+        tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent arg0) {
                 charCount++;
@@ -230,12 +227,6 @@ public class EditorGui extends JFrame {
                 }
 
             }
-
-            @Override
-            public void keyTyped(KeyEvent arg0) {
-
-            }
-
         });
     }
 
@@ -247,13 +238,7 @@ public class EditorGui extends JFrame {
         tabbedpane.addTab("Chat", chat);
         chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
         final Color alert = new Color(255, 1, 1);
-        tabbedpane.addMouseMotionListener(new MouseMotionListener() {
-            @Override
-            public void mouseDragged(MouseEvent arg0) {
-                // TODO Auto-generated method stub
-
-            }
-
+        tabbedpane.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent arg0) {
                 if (chat.newMessage) {
@@ -313,6 +298,9 @@ public class EditorGui extends JFrame {
         this.add(javaToolBar, BorderLayout.NORTH);
     }
 
+    /**
+     * Assemble the layout of the menuBar
+     */
     private void setupMenuBar() {
 
         // Set up the file menu
@@ -389,6 +377,11 @@ public class EditorGui extends JFrame {
 
     }
 
+    /**
+     * Assigns listeners to buttons in menu
+     * @author Stevo
+     *
+     */
     private class MenuItemListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -447,6 +440,9 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Handles assignments and functions associated with UserWindow
+     */
     private void setUsersWindow() {
         DefaultListModel<String> listmodel = new DefaultListModel<String>();
         final JList<String> list = new JList<String>(listmodel);
@@ -546,6 +542,9 @@ public class EditorGui extends JFrame {
         this.addWindowListener(new LogOffListener(this.user.getUsername(), oos));
     }
 
+    /**
+     * Functionality for saving the current document
+     */
     private void backupDocument() {
 
         if (!EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex()).equals("Chat")
@@ -592,6 +591,11 @@ public class EditorGui extends JFrame {
         colorButton.addActionListener(new colorListener());
     }
 
+    /**
+     * Assigns listener for boldButton
+     * @author Stevo
+     *
+     */
     private class boldListener implements ActionListener {
         public void actionPerformed(ActionEvent arg0) {
             // text is selected
@@ -614,6 +618,11 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Assigns listener for italicButton
+     * @author Stevo
+     *
+     */
     private class italicListener implements ActionListener {
         public void actionPerformed(ActionEvent arg0) {
             // text is selected
@@ -635,6 +644,11 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Assigns listener for underlineButton
+     * @author Stevo
+     *
+     */
     private class underlineListener implements ActionListener {
         public void actionPerformed(ActionEvent arg0) {
             // text is selected
@@ -658,6 +672,11 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Assigns listener for fontSizeList
+     * @author Stevo
+     *
+     */
     private class sizeFontDropDownListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -675,6 +694,11 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Assigns listener for fontStyleList
+     * @author Stevo
+     *
+     */
     private class fontDropDownListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -691,6 +715,11 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Assigns listener for colorButton
+     * @author Stevo
+     *
+     */
     private class colorListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent arg0) {
@@ -708,25 +737,11 @@ public class EditorGui extends JFrame {
         }
     }
 
-    public void export(StyledDocument doc) {
-        if (doc.getLength() > 0) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setMultiSelectionEnabled(false);
-            int option = chooser.showSaveDialog(this);
-            if (option == JFileChooser.APPROVE_OPTION) {
-                HTMLEditorKit kit = new HTMLEditorKit();
-                BufferedOutputStream out;
-                try {
-                    out = new BufferedOutputStream(new FileOutputStream(chooser.getSelectedFile().getAbsoluteFile()));
-                    kit.write(out, doc, doc.getStartPosition().getOffset(), doc.getLength());
-                } catch (FileNotFoundException e) {
-                } catch (IOException e) {
-                } catch (BadLocationException e) {
-                }
-            }
-        }
-    }
-
+    /**
+     * Assigns listener for bulletPointButton
+     * @author Stevo
+     *
+     */
     private class listListener implements ActionListener {
 
         @Override
@@ -765,6 +780,11 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Handles incoming responses from the server to the client
+     * @author Stevo
+     *
+     */
     private class ServerListener extends Thread {
         @Override
         public void run() {
@@ -798,6 +818,10 @@ public class EditorGui extends JFrame {
             }
         }
 
+        /**
+         * When a document is updated from another client, update local document
+         * @param doc
+         */
         private void openDocumentInCurrentTab(EditableDocument doc) {
             if (EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex())
                             .equals(doc.getName())) {
@@ -808,6 +832,11 @@ public class EditorGui extends JFrame {
         }
     }
 
+    /**
+     * Create a new SubGUI to handle loading documents
+     * @author Stevo
+     *
+     */
     class LoadDoc extends JFrame {
 
         private static final long serialVersionUID = -7332966050995052441L;
@@ -835,6 +864,9 @@ public class EditorGui extends JFrame {
             assignListeners();
         }
 
+        /**
+         * Functionality for opening document into a tab
+         */
         public void loadDocuments() {
             try {
                 Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
@@ -860,8 +892,11 @@ public class EditorGui extends JFrame {
             }
         }
 
+        /**
+         * Assemble the layout for the loading GUI
+         */
         private void organizeLayout() {
-            this.setTitle("Welcome");
+            this.setTitle("Open Document");
             this.setSize(400, 450);
             // Add tabbedPane
             JScrollPane escrollpane;
@@ -892,18 +927,11 @@ public class EditorGui extends JFrame {
             this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         }
 
-        protected JComponent makeTextPanel(String text) {
-            JPanel panel = new JPanel(false);
-            JLabel filler = new JLabel(text);
-            filler.setHorizontalAlignment(JLabel.CENTER);
-            panel.setLayout(new GridLayout(1, 1));
-            panel.add(filler);
-            return panel;
-        }
-
+        /**
+         * Assign listeners to various components
+         */
         private void assignListeners() {
             loadDocumentButton.addActionListener(new LoadButtonListener());
-            // FIXME: ADD list listeners
             newDocumentButton.addActionListener(new CreateNewDocumentListener());
 
             ownerlist.addMouseListener(new MouseAdapter() {
@@ -928,7 +956,11 @@ public class EditorGui extends JFrame {
             });
         }
 
-        // Listener for testing saving and loading files
+        /**
+         * Listener for testing saving and loading files
+         * @author Stevo
+         *
+         */
         private class LoadButtonListener implements ActionListener {
 
             @Override
@@ -937,6 +969,11 @@ public class EditorGui extends JFrame {
             }
         }
 
+        /**
+         * Listener for newDocument button
+         * @author Stevo
+         *
+         */
         private class CreateNewDocumentListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -980,6 +1017,10 @@ public class EditorGui extends JFrame {
             }
         }
 
+        /**
+         * Functionality for loading selected document into a new tab
+         * @param documentName
+         */
         private void launchDocument(String documentName) {
             Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
             requestDocument.setRequestedName(documentName);
