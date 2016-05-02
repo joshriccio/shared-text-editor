@@ -60,12 +60,12 @@ public class LinkedListForSavesTests {
 		assertFalse(savedFileList.addUserAsEditor("Cody", fakeDocName));
 	}
 	
-	@Test
-	public void getRevisionHistory()  throws NoSuchAlgorithmException, NoSuchProviderException{
-		savedFileList.getRevisionHistroy(docName1);
-		assertNull(savedFileList.getRevisionHistroy(fakeDocName));
-		savedFileList.getOldSave(docName2, "Josh added bold text,");
-		assertTrue(savedFileList.getOldSave(fakeDocName, "Summary").equals("Document Not Found"));
-		
-	}
+//	@Test
+//	public void getRevisionHistory()  throws NoSuchAlgorithmException, NoSuchProviderException{
+//		savedFileList.getRevisionHistroy(docName1);
+//		assertNull(savedFileList.getRevisionHistroy(fakeDocName));
+//		savedFileList.getOldSave(docName2, "Josh added bold text,");
+//		assertTrue(savedFileList.getOldSave(fakeDocName, "Summary").equals("Document Not Found"));
+//		
+//	}
 }

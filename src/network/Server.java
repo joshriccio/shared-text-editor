@@ -31,9 +31,7 @@ import network.Server;
  */
 public class Server {
 	public static final String ADDRESS = "localhost";
-	// public static final String ADDRESS =
-	// "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production
-	// server
+	//public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for productionserver
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
 	static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
