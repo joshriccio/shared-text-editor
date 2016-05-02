@@ -13,15 +13,26 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+/**
+ * This class is designed to show notifications from ChatTab on the users desktop.
+ * @author Cody Deeran
+ * {@link} https://harryjoy.me/2011/07/01/create-new-message-notification-pop-up-in-java/
+ *
+ */
 public class DesktopNotification extends JFrame{
     /**
-     * 
+     *  Java wanted me to add this
      */
     private static final long serialVersionUID = 1L;
     private String message;
     private JButton closeButton;
     private JLabel notificationTitle, messageNotification;
     
+    /**
+     * Constructor for the DesktopNotification
+     * @param message
+     *             The message passed in from the ChatTab
+     */
     public DesktopNotification(String message){
         this.message = message;
         this.getContentPane().setBackground(Color.ORANGE);
