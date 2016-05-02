@@ -10,8 +10,10 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -55,6 +57,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import controller.DocumentExporter;
 import model.EditableDocument;
 import model.ToolBar;
 import model.User;
@@ -93,6 +96,7 @@ public class EditorGui extends JFrame {
     private int charCount = 0;
     private final int SAVE_FREQUENCY = 20;
     LoadDoc subgui;
+	private DocumentExporter documentExporter = new DocumentExporter();
 
     /**
      * Constructor for when New Document is begun
@@ -108,7 +112,7 @@ public class EditorGui extends JFrame {
 
         // Set Frame
         this.setTitle("Collaborative Editing:" + user.getUsername());
-        this.setSize(1350, 700);
+        this.setSize(650, 550);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setFont(new Font("Courier New", Font.ITALIC, 12));
 
@@ -156,7 +160,7 @@ public class EditorGui extends JFrame {
 
         // Set Frame
         this.setTitle("Collaborative Editing:" + user.getUsername());
-        this.setSize(1350, 700);
+        this.setSize(650, 550);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setFont(new Font("Courier New", Font.ITALIC, 12));
         sizeFontDropDown = new JComboBox(fontSizes);
@@ -244,7 +248,7 @@ public class EditorGui extends JFrame {
         chat = new ChatTab(user.getUsername());
         tabbedpane.addTab("Chat", chat);
         chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
-        Color alert = new Color(255, 1, 1);
+        final Color alert = new Color(255, 1, 1);
         tabbedpane.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent arg0) {
@@ -328,16 +332,6 @@ public class EditorGui extends JFrame {
 
         });
         file.add(loadDocument);
-        JMenuItem export = new JMenuItem("Export as HTML");
-        export.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                export(tabbedpane.getCurrentTextPane().getStyledDocument());
-            }
-
-        });
-        file.add(export);
 
         // Set up the options menu
         JMenu options = new JMenu("Options");
@@ -360,6 +354,40 @@ public class EditorGui extends JFrame {
         // Add the options menu listeners
         changePassword.addActionListener(menuListener);
         signout.addActionListener(menuListener);
+        
+		JMenu exportMenu = new JMenu("Export Document");
+
+		JMenuItem exportToPDFMenuItem = new JMenuItem("Export as PDF");
+		exportToPDFMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				documentExporter.printToPDF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+			}
+		});
+		exportMenu.add(exportToPDFMenuItem);
+
+		JMenuItem exportToRTFMenuItem = new JMenuItem("Export as RTF");
+		exportToRTFMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				documentExporter.printToRTF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+			}
+		});
+		exportMenu.add(exportToRTFMenuItem);
+
+		JMenuItem exportToHTMLMenuItem = new JMenuItem("Export as HTML");
+		exportToHTMLMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				documentExporter.printToHTML(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+			}
+		});
+		exportMenu.add(exportToHTMLMenuItem);
+		file.addSeparator();
+		file.add(exportMenu);
 
     }
 
@@ -371,7 +399,7 @@ public class EditorGui extends JFrame {
                 String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
                 tabbedpane.addNewTab(newDocumentName,
                                 new EditableDocument(new DefaultStyledDocument(), newDocumentName));
-                tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
+                tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent arg0) {
                         charCount++;
@@ -386,12 +414,6 @@ public class EditorGui extends JFrame {
                         }
 
                     }
-
-                    @Override
-                    public void keyTyped(KeyEvent arg0) {
-
-                    }
-
                 });
             } else if (text.equals("Change Password")) {
 
@@ -558,40 +580,6 @@ public class EditorGui extends JFrame {
 
     }
 
-    // private class BackupDocument extends TimerTask {
-    // public void run() {
-    // if
-    // (!EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex()).equals("Chat")
-    // && EditorGui.this.tabbedpane.getCurrentTextPane() != null) {
-    // try {
-    // Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-    // socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
-    // documentOutput = new ObjectOutputStream(socket.getOutputStream());
-    // documentOutput.writeObject(r);
-    // } catch (IOException e1) {
-    // System.out.println("Error: Couldn't start stream");
-    // e1.printStackTrace();
-    // }
-    //
-    // Request r = new Request(RequestCode.DOCUMENT_SENT);
-    // EditableDocument currentDoc = new
-    // EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
-    // user, tabbedpane.getName());
-    // if(currentDoc != null && summary != null)
-    // currentDoc.setSummary(summary.getSummary());
-    // r.setDocument(currentDoc);
-    // try {
-    // documentOutput.writeObject(r);
-    // documentOutput.flush();
-    // documentOutput.close();
-    // } catch (IOException e1) {
-    // System.out.println("Error: Couldn't send document to server");
-    // e1.printStackTrace();
-    // }
-    // }
-    // }
-    // }
-
     /**
      * This method adds listeners to the buttons and drop down boxes on the tool
      * bar
@@ -753,11 +741,7 @@ public class EditorGui extends JFrame {
                     e1.printStackTrace();
                 }
 
-                tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
-                    @Override
-                    public void keyPressed(KeyEvent arg0) {
-                    }
-
+                tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyReleased(KeyEvent arg0) {
                         if (arg0.getKeyCode() == KeyEvent.VK_ENTER && bulletListButton.isSelected()) {
@@ -777,10 +761,6 @@ public class EditorGui extends JFrame {
 
                         }
 
-                    }
-
-                    @Override
-                    public void keyTyped(KeyEvent arg0) {
                     }
                 });
             }
@@ -928,7 +908,7 @@ public class EditorGui extends JFrame {
             // FIXME: ADD list listeners
             newDocumentButton.addActionListener(new CreateNewDocumentListener());
 
-            ownerlist.addMouseListener(new MouseListener() {
+            ownerlist.addMouseListener(new MouseAdapter() {
 
                 @Override
                 public void mouseClicked(MouseEvent event) {
@@ -937,25 +917,9 @@ public class EditorGui extends JFrame {
                     }
                 }
 
-                @Override
-                public void mouseEntered(MouseEvent arg0) {
-                }
-
-                @Override
-                public void mouseExited(MouseEvent arg0) {
-                }
-
-                @Override
-                public void mousePressed(MouseEvent arg0) {
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent arg0) {
-                }
-
             });
 
-            editorlist.addMouseListener(new MouseListener() {
+            editorlist.addMouseListener(new MouseAdapter() {
 
                 @Override
                 public void mouseClicked(MouseEvent event) {
@@ -963,23 +927,6 @@ public class EditorGui extends JFrame {
                         launchDocument(editorlist.getSelectedValue());
                     }
                 }
-
-                @Override
-                public void mouseEntered(MouseEvent arg0) {
-                }
-
-                @Override
-                public void mouseExited(MouseEvent arg0) {
-                }
-
-                @Override
-                public void mousePressed(MouseEvent arg0) {
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent arg0) {
-                }
-
             });
         }
 
@@ -998,7 +945,7 @@ public class EditorGui extends JFrame {
                 String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
                 tabbedpane.addNewTab(newDocumentName,
                                 new EditableDocument(new DefaultStyledDocument(), newDocumentName));
-                tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
+                tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent arg0) {
                         charCount++;
@@ -1013,12 +960,6 @@ public class EditorGui extends JFrame {
                         }
 
                     }
-
-                    @Override
-                    public void keyTyped(KeyEvent arg0) {
-
-                    }
-
                 });
             }
         }
@@ -1056,7 +997,7 @@ public class EditorGui extends JFrame {
                 Response serverRequest = (Response) documentInput.readObject();
                 EditableDocument openedDocument = serverRequest.getEditableDocument();
                 tabbedpane.addNewTab(openedDocument.getName(), openedDocument);
-                tabbedpane.getCurrentTextPane().addKeyListener(new KeyListener() {
+                tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
                     @Override
                     public void keyPressed(KeyEvent arg0) {
                         charCount++;
@@ -1071,12 +1012,6 @@ public class EditorGui extends JFrame {
                         }
 
                     }
-
-                    @Override
-                    public void keyTyped(KeyEvent arg0) {
-
-                    }
-
                 });
             } catch (ClassNotFoundException e1) {
                 e1.printStackTrace();

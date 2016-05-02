@@ -26,12 +26,13 @@ import network.Server;
  * The Server class acts as the communication portal between clients. The Server
  * receives requests and generates responses.
  * 
- * @author Cody Deeran(cdeeran11@email.arizona.edu) 
- * @author Joshua Riccio
+ * @author Cody Deeran(cdeeran11@email.arizona.edu) @author Stephen
+ * Connolly @author Joshua Riccio @author Brittany Paielli
  */
 public class Server {
 	public static final String ADDRESS = "localhost";
-	//public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production
+	// public static final String ADDRESS =
+	// "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for production
 	// server
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
@@ -53,9 +54,8 @@ public class Server {
 	 * index location in networkAccounts. This gives an O(1) search time to find
 	 * users inside networkAccounts.
 	 * 
-	 * @param args
-	 *            Never used @throws Exception @throws
-	 *            NoSuchProviderException @throws NoSuchAlgorithmException
+	 * @param args Never used @throws Exception @throws
+	 * NoSuchProviderException @throws NoSuchAlgorithmException
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, Exception {
 		setDefaultAccounts();
@@ -229,7 +229,8 @@ public class Server {
 	}
 
 	/**
-	 * Returns the Network Accounts vector
+	 * Returns the Network Accounts vector. This is used to access the user's
+	 * stream and see if the user is online.
 	 * 
 	 * @return the Network Accounts vector
 	 */
@@ -253,7 +254,7 @@ public class Server {
  * ClientHandler generates a new thread to manage client activity
  * 
  * @author Josh Riccio (jriccio@email.arizona.edu) @author Cody Deeran
- *         (cdeeran11@email.arizona.edu)
+ * (cdeeran11@email.arizona.edu)
  */
 class ClientHandler extends Thread {
 	private ObjectInputStream input;
@@ -263,11 +264,11 @@ class ClientHandler extends Thread {
 	private String username;
 
 	/**
-	 * Constructor
+	 * The client handler constructor. This is used to give each client their
+	 * own thread
 	 * 
-	 * @param input
-	 *            the object input stream @param networkAccounts the list of
-	 *            uses connected
+	 * @param input the object input stream @param networkAccounts the list of
+	 * uses connected
 	 */
 	public ClientHandler(ObjectInputStream input, String username) {
 		this.input = input;
@@ -379,6 +380,9 @@ class ClientHandler extends Thread {
  * This class handles document processing in a new thread
  * 
  * @author Joshua Riccio
+ * @author Stephen Connolly
+ * @author Cody Deeran
+ * @author Brittany Paielli
  *
  */
 class DocumentHandler extends Thread {
@@ -389,8 +393,7 @@ class DocumentHandler extends Thread {
 	/**
 	 * Builds a new DocumentHandler
 	 * 
-	 * @param ois
-	 *            ObjectInputStream @param oos ObjectOutputStream
+	 * @param ois ObjectInputStream @param oos ObjectOutputStream
 	 */
 	public DocumentHandler(ObjectInputStream ois, ObjectOutputStream oos) {
 		this.input = ois;
@@ -440,7 +443,7 @@ class DocumentHandler extends Thread {
 	private void processDocument(String requestedDocumentName, String summary) {
 		System.out.println("Server: " + requestedDocumentName + " request being processed");
 		String mostRecentFile = "";
-		if(summary != null)
+		if (summary != null)
 			mostRecentFile = "./" + Server.savedFileList.getOldSave(requestedDocumentName, summary);
 		else
 			mostRecentFile = "./" + Server.savedFileList.getMostRecentSave(requestedDocumentName);
@@ -513,7 +516,7 @@ class DocumentHandler extends Thread {
 				outFile.close();
 
 				Server.savedFileList.createSave(doc, newDocName, doc.getDocumentOwner());
-				
+
 				Response response = new Response(ResponseCode.DOCUMENT_REFRESH, doc);
 				for (UserStreamModel user : Server.getNetworkAccounts()) {
 					try {
@@ -591,7 +594,8 @@ class ChatHandler extends Thread {
 			System.out.println("Server response.setUsername: " + this.username);
 			try {
 				if (Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).isOnline()) {
-					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).getChatOuputStream().writeObject(response);
+					Server.getNetworkAccounts().get(Server.getUsersToIndex().get(username)).getChatOuputStream()
+							.writeObject(response);
 				}
 			} catch (IOException e) {
 				System.out.println("Error: Message failed to send.");
@@ -600,6 +604,7 @@ class ChatHandler extends Thread {
 		}
 
 	}
+
 	private void sendMessageToClients(String message) {
 		synchronized (Server.getNetworkAccounts()) {
 			Response response = new Response(ResponseCode.NEW_MESSAGE);

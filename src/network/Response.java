@@ -11,6 +11,9 @@ import model.User;
  * The Response class uses the command design pattern to wrap multiple commands
  * in one object. The commands are listed under the ResponseCode Enum
  * 
+ * @author Stephen Connolly
+ * @author Cody Deeran
+ * @author Brittany Paielli
  * @author Joshua Riccio
  *
  */
@@ -27,7 +30,7 @@ public class Response implements Serializable {
 	private String username;
 
 	/**
-	 * Constructor
+	 * Constructor for response object
 	 * 
 	 * @param responseCode the code specifying specific response @param
 	 * message @param username
