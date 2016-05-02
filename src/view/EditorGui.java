@@ -189,6 +189,16 @@ public class EditorGui extends JFrame {
 	 * This method sets up the text area.
 	 */
 	public void setTextArea(String startingText) {
+		
+		try {
+			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+			documentOutput = new ObjectOutputStream(socket.getOutputStream());
+			documentOutput.writeObject(r);
+		} catch (IOException e1) {
+			System.out.println("Error: Couldn't start stream");
+			e1.printStackTrace();
+		}
 
 		this.subgui = new LoadDoc();
 		this.subgui.setVisible(false);
@@ -550,15 +560,6 @@ public class EditorGui extends JFrame {
 
 		if (!EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex()).equals("Chat")
 				&& EditorGui.this.tabbedpane.getCurrentTextPane() != null) {
-			try {
-				Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-				socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
-				documentOutput = new ObjectOutputStream(socket.getOutputStream());
-				documentOutput.writeObject(r);
-			} catch (IOException e1) {
-				System.out.println("Error: Couldn't start stream");
-				e1.printStackTrace();
-			}
 
 			Request r = new Request(RequestCode.DOCUMENT_SENT);
 			EditableDocument currentDoc = new EditableDocument(tabbedpane.getCurrentTextPane().getStyledDocument(),
@@ -568,8 +569,8 @@ public class EditorGui extends JFrame {
 			r.setDocument(currentDoc);
 			try {
 				documentOutput.writeObject(r);
-				documentOutput.flush();
-				documentOutput.close();
+//				documentOutput.flush();
+//				documentOutput.close();
 			} catch (IOException e1) {
 				System.out.println("Error: Couldn't send document to server");
 				e1.printStackTrace();
