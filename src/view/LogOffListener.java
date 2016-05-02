@@ -35,6 +35,9 @@ public class LogOffListener implements WindowListener {
 	public void windowActivated(WindowEvent e) {
 	}
 
+	/**
+	 * Actions upon window close, close connection with server
+	 */
 	@Override
 	public void windowClosed(WindowEvent e) {
 		if (!closedWindow) {
@@ -49,6 +52,9 @@ public class LogOffListener implements WindowListener {
 		}
 	}
 
+	/**
+	 * Actions upon window close, close connection with server
+	 */
 	@Override
 	public void windowClosing(WindowEvent e) {
 		if (!closedWindow) {

@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -77,6 +78,9 @@ public class SubGUI extends JFrame {
 		loadDocuments();
 	}
 
+	/**
+	 * Functionality for opening documents into a new tab
+	 */
 	private void loadDocuments() {
 		ObjectOutputStream documentOutput = null;
 		ObjectInputStream documentInput = null;
@@ -104,6 +108,9 @@ public class SubGUI extends JFrame {
 		}
 	}
 
+	/**
+	 * Assemble the layout of the SubGUI
+	 */
 	private void organizeLayout() {
 		this.setTitle("Welcome");
 		this.setSize(400, 450);
@@ -136,21 +143,15 @@ public class SubGUI extends JFrame {
 		this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
 	}
 
-	protected JComponent makeTextPanel(String text) {
-		JPanel panel = new JPanel(false);
-		JLabel filler = new JLabel(text);
-		filler.setHorizontalAlignment(JLabel.CENTER);
-		panel.setLayout(new GridLayout(1, 1));
-		panel.add(filler);
-		return panel;
-	}
 
+	/**
+	 * Assign listeners for various SubGUI aspects
+	 */
 	private void assignListeners() {
 		loadDocumentButton.addActionListener(new LoadButtonListener());
-		// FIXME: ADD list listeners
 		newDocumentButton.addActionListener(new CreateNewDocumentListener());
 
-		ownerlist.addMouseListener(new MouseListener() {
+		ownerlist.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
@@ -159,25 +160,9 @@ public class SubGUI extends JFrame {
 				}
 			}
 
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-			}
-
 		});
 
-		editorlist.addMouseListener(new MouseListener() {
+		editorlist.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
@@ -186,26 +171,14 @@ public class SubGUI extends JFrame {
 				}
 			}
 
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-			}
-
 		});
 	}
 
-	// Listener for testing saving and loading files
+	/** Listener for testing saving and loading files
+	 * 
+	 * @author Stevo
+	 *
+	 */
 	private class LoadButtonListener implements ActionListener {
 
 		@Override
@@ -214,6 +187,11 @@ public class SubGUI extends JFrame {
 		}
 	}
 
+	/**
+	 * Listener for NewDocument Button
+	 * @author Stevo
+	 *
+	 */
 	private class CreateNewDocumentListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -244,6 +222,11 @@ public class SubGUI extends JFrame {
 		}
 	}
 
+	/**
+	 * Adds a document tab to the EditorGUI
+	 * @param documentName
+	 * 				The name of the document to open
+	 */
 	private void launchDocument(String documentName) {
 		Request requestDocument = new Request(RequestCode.REQUEST_DOCUMENT);
 		requestDocument.setRequestedName(documentName);

@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import network.Server;
  * @author Cody Deeran
  *
  */
+
 public class ChatTab extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -87,11 +89,11 @@ public class ChatTab extends JPanel {
 		pcw.setVisible(true);
 	}
 
+	/**
+	 * Initializes the listener for enter key -- send message
+	 */
 	private void setListeners() {
-		this.chatpane.addKeyListener(new KeyListener() {
-			@Override
-			public void keyPressed(KeyEvent event) {
-			}
+		this.chatpane.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyReleased(KeyEvent event) {
@@ -111,10 +113,6 @@ public class ChatTab extends JPanel {
 					}
 				}
 			}
-
-			@Override
-			public void keyTyped(KeyEvent event) {
-			}
 		});
 	}
 
@@ -132,6 +130,13 @@ public class ChatTab extends JPanel {
 		newMessage = true;
 	}
 	
+	/**
+	 * Updates the private chat window
+	 * @param sendersUsername
+	 * 			The username of the sender to be appended with the message
+	 * @param message
+	 * 			the message the sender wants to write
+	 */
 	private void updatePrivateConversation(String sendersUsername, String message) {
 	        System.out.println("Sender: " + sendersUsername);
 		boolean windowExist = false;
@@ -151,10 +156,22 @@ public class ChatTab extends JPanel {
 		}
 	}
 	
+	
+	
+	/**
+	 * Get the messages in the conversation
+	 * @return	the messages in the conversation
+	 */
 	public ChatMessages getMessageWindow(){
 		return this.messages;
 	}
 
+	/**
+	 * A thread that ensures that the ChatTab is kept up to date
+	 * 
+	 * @author Stevo
+	 *
+	 */
 	private class ChatServerListener extends Thread {
 		@Override
 		public void run() {
@@ -204,7 +221,7 @@ class PrivateChatWindow extends JFrame {
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.messageWindow = new ChatMessages();
-		this.messageWindow.gettextpane().setPreferredSize(new Dimension(560, 250));
+		this.messageWindow.getTextPane().setPreferredSize(new Dimension(560, 250));
 		this.textpane = new JTextPane();
 		setListeners();
 		this.textarea = new ChatTextArea(textpane);
@@ -213,11 +230,11 @@ class PrivateChatWindow extends JFrame {
 		this.oos = oos;
 	}
 
+	/**
+	 * Initializes the listener for enter key -- send message
+	 */
 	private void setListeners() {
-		this.textpane.addKeyListener(new KeyListener() {
-			@Override
-			public void keyPressed(KeyEvent event) {
-			}
+		this.textpane.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyReleased(KeyEvent event) {
@@ -240,9 +257,6 @@ class PrivateChatWindow extends JFrame {
 				}
 			}
 
-			@Override
-			public void keyTyped(KeyEvent event) {
-			}
 		});
 	}
 	

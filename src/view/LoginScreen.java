@@ -48,6 +48,9 @@ public class LoginScreen extends JFrame {
 		setupWindow();
 	}
 
+	/**
+	 * Assembles the layout of the login screen, adds listeners to the various fields
+	 */
 	private void setupWindow() {
 		JPanel loginPanel;
 		final JButton loginButton = new JButton("Login");
