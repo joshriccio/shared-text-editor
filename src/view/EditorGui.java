@@ -236,23 +236,23 @@ public class EditorGui extends JFrame {
 		chat = new ChatTab(user.getUsername());
 		tabbedpane.addTab("Chat", chat);
 		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
-		final Color alert = new Color(255, 1, 1);
-		tabbedpane.addMouseMotionListener(new MouseMotionAdapter() {
-			@Override
-			public void mouseMoved(MouseEvent arg0) {
-				if (chat.newMessage) {
-					tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), alert);
-				}
-			}
-
-		});
-		tabbedpane.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.WHITE);
-				chat.newMessage = false;
-			}
-		});
+//		final Color alert = new Color(255, 1, 1);
+//		tabbedpane.addMouseMotionListener(new MouseMotionAdapter() {
+//			@Override
+//			public void mouseMoved(MouseEvent arg0) {
+//				if (chat.newMessage) {
+//					tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), alert);
+//				}
+//			}
+//
+//		});
+//		tabbedpane.addChangeListener(new ChangeListener() {
+//			@Override
+//			public void stateChanged(ChangeEvent arg0) {
+//				tabbedpane.setBackgroundAt(tabbedpane.indexOfTab("Chat"), Color.WHITE);
+//				chat.newMessage = false;
+//			}
+//		});
 	}
 
 	/**
