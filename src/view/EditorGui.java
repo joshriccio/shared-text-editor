@@ -246,7 +246,7 @@ public class EditorGui extends JFrame {
         chat = new ChatTab(user.getUsername());
         tabbedpane.addTab("Chat", chat);
         chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
-        Color alert = new Color(255, 1, 1);
+        final Color alert = new Color(255, 1, 1);
         tabbedpane.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent arg0) {
