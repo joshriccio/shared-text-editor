@@ -85,7 +85,7 @@ public class DesktopNotification extends JFrame{
             @Override
             public void run() {
                  try {
-                        Thread.sleep(5000); // time after which pop up will be disappeared.
+                        Thread.sleep(2000); // time after which pop up will be disappeared.
                         dispose();
                  } catch (InterruptedException e) {
                         e.printStackTrace();
