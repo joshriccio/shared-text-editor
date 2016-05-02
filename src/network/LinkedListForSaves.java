@@ -63,6 +63,9 @@ public class LinkedListForSaves implements Serializable {
 		private EdgeNode nextOlderSave;
 		private Timestamp timeSaved;
 
+		/**
+		 * Constructor for Edgenode
+		 */
 		private EdgeNode(String fileName, String summary) {
 			this.fileName = fileName;
 			this.summary = summary;

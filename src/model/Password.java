@@ -6,7 +6,7 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 
 /**
- * 
+ * The class converts the password into a hashed form
  * @author Brittany 
  *
  */
