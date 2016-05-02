@@ -29,8 +29,7 @@ public class ChatMessages extends JPanel {
 		this.messages = new JTextPane();
 		this.messages.setEditable(false);
 		this.messages.setBackground(Color.white);
-		this.messages.setPreferredSize(new Dimension(900, 400));
-		this.messages.setMaximumSize(new Dimension(900, 400));
+		 this.messages.setPreferredSize(new Dimension(1000, 350));
 		this.scrollpane = new JScrollPane(this.messages, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.add(this.scrollpane, BorderLayout.CENTER);
