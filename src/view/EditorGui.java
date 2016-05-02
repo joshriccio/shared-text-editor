@@ -110,7 +110,7 @@ public class EditorGui extends JFrame {
 
         // Set Frame
         this.setTitle("Collaborative Editing:" + user.getUsername());
-        this.setSize(1350, 700);
+        this.setSize(650, 550);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setFont(new Font("Courier New", Font.ITALIC, 12));
 
