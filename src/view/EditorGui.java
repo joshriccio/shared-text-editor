@@ -266,6 +266,7 @@ public class EditorGui extends JFrame {
         Image underlineImage = null;
         Image colorImage = null;
         Image bulletImage = null;
+        Image imageImage = null;
         // load images
         try {
             boldImage = ImageIO.read(new File("./images/boldImage.png"));
@@ -273,6 +274,7 @@ public class EditorGui extends JFrame {
             underlineImage = ImageIO.read(new File("./images/underlineImage.png"));
             colorImage = ImageIO.read(new File("./images/colorImage.png"));
             bulletImage = ImageIO.read(new File("./images/bulletImage.png"));
+            imageImage = ImageIO.read(new File("./images/imageImage.png"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error: Couldn't load an image on the toolbar");
@@ -282,7 +284,7 @@ public class EditorGui extends JFrame {
         italicFontButton = new JButton(new ImageIcon(italicImage));
         underlineFontButton = new JButton(new ImageIcon(underlineImage));
         colorButton = new JButton(new ImageIcon(colorImage));
-        imageButton = new JButton("Add Image");
+        imageButton = new JButton(new ImageIcon(imageImage));
         bulletListButton = new JToggleButton(new ImageIcon(bulletImage));
         // add buttons to the tool bar
         javaToolBar.add(boldFontButton);
