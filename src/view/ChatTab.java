@@ -64,7 +64,6 @@ public class ChatTab extends JPanel {
 		this.conversation = new String();
 		this.chatpane = new JTextPane();
 		this.chatArea = new ChatTextArea(chatpane);
-		this.chatArea.setPreferredSize(new Dimension(1000, 350));
 		this.add(messages, BorderLayout.CENTER);
 		this.add(chatArea, BorderLayout.SOUTH);
 		setListeners();
