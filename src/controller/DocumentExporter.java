@@ -24,21 +24,15 @@ import com.lowagie.text.pdf.PdfWriter;
  */
 public class DocumentExporter {
 
-	int inch = Toolkit.getDefaultToolkit().getScreenResolution();
-	float pixelToPoint = (float) 72 / (float) inch;
+	static int inch = Toolkit.getDefaultToolkit().getScreenResolution();
+	static float pixelToPoint = (float) 72 / (float) inch;
 	
-	/**
-	 * Empty consructor
-	 */
-	public DocumentExporter() {
-	}
-
 	/**
 	 * Exports document as a PDF
 	 * @param ta the text
 	 * @param pdfName the name of the doc
 	 */
-	public void printToPDF(JTextPane ta, String pdfName) {
+	public static void printToPDF(JTextPane ta, String pdfName) {
 		try {
 			ta.setBounds(0, 0, (int) convertToPixels(612 - 58), (int) convertToPixels(792 - 60));
 
@@ -88,7 +82,7 @@ public class DocumentExporter {
 	 * @param tPane the text area
 	 * @param RtfName the document name
 	 */
-	public void printToRTF(JTextPane tPane, String RtfName) {
+	public static void printToRTF(JTextPane tPane, String RtfName) {
 
 		try {
 			RTFEditorKit rtfKit = new RTFEditorKit();
@@ -105,7 +99,6 @@ public class DocumentExporter {
 			fos.write(rtfContent.toString().getBytes());
 			fos.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -116,7 +109,7 @@ public class DocumentExporter {
 	 * @param pixels the number of pixels
 	 * @return the float
 	 */
-	public float convertToPoints(int pixels) {
+	public static float convertToPoints(int pixels) {
 		return (float) (pixels * pixelToPoint);
 	}
 
@@ -126,7 +119,7 @@ public class DocumentExporter {
 	 * @param points the number of floats
 	 * @return the float
 	 */
-	public float convertToPixels(int points) {
+	public static float convertToPixels(int points) {
 		return (float) (points / pixelToPoint);
 	}
 
@@ -135,7 +128,7 @@ public class DocumentExporter {
 	 * @param ta the textarea
 	 * @return the pdf document
 	 */
-	protected Rectangle getVisibleEditorRect(JTextPane ta) {
+	public static Rectangle getVisibleEditorRect(JTextPane ta) {
 		Rectangle alloc = ta.getBounds();
 		if ((alloc.width > 0) && (alloc.height > 0)) {
 			alloc.x = alloc.y = 0;
@@ -154,7 +147,7 @@ public class DocumentExporter {
 	 * @param tPane the text pane
 	 * @param HtmlName the document name
 	 */
-	public void printToHTML(JTextPane tPane, String HtmlName) {
+	public static void printToHTML(JTextPane tPane, String HtmlName) {
 		try {
 			HTMLEditorKit rtfKit = new HTMLEditorKit();
 			final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -170,7 +163,6 @@ public class DocumentExporter {
 			fos.write(rtfContent.toString().getBytes());
 			fos.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

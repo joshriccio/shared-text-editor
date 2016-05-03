@@ -12,6 +12,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import javax.swing.*;
+import javax.swing.text.DefaultStyledDocument;
+
 import model.EditableDocument;
 import model.User;
 import network.Request;
@@ -25,7 +27,7 @@ import network.Response;
  * @author Stephen Connolly
  *
  */
-public class SubGUI extends JFrame {
+public class LoadDocumentWindow extends JFrame {
 
 	private static final long serialVersionUID = -7332966050995052441L;
 	private User user;
@@ -51,26 +53,12 @@ public class SubGUI extends JFrame {
 	 * @param user
 	 *            The user that has been authenticated
 	 */
-	public SubGUI(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
+	public LoadDocumentWindow(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
 		this.oos = objectOutputStream;
 		this.ois = objectInputStream;
 		this.user = user;
 		organizeLayout();
 		assignListeners();
-		loadDocuments();
-	}
-
-	/**
-	 * A constructor for testing
-	 * 
-	 * @param user
-	 *            the authenticated user
-	 */
-	public SubGUI(User user) {
-		this.user = user;
-		organizeLayout();
-		assignListeners();
-		this.setVisible(true);
 		loadDocuments();
 	}
 
@@ -110,7 +98,7 @@ public class SubGUI extends JFrame {
 	private void organizeLayout() {
 		this.setTitle("Welcome: " + user.getUsername());
 		this.setSize(400, 450);
-		// Add tabbedPane
+
 		JScrollPane escrollpane;
 		elistmodel = new DefaultListModel<String>();
 		editorlist = new JList<String>(elistmodel);
@@ -129,10 +117,8 @@ public class SubGUI extends JFrame {
 		openDocumentSelectorPane.addTab("Owned By You", oscrollpane);
 		openDocumentSelectorPane.addTab("Editable By You", escrollpane);
 
-		// editorList.addDemoDocuments();
 		this.add(openDocumentSelectorPane);
 		bottomPanel.add(loadDocumentButton);
-		// Add newDocButton
 		bottomPanel.add(newDocumentButton);
 		this.add(bottomPanel, BorderLayout.SOUTH);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -146,7 +132,6 @@ public class SubGUI extends JFrame {
 	private void assignListeners() {
 		loadDocumentButton.addActionListener(new LoadButtonListener());
 		newDocumentButton.addActionListener(new CreateNewDocumentListener());
-
 		ownerlist.addMouseListener(new MouseAdapter() {
 
 			@Override
@@ -192,7 +177,8 @@ public class SubGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
-			EditorGui editor = new EditorGui(oos, ois, user, newDocumentName);
+			EditableDocument doc = new EditableDocument(new DefaultStyledDocument(), user, newDocumentName);
+			EditorGui editor = new EditorGui(oos, ois, user, doc);
 			editor.setVisible(true);
 			dispose();
 		}

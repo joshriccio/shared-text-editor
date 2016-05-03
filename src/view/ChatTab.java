@@ -38,7 +38,7 @@ public class ChatTab extends JPanel {
 	private JTextPane chatpane;
 	private String conversation;
 	private ArrayList<PrivateChatWindow> privateChatList;
-	 static String name;
+	static String name;
 	private Socket socket;
 	boolean newMessage = false;
 
