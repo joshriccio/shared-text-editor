@@ -26,12 +26,14 @@ import network.Server;
  * The Server class acts as the communication portal between clients. The Server
  * receives requests and generates responses.
  * 
- * @author Cody Deeran(cdeeran11@email.arizona.edu) @author Stephen
- * Connolly @author Joshua Riccio @author Brittany Paielli
+ * @author Cody Deeran(cdeeran11@email.arizona.edu) 
+ * @author Stephen Connolly 
+ * @author Joshua Riccio 
+ * @author Brittany Paielli
  */
 public class Server {
-        public static final String ADDRESS = "localhost";
-        //public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for productionserver
+    public static final String ADDRESS = "localhost";
+    //public static final String ADDRESS = "ec2-52-39-48-243.us-west-2.compute.amazonaws.com"; //Used for productionserver
 	public static int PORT_NUMBER = 4001;
 	private static ServerSocket serverSocket;
 	static Vector<UserStreamModel> networkAccounts = new Vector<UserStreamModel>();
