@@ -12,6 +12,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import javax.swing.*;
+import javax.swing.text.DefaultStyledDocument;
+
 import model.EditableDocument;
 import model.User;
 import network.Request;
@@ -192,7 +194,8 @@ public class SubGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String newDocumentName = JOptionPane.showInputDialog("What would you like to name your new document?");
-			EditorGui editor = new EditorGui(oos, ois, user, newDocumentName);
+			EditableDocument doc = new EditableDocument(new DefaultStyledDocument(), user, newDocumentName);
+			EditorGui editor = new EditorGui(oos, ois, user, doc);
 			editor.setVisible(true);
 			dispose();
 		}
