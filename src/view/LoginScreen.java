@@ -175,7 +175,7 @@ public class LoginScreen extends JFrame {
 			Response serverResponse = (Response) ois.readObject();
 			if (serverResponse.getResponseID() == ResponseCode.LOGIN_SUCCESSFUL) {
 				this.user = serverResponse.getUser();
-				SubGUI greetingGUI = new SubGUI(this.oos, this.ois, this.user);
+				LoadDocumentWindow greetingGUI = new LoadDocumentWindow(this.oos, this.ois, this.user);
 				greetingGUI.setVisible(true);
 				dispose();
 			} else if (serverResponse.getResponseID() == ResponseCode.LOGIN_FAILED) {

@@ -27,7 +27,7 @@ import network.Response;
  * @author Stephen Connolly
  *
  */
-public class SubGUI extends JFrame {
+public class LoadDocumentWindow extends JFrame {
 
 	private static final long serialVersionUID = -7332966050995052441L;
 	private User user;
@@ -53,7 +53,7 @@ public class SubGUI extends JFrame {
 	 * @param user
 	 *            The user that has been authenticated
 	 */
-	public SubGUI(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
+	public LoadDocumentWindow(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream, User user) {
 		this.oos = objectOutputStream;
 		this.ois = objectInputStream;
 		this.user = user;
