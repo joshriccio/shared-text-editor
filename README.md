@@ -1,2 +1,0 @@
-# NetEdit
-Collaborative Editor
