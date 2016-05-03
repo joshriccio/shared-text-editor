@@ -74,32 +74,28 @@ public class EditorGui extends JFrame {
 	private JToolBar javaToolBar = new JToolBar();
 	private JButton boldFontButton, italicFontButton, underlineFontButton, colorButton, imageButton;
 	private JToggleButton bulletListButton;
-	private Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
-	@SuppressWarnings("rawtypes")
-	private JComboBox sizeFontDropDown, fontDropDown;
-	private String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+	private JComboBox<Integer> sizeFontDropDown;
+	private JComboBox<String> fontDropDown;
 	private Socket socket = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	private ObjectOutputStream documentOutput;
 	private User user;
 	private ToolBar myToolBar = new ToolBar();
-	private String docName;
 	private UsersOnline userslist;
 	private TabbedPane tabbedpane;
 	private ChatTab chat;
 	private SummaryCollector summary;
 	private int charCount = 0;
 	private final int SAVE_FREQUENCY = 20;
-	LoadDoc subgui;
-	private DocumentExporter documentExporter = new DocumentExporter();
+	private LoadDoc loadDocumentWindow;
 
     /**
      * Constructor 
      */
 
     public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
-        startServerListener(oos, ois, user, doc);
+        startServerListener(oos, ois);
         initializeEditor(user, doc);
         setupMenuBar();
         setupChatTab();
@@ -115,11 +111,9 @@ public class EditorGui extends JFrame {
 	 * @param user
 	 * @param doc
 	 */
-	private void startServerListener(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
+	private void startServerListener(ObjectOutputStream oos, ObjectInputStream ois) {
 		this.oos = oos;
         this.ois = ois;
-        this.user = user;
-        docName = doc.getName();
         ServerListener serverListener = new ServerListener();
         serverListener.start();
 	}
@@ -128,21 +122,23 @@ public class EditorGui extends JFrame {
 	 * @param user
 	 * @param doc
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initializeEditor(User user, EditableDocument doc) {
+        this.user = user;
         this.setTitle("Collaborative Editing:" + user.getUsername());
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setFont(new Font("Courier New", Font.ITALIC, 12));
-        sizeFontDropDown = new JComboBox(fontSizes);
-        fontDropDown = new JComboBox(fonts);
+    	Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
+    	String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        sizeFontDropDown = new JComboBox<Integer>(fontSizes);
+        fontDropDown = new JComboBox<String>(fonts);
 
         try {
             String temp = doc.getDocument().getText(0, doc.getDocument().getLength());
-            setTextArea(temp);
+            setTextArea(temp, doc);
             tabbedpane.getCurrentTextPane().setDocument(doc.getDocument());
         } catch (BadLocationException e) {
-            setTextArea("");
+            setTextArea("", doc);
             e.printStackTrace();
         }
         
@@ -167,10 +163,10 @@ public class EditorGui extends JFrame {
     /**
      * This method sets up the text area.
      */
-    public void setTextArea(String startingText) {
-        this.subgui = new LoadDoc();
-        this.subgui.setVisible(false);
-        tabbedpane = new TabbedPane(docName);
+    public void setTextArea(String startingText, EditableDocument document) {
+        this.loadDocumentWindow = new LoadDoc();
+        this.loadDocumentWindow.setVisible(false);
+        tabbedpane = new TabbedPane(document.getName());
         tabbedpane.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -270,8 +266,8 @@ public class EditorGui extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                subgui.setVisible(true);
-                subgui.loadDocuments();
+                loadDocumentWindow.setVisible(true);
+                loadDocumentWindow.loadDocuments();
             }
 
         });
@@ -302,7 +298,7 @@ public class EditorGui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				documentExporter.printToPDF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+				DocumentExporter.printToPDF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
 			}
 		});
 		exportMenu.add(exportToPDFMenuItem);
@@ -312,7 +308,7 @@ public class EditorGui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				documentExporter.printToRTF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+				DocumentExporter.printToRTF(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
 			}
 		});
 		exportMenu.add(exportToRTFMenuItem);
@@ -322,7 +318,7 @@ public class EditorGui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				documentExporter.printToHTML(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
+				DocumentExporter.printToHTML(tabbedpane.getCurrentTextPane(), tabbedpane.getName());
 			}
 		});
 		exportMenu.add(exportToHTMLMenuItem);
@@ -506,7 +502,6 @@ public class EditorGui extends JFrame {
 	 * Functionality for saving the current document
 	 */
 	private void backupDocument() {
-
 		if (!EditorGui.this.tabbedpane.getTitleAt(EditorGui.this.tabbedpane.getSelectedIndex()).equals("Chat")
 				&& EditorGui.this.tabbedpane.getCurrentTextPane() != null) {
 
@@ -523,7 +518,6 @@ public class EditorGui extends JFrame {
 				e1.printStackTrace();
 			}
 		}
-
 	}
 
 	/**
