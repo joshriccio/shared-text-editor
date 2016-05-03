@@ -1,7 +1,6 @@
 package network;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +60,6 @@ public class LinkedListForSaves implements Serializable {
 		private String fileName;
 		private String summary;
 		private EdgeNode nextOlderSave;
-		private Timestamp timeSaved;
 
 		/**
 		 * Constructor for Edgenode
@@ -109,7 +107,6 @@ public class LinkedListForSaves implements Serializable {
 
 	private void addNewSave(String fileName, SpineNode documentNode, String summary) {
 		EdgeNode newSaveNode = new EdgeNode(fileName, summary);
-		newSaveNode.timeSaved = new Timestamp(System.currentTimeMillis());
 		newSaveNode.nextOlderSave = documentNode.mostRecentSave;
 		documentNode.mostRecentSave = newSaveNode;
 	}
