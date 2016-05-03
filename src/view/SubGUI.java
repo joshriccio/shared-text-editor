@@ -63,20 +63,6 @@ public class SubGUI extends JFrame {
 	}
 
 	/**
-	 * A constructor for testing
-	 * 
-	 * @param user
-	 *            the authenticated user
-	 */
-	public SubGUI(User user) {
-		this.user = user;
-		organizeLayout();
-		assignListeners();
-		this.setVisible(true);
-		loadDocuments();
-	}
-
-	/**
 	 * Functionality for opening documents into a new tab
 	 */
 	private void loadDocuments() {
@@ -112,7 +98,7 @@ public class SubGUI extends JFrame {
 	private void organizeLayout() {
 		this.setTitle("Welcome: " + user.getUsername());
 		this.setSize(400, 450);
-		// Add tabbedPane
+
 		JScrollPane escrollpane;
 		elistmodel = new DefaultListModel<String>();
 		editorlist = new JList<String>(elistmodel);
@@ -131,10 +117,8 @@ public class SubGUI extends JFrame {
 		openDocumentSelectorPane.addTab("Owned By You", oscrollpane);
 		openDocumentSelectorPane.addTab("Editable By You", escrollpane);
 
-		// editorList.addDemoDocuments();
 		this.add(openDocumentSelectorPane);
 		bottomPanel.add(loadDocumentButton);
-		// Add newDocButton
 		bottomPanel.add(newDocumentButton);
 		this.add(bottomPanel, BorderLayout.SOUTH);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -148,7 +132,6 @@ public class SubGUI extends JFrame {
 	private void assignListeners() {
 		loadDocumentButton.addActionListener(new LoadButtonListener());
 		newDocumentButton.addActionListener(new CreateNewDocumentListener());
-
 		ownerlist.addMouseListener(new MouseAdapter() {
 
 			@Override

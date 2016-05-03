@@ -168,13 +168,10 @@ public class EditorGui extends JFrame {
      * This method sets up the text area.
      */
     public void setTextArea(String startingText) {
-
         this.subgui = new LoadDoc();
         this.subgui.setVisible(false);
-
         tabbedpane = new TabbedPane(docName);
         tabbedpane.addChangeListener(new ChangeListener() {
-
             @Override
             public void stateChanged(ChangeEvent e) {
                 myToolBar.setIsBold(false);
@@ -194,7 +191,6 @@ public class EditorGui extends JFrame {
             @Override
             public void keyPressed(KeyEvent arg0) {
                 charCount++;
-
             }
 
             @Override
