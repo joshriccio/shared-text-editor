@@ -510,6 +510,9 @@ public class EditorGui extends JFrame {
 	}
 
 	/**
+	 * @author Brittany
+	 * @author Stevo
+	 * 
 	 * This method adds listeners to the buttons and drop down boxes on the tool
 	 * bar
 	 */
