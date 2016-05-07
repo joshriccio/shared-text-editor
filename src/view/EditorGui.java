@@ -61,7 +61,7 @@ import network.ResponseCode;
 import network.Server;
 
 /**
- * The main editor interface 
+ * The main editor interface
  * 
  * @author Brittany Paielli
  * @author Josh Riccio
@@ -90,20 +90,20 @@ public class EditorGui extends JFrame {
 	private final int SAVE_FREQUENCY = 20;
 	private LoadDoc loadDocumentWindow;
 
-    /**
-     * Constructor 
-     */
+	/**
+	 * Constructor
+	 */
 
-    public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
-        startServerListener(oos, ois);
-        initializeEditor(user, doc);
-        setupMenuBar();
-        setupChatTab();
-        setJToolBar();
-        setButtonListeners();
-        startDocumentStream();
-        setUsersWindow();
-    }
+	public EditorGui(ObjectOutputStream oos, ObjectInputStream ois, User user, EditableDocument doc) {
+		startServerListener(oos, ois);
+		initializeEditor(user, doc);
+		setupMenuBar();
+		setupChatTab();
+		setJToolBar();
+		setButtonListeners();
+		startDocumentStream();
+		setUsersWindow();
+	}
 
 	/**
 	 * @param oos
@@ -113,9 +113,9 @@ public class EditorGui extends JFrame {
 	 */
 	private void startServerListener(ObjectOutputStream oos, ObjectInputStream ois) {
 		this.oos = oos;
-        this.ois = ois;
-        ServerListener serverListener = new ServerListener();
-        serverListener.start();
+		this.ois = ois;
+		ServerListener serverListener = new ServerListener();
+		serverListener.start();
 	}
 
 	/**
@@ -123,26 +123,26 @@ public class EditorGui extends JFrame {
 	 * @param doc
 	 */
 	private void initializeEditor(User user, EditableDocument doc) {
-        this.user = user;
-        this.setTitle("Collaborative Editing:" + user.getUsername());
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setFont(new Font("Courier New", Font.ITALIC, 12));
-    	Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
-    	String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        sizeFontDropDown = new JComboBox<Integer>(fontSizes);
-        fontDropDown = new JComboBox<String>(fonts);
+		this.user = user;
+		this.setTitle("Collaborative Editing:" + user.getUsername());
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setFont(new Font("Courier New", Font.ITALIC, 12));
+		Integer[] fontSizes = { 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 26, 48, 72 };
+		String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+		sizeFontDropDown = new JComboBox<Integer>(fontSizes);
+		fontDropDown = new JComboBox<String>(fonts);
 
-        try {
-            String temp = doc.getDocument().getText(0, doc.getDocument().getLength());
-            setTextArea(temp, doc);
-            tabbedpane.getCurrentTextPane().setDocument(doc.getDocument());
-        } catch (BadLocationException e) {
-            setTextArea("", doc);
-            e.printStackTrace();
-        }
-        
-        this.summary = new SummaryCollector(user.getUsername());
+		try {
+			String temp = doc.getDocument().getText(0, doc.getDocument().getLength());
+			setTextArea(temp, doc);
+			tabbedpane.getCurrentTextPane().setDocument(doc.getDocument());
+		} catch (BadLocationException e) {
+			setTextArea("", doc);
+			e.printStackTrace();
+		}
+
+		this.summary = new SummaryCollector(user.getUsername());
 	}
 
 	/**
@@ -150,147 +150,147 @@ public class EditorGui extends JFrame {
 	 */
 	private void startDocumentStream() {
 		try {
-            Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
-            socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
-            documentOutput = new ObjectOutputStream(socket.getOutputStream());
-            documentOutput.writeObject(r);
-        } catch (IOException e1) {
-            System.out.println("Error: Couldn't start stream");
-            e1.printStackTrace();
-        }
+			Request r = new Request(RequestCode.START_DOCUMENT_STREAM);
+			socket = new Socket(Server.ADDRESS, Server.PORT_NUMBER);
+			documentOutput = new ObjectOutputStream(socket.getOutputStream());
+			documentOutput.writeObject(r);
+		} catch (IOException e1) {
+			System.out.println("Error: Couldn't start stream");
+			e1.printStackTrace();
+		}
 	}
 
-    /**
-     * This method sets up the text area.
-     */
-    public void setTextArea(String startingText, EditableDocument document) {
-        this.loadDocumentWindow = new LoadDoc();
-        this.loadDocumentWindow.setVisible(false);
-        tabbedpane = new TabbedPane(document.getName());
-        tabbedpane.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                myToolBar.setIsBold(false);
-                myToolBar.setIsItalic(false);
-                myToolBar.setIsUnderlined(false);
-            }
+	/**
+	 * This method sets up the text area.
+	 */
+	public void setTextArea(String startingText, EditableDocument document) {
+		this.loadDocumentWindow = new LoadDoc();
+		this.loadDocumentWindow.setVisible(false);
+		tabbedpane = new TabbedPane(document.getName());
+		tabbedpane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				myToolBar.setIsBold(false);
+				myToolBar.setIsItalic(false);
+				myToolBar.setIsUnderlined(false);
+			}
 
-        });
-        this.add(tabbedpane);
+		});
+		this.add(tabbedpane);
 
-        StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
-        Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
-        StyleConstants.setLeftIndent(style, 30);
-        StyleConstants.setRightIndent(style, 100);
-        doc.setParagraphAttributes(0, doc.getLength(), style, false);
-        tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent arg0) {
-                charCount++;
-            }
+		StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
+		Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+		StyleConstants.setLeftIndent(style, 30);
+		StyleConstants.setRightIndent(style, 100);
+		doc.setParagraphAttributes(0, doc.getLength(), style, false);
+		tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				charCount++;
+			}
 
-            @Override
-            public void keyReleased(KeyEvent arg0) {
-                if (charCount > SAVE_FREQUENCY) {
-                    backupDocument();
-                    charCount = 0;
-                }
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				if (charCount > SAVE_FREQUENCY) {
+					backupDocument();
+					charCount = 0;
+				}
 
-            }
-        });
-    }
+			}
+		});
+	}
 
-    /**
-     * Sets up the new chat tab for the client
-     */
-    public void setupChatTab() {
-        chat = new ChatTab(user.getUsername());
-        tabbedpane.addTab("Chat", chat);
-        chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
-    }
+	/**
+	 * Sets up the new chat tab for the client
+	 */
+	public void setupChatTab() {
+		chat = new ChatTab(user.getUsername());
+		tabbedpane.addTab("Chat", chat);
+		chat.updateConversation("D-R-P-C TEAM", "Welcome to the Global Chat Room!" + "\n");
+	}
 
-    /**
-     * This method sets up the tool bar.
-     */
-    private void setJToolBar() {
-        Image boldImage = null;
-        Image italicImage = null;
-        Image underlineImage = null;
-        Image colorImage = null;
-        Image bulletImage = null;
-        Image imageImage = null;
+	/**
+	 * This method sets up the tool bar.
+	 */
+	private void setJToolBar() {
+		Image boldImage = null;
+		Image italicImage = null;
+		Image underlineImage = null;
+		Image colorImage = null;
+		Image bulletImage = null;
+		Image imageImage = null;
 
-        try {
-            boldImage = ImageIO.read(new File("./images/boldImage.png"));
-            italicImage = ImageIO.read(new File("./images/italicImage.png"));
-            underlineImage = ImageIO.read(new File("./images/underlineImage.png"));
-            colorImage = ImageIO.read(new File("./images/colorImage.png"));
-            bulletImage = ImageIO.read(new File("./images/bulletImage.png"));
-            imageImage = ImageIO.read(new File("./images/imageImage.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Error: Couldn't load an image on the toolbar");
-        }
+		try {
+			boldImage = ImageIO.read(new File("./images/boldImage.png"));
+			italicImage = ImageIO.read(new File("./images/italicImage.png"));
+			underlineImage = ImageIO.read(new File("./images/underlineImage.png"));
+			colorImage = ImageIO.read(new File("./images/colorImage.png"));
+			bulletImage = ImageIO.read(new File("./images/bulletImage.png"));
+			imageImage = ImageIO.read(new File("./images/imageImage.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Error: Couldn't load an image on the toolbar");
+		}
 
-        boldFontButton = new JButton(new ImageIcon(boldImage));
-        italicFontButton = new JButton(new ImageIcon(italicImage));
-        underlineFontButton = new JButton(new ImageIcon(underlineImage));
-        colorButton = new JButton(new ImageIcon(colorImage));
-        imageButton = new JButton(new ImageIcon(imageImage));
-        bulletListButton = new JToggleButton(new ImageIcon(bulletImage));
+		boldFontButton = new JButton(new ImageIcon(boldImage));
+		italicFontButton = new JButton(new ImageIcon(italicImage));
+		underlineFontButton = new JButton(new ImageIcon(underlineImage));
+		colorButton = new JButton(new ImageIcon(colorImage));
+		imageButton = new JButton(new ImageIcon(imageImage));
+		bulletListButton = new JToggleButton(new ImageIcon(bulletImage));
 
-        javaToolBar.add(boldFontButton);
-        javaToolBar.add(italicFontButton);
-        javaToolBar.add(underlineFontButton);
-        javaToolBar.add(bulletListButton);
-        javaToolBar.add(imageButton);
-        javaToolBar.add(colorButton);
+		javaToolBar.add(boldFontButton);
+		javaToolBar.add(italicFontButton);
+		javaToolBar.add(underlineFontButton);
+		javaToolBar.add(bulletListButton);
+		javaToolBar.add(imageButton);
+		javaToolBar.add(colorButton);
 
-        javaToolBar.addSeparator();
-        javaToolBar.add(sizeFontDropDown);
-        javaToolBar.addSeparator();
-        javaToolBar.add(fontDropDown);
+		javaToolBar.addSeparator();
+		javaToolBar.add(sizeFontDropDown);
+		javaToolBar.addSeparator();
+		javaToolBar.add(fontDropDown);
 
-        this.add(javaToolBar, BorderLayout.NORTH);
-    }
+		this.add(javaToolBar, BorderLayout.NORTH);
+	}
 
-    /**
-     * Assemble the layout of the menuBar
-     */
-    private void setupMenuBar() {
-        JMenu file = new JMenu("File");
-        JMenuItem createNewDocument = new JMenuItem("New Document");
-        file.add(createNewDocument);
-        JMenuItem loadDocument = new JMenuItem("Load Document");
-        loadDocument.addActionListener(new ActionListener() {
+	/**
+	 * Assemble the layout of the menuBar
+	 */
+	private void setupMenuBar() {
+		JMenu file = new JMenu("File");
+		JMenuItem createNewDocument = new JMenuItem("New Document");
+		file.add(createNewDocument);
+		JMenuItem loadDocument = new JMenuItem("Load Document");
+		loadDocument.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                loadDocumentWindow.setVisible(true);
-                loadDocumentWindow.loadDocuments();
-            }
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				loadDocumentWindow.setVisible(true);
+				loadDocumentWindow.loadDocuments();
+			}
 
-        });
-        file.add(loadDocument);
+		});
+		file.add(loadDocument);
 
-        JMenu options = new JMenu("Options");
-        JMenuItem changePassword = new JMenuItem("Change Password");
-        options.add(changePassword);
-        JMenuItem signout = new JMenuItem("Sign Out");
-        options.add(signout);
+		JMenu options = new JMenu("Options");
+		JMenuItem changePassword = new JMenuItem("Change Password");
+		options.add(changePassword);
+		JMenuItem signout = new JMenuItem("Sign Out");
+		options.add(signout);
 
-        JMenuBar menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
-        menuBar.add(file);
-        menuBar.add(options);
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		menuBar.add(file);
+		menuBar.add(options);
 
-        MenuItemListener menuListener = new MenuItemListener();
-        createNewDocument.addActionListener(menuListener);
-        loadDocument.addActionListener(menuListener);
+		MenuItemListener menuListener = new MenuItemListener();
+		createNewDocument.addActionListener(menuListener);
+		loadDocument.addActionListener(menuListener);
 
-        changePassword.addActionListener(menuListener);
-        signout.addActionListener(menuListener);
-        
+		changePassword.addActionListener(menuListener);
+		signout.addActionListener(menuListener);
+
 		JMenu exportMenu = new JMenu("Export Document");
 
 		JMenuItem exportToPDFMenuItem = new JMenuItem("Export as PDF");
@@ -341,10 +341,10 @@ public class EditorGui extends JFrame {
 					tabbedpane.addNewTab(newDocumentName,
 							new EditableDocument(new DefaultStyledDocument(), newDocumentName));
 					StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
-					       Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
-					       StyleConstants.setLeftIndent(style, 30);
-					       StyleConstants.setRightIndent(style, 100);
-					       doc.setParagraphAttributes(0, doc.getLength(), style, false);
+					Style style = tabbedpane.getCurrentTextPane().addStyle("Indent", null);
+					StyleConstants.setLeftIndent(style, 30);
+					StyleConstants.setRightIndent(style, 100);
+					doc.setParagraphAttributes(0, doc.getLength(), style, false);
 					tabbedpane.getCurrentTextPane().addKeyListener(new KeyAdapter() {
 						@Override
 						public void keyPressed(KeyEvent arg0) {
@@ -410,9 +410,7 @@ public class EditorGui extends JFrame {
 		JMenuItem messageItem = new JMenuItem("Send private message");
 		menu.add(messageItem);
 
-		editorItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
+		editorItem.addActionListener((e) -> {
 				ObjectOutputStream documentOutput = null;
 				ObjectInputStream documentInput = null;
 				Socket socket = null;
@@ -438,16 +436,12 @@ public class EditorGui extends JFrame {
 						System.out.println("Client: " + list.getSelectedValue() + " failed to be added as editor");
 					}
 					socket.close();
-				} catch (IOException | ClassNotFoundException e) {
-					e.printStackTrace();
+				} catch (IOException | ClassNotFoundException e1) {
+					e1.printStackTrace();
 				}
-			}
 		});
 
-		ownerItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+		ownerItem.addActionListener((e) ->{
 				ObjectOutputStream documentOutput = null;
 				ObjectInputStream documentInput = null;
 				Socket socket = null;
@@ -474,19 +468,14 @@ public class EditorGui extends JFrame {
 						System.out.println(list.getSelectedValue() + " failed to be added as owner");
 					}
 					socket.close();
-				} catch (IOException | ClassNotFoundException e) {
-					e.printStackTrace();
+				} catch (IOException | ClassNotFoundException e2) {
+					e2.printStackTrace();
 				}
-			}
 		});
 
-		messageItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
+		messageItem.addActionListener((e)->{
 				chat.sendPrivateMessage(user.getUsername(), list.getSelectedValue());
-			}
-
-		});
+			});
 
 		userslist = new UsersOnline(oos, listmodel, list, menu);
 		userslist.init();
@@ -525,22 +514,8 @@ public class EditorGui extends JFrame {
 	 * bar
 	 */
 	public void setButtonListeners() {
-		boldFontButton.addActionListener(new boldListener());
-		italicFontButton.addActionListener(new italicListener());
-		underlineFontButton.addActionListener(new underlineListener());
-		sizeFontDropDown.addActionListener(new sizeFontDropDownListener());
-		fontDropDown.addActionListener(new fontDropDownListener());
-		bulletListButton.addActionListener(new listListener());
-		imageButton.addActionListener(new imageButtonListener());
-		colorButton.addActionListener(new colorListener());
-	}
-
-	/**
-	 * Assigns listener for boldButton @author Stevo
-	 *
-	 */
-	private class boldListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
+		// Assigns listener for boldButton
+		boldFontButton.addActionListener((e) -> {
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
 				summary.boldEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
@@ -557,15 +532,10 @@ public class EditorGui extends JFrame {
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
-		}
-	}
+		});
 
-	/**
-	 * Assigns listener for italicButton @author Stevo
-	 *
-	 */
-	private class italicListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
+		// Assigns listener for italicButton
+		italicFontButton.addActionListener((e) -> {
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
 				summary.italicEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
@@ -581,15 +551,10 @@ public class EditorGui extends JFrame {
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
-		}
-	}
+		});
 
-	/**
-	 * Assigns listener for underlineButton @author Stevo
-	 *
-	 */
-	private class underlineListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
+		// Assigns listener for underlineButton
+		underlineFontButton.addActionListener((e) -> {
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
 				summary.underLineEvent();
 				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
@@ -607,16 +572,10 @@ public class EditorGui extends JFrame {
 				}
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
-		}
-	}
+		});
 
-	/**
-	 * Assigns listener for fontSizeList @author Stevo
-	 *
-	 */
-	private class sizeFontDropDownListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
+		// Assign listener for font size drop down menu
+		sizeFontDropDown.addActionListener((e) -> {
 			Integer fontSize = (int) sizeFontDropDown.getSelectedItem();
 
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
@@ -628,16 +587,10 @@ public class EditorGui extends JFrame {
 				StyleConstants.setFontSize(style, fontSize);
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
-		}
-	}
+		});
 
-	/**
-	 * Assigns listener for fontStyleList @author Stevo
-	 *
-	 */
-	private class fontDropDownListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
+		// Assigns listener for font style drop down menu
+		fontDropDown.addActionListener((e) -> {
 			String stringFont = (String) fontDropDown.getSelectedItem();
 			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
 				summary.fontEvent();
@@ -648,38 +601,10 @@ public class EditorGui extends JFrame {
 				StyleConstants.setFontFamily(style, stringFont);
 				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
 			}
-		}
-	}
+		});
 
-	/**
-	 * Assigns listener for colorButton @author Stevo
-	 *
-	 */
-	private class colorListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			JColorChooser colorChooser = new JColorChooser();
-			Color newColor = JColorChooser.showDialog(colorChooser, "Choose Text Color", Color.BLACK);
-			if (tabbedpane.getCurrentTextPane().getSelectedText() != null) {
-				summary.fontColorEvent();
-				int selectStart = tabbedpane.getCurrentTextPane().getSelectionStart();
-				int selectEnd = tabbedpane.getCurrentTextPane().getSelectionEnd();
-				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
-				Style style = tabbedpane.getCurrentTextPane().addStyle("FontColor", null);
-				StyleConstants.setForeground(style, newColor);
-				doc.setCharacterAttributes(selectStart, selectEnd - selectStart, style, false);
-			}
-		}
-	}
-
-	/**
-	 * Assigns listener for bulletPointButton @author Stevo
-	 *
-	 */
-	private class listListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		// Assigns listener for bullet list button
+		bulletListButton.addActionListener((e) -> {
 			if (bulletListButton.isSelected()) {
 				StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
 				try {
@@ -711,18 +636,15 @@ public class EditorGui extends JFrame {
 					}
 				});
 			}
-		}
-	}
-	private class imageButtonListener implements ActionListener {
+		});
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-
+		// Assigns listener to add image button
+		imageButton.addActionListener((e) -> {
 			JFileChooser chooser = new JFileChooser();
 			chooser.setFileFilter(new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif"));
 
 			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-				try {		
+				try {
 					BufferedImage image = ImageIO.read(chooser.getSelectedFile());
 					StyledDocument doc = (StyledDocument) tabbedpane.getCurrentTextPane().getStyledDocument();
 					Style style = doc.addStyle("image", null);
@@ -735,10 +657,9 @@ public class EditorGui extends JFrame {
 					e1.printStackTrace();
 				}
 			}
-
-		}
-		
+		});
 	}
+
 	/**
 	 * Handles incoming responses from the server to the client @author Stevo
 	 *
@@ -813,7 +734,8 @@ public class EditorGui extends JFrame {
 		/**
 		 * A constructor for testing
 		 * 
-		 * @param user the authenticated user
+		 * @param user
+		 *            the authenticated user
 		 */
 		public LoadDoc() {
 			organizeLayout();
@@ -874,7 +796,7 @@ public class EditorGui extends JFrame {
 
 			this.add(openDocumentSelectorPane);
 			bottomPanel.add(loadDocumentButton);
-			
+
 			bottomPanel.add(newDocumentButton);
 			this.add(bottomPanel, BorderLayout.SOUTH);
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -948,8 +870,8 @@ public class EditorGui extends JFrame {
 		/**
 		 * Updates the document list with all currently available documents
 		 * 
-		 * @param documentList The document list @param listmodel the default
-		 * list model
+		 * @param documentList
+		 *            The document list @param listmodel the default list model
 		 */
 		public void updateDocumentList(String[] documentList, DefaultListModel<String> listmodel) {
 			for (int i = 0; i < documentList.length; i++) {
